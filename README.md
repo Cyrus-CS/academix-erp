@@ -225,7 +225,7 @@ Bootstrap Icons
 ## Installation
 
 ```bash
-git clone https://github.com/your-username/laravel-school-erp.git
+git clone [https://github.com/Cyrus-CS/laravel-school-erp.git
 
 cd laravel-school-erp
 
