@@ -1,0 +1,259 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../storage/framework/views/*.php";
+@source "../**/*.blade.php";
+@source "../**/*.js";
+
+/* ── Police globale ── */
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── SortableJS : désactiver sélection texte pendant le drag ── */
+.sortable-drag,
+.sortable-ghost,
+[data-sortable] *,
+.drag-handle {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Désactiver TOUTE sélection sur le conteneur sortable et ses enfants */
+.sortable-container,
+.sortable-container * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+}
+
+/* Curseur grab sur les éléments draggables */
+[data-sortable] {
+    cursor: grab;
+}
+
+[data-sortable]:active {
+    cursor: grabbing;
+}
+
+.drag-handle {
+    cursor: grab;
+    touch-action: none;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Ghost element pendant le drag */
+.sortable-ghost {
+    opacity: 0.4;
+    background: theme('colors.blue.50') !important;
+    border: 2px dashed theme('colors.blue.300') !important;
+}
+
+/* Element en cours de drag */
+.sortable-drag {
+    opacity: 1 !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2) !important;
+    transform: rotate(1deg) scale(1.02) !important;
+    cursor: grabbing !important;
+}
+
+/* Dark mode ghost */
+.dark .sortable-ghost {
+    background: theme('colors.blue.950') !important;
+    border-color: theme('colors.blue.700') !important;
+}
+
+/* ── Supprimer outline/focus-visible sur les boutons dropdown ── */
+button:focus,
+button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* ── Scrollbar personnalisée ── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+
+/* ── Transition globale de thème ── */
+*,
+*::before,
+*::after {
+    transition-property: background-color, border-color, color;
+    transition-duration: 200ms;
+    transition-timing-function: ease;
+}
+
+/* ── Sidebar collapsed ── */
+.sidebar-collapsed .sidebar-label,
+.sidebar-collapsed .sidebar-section-title,
+.sidebar-collapsed .sidebar-badge,
+.sidebar-collapsed .sidebar-arrow,
+.sidebar-collapsed .sidebar-brand-text {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+}
+
+.sidebar-collapsed .sidebar-icon {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    background: #EFF6FF !important;
+    border: 2px dashed #93C5FD !important;
+}
+
+.sortable-chosen {
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.15) !important;
+    cursor: grabbing !important;
+}
+
+.sortable-drag {
+    opacity: 1 !important;
+    cursor: grabbing !important;
+    transform: scale(1.02) !important;
+}
+
+/* ── Toast animations ── */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}
+
+.toast-enter {
+    animation: slideInRight 0.35s ease forwards;
+}
+
+.toast-leave {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+/* ── Ripple effect ── */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    width: 10px;
+    height: 10px;
+    top: var(--y, 50%);
+    left: var(--x, 50%);
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.5s, opacity 0.5s;
+}
+
+.ripple:active::after {
+    transform: scale(30);
+    opacity: 0;
+    transition: 0s;
+}
+
+/* ── Brand gradient animé ── */
+.brand-gradient {
+    background: linear-gradient(135deg, #2563EB 0%, #10B981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ── Page loading bar ── */
+#page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #2563EB, #10B981, #06B6D4);
+    z-index: 9999;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* ── Card hover ── */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px -10px rgba(37, 99, 235, 0.15);
+}
+
+/* ── Focus ring ── */
+.focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* ── Toast progress bar ── */
+@keyframes toast-shrink {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
+/* ── Toast slide-in depuis la droite ── */
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(calc(100% + 20px)); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Toast slide-out vers la droite ── */
+@keyframes toast-out {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(calc(100% + 20px)); }
+}
+
+.toast-item {
+    position: relative;
+    animation: toast-in 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+.toast-item.toast-leaving {
+    animation: toast-out 0.3s ease-in forwards;
+}

@@ -1,0 +1,212 @@
+Comment fonctionne SortableJS ?
+1. Principe de base
+SortableJS transforme un conteneur HTML (liste, grille, tableau) en zone drag & drop. Il ne déplace pas réellement les éléments dans la base de données, il réorganise le DOM et t'expose un événement onEnd pour persister l'ordre.
+
+Utilisateur glisse une card
+        ↓
+SortableJS réorganise le DOM visuellement
+        ↓
+onEnd() se déclenche → tu récupères le nouvel ordre
+        ↓
+Tu envoies l'ordre au serveur via AJAX (optionnel)
+        ↓
+Tu sauvegardes une colonne `order` en BDD
+
+2. Initialisation minimale
+// SortableJS a besoin d'un CONTENEUR, pas des éléments enfants
+const container = document.getElementById('mon-conteneur');
+
+Sortable.create(container, {
+    // Les enfants DIRECTS du conteneur deviennent draggables
+    animation: 150, // durée animation en ms
+});
+
+<!-- Le conteneur -->
+<ul id="mon-conteneur">
+    <li data-id="1">Élément 1</li>  ← enfant direct = draggable
+    <li data-id="2">Élément 2</li>
+    <li data-id="3">Élément 3</li>
+</ul>
+
+3. Les options clés
+Sortable.create(container, {
+
+    // ── Visuel ───────────────────────────────────────────────
+    animation   : 200,
+    // Durée de l'animation de glissement en ms
+
+    ghostClass  : 'opacity-40',
+    // Classe CSS appliquée à l'élément FANTÔME
+    // (la place vide laissée pendant le drag)
+
+    chosenClass : 'ring-2 ring-blue-400 scale-105',
+    // Classe CSS sur l'élément EN COURS DE DRAG
+    // (celui que tu tiens dans la main)
+
+    dragClass   : 'shadow-2xl rotate-1',
+    // Classe CSS sur le clone visuel qui suit ta souris
+
+    // ── Comportement ─────────────────────────────────────────
+    handle      : '.drag-handle',
+    // Si défini : SEUL cet élément déclenche le drag
+    // Si absent  : tout l'élément est draggable
+
+    delay       : 80,
+    // Délai avant que le drag commence (évite les clics accidentels)
+
+    delayOnTouchOnly: true,
+    // Le délai s'applique uniquement sur mobile/tactile
+
+    disabled    : false,
+    // true = désactive le drag & drop
+
+    // ── Groupes (drag entre plusieurs listes) ────────────────
+    group: 'shared-group',
+    // Même nom = les éléments peuvent migrer entre conteneurs
+    // Utilisé dans timetables pour déplacer entre jours
+
+    group: {
+        name : 'slots',
+        pull : true,   // peut-on prendre des éléments de ce groupe ?
+        put  : true,   // peut-on déposer des éléments dans ce groupe ?
+    },
+
+    // ── Filtre ───────────────────────────────────────────────
+    filter      : '.no-drag',
+    // Les éléments avec cette classe ne sont PAS draggables
+
+    // ── Événements ───────────────────────────────────────────
+    onStart(evt) {
+        // Déclenché quand l'utilisateur commence à glisser
+        console.log('Début drag', evt.item);  // l'élément bougé
+        console.log('Index de départ', evt.oldIndex);
+    },
+
+    onEnd(evt) {
+        // Déclenché quand l'utilisateur lâche l'élément
+        console.log('Élément bougé :', evt.item);
+        console.log('Depuis index  :', evt.oldIndex);
+        console.log('Vers index    :', evt.newIndex);
+        console.log('Depuis liste  :', evt.from);  // conteneur source
+        console.log('Vers liste    :', evt.to);    // conteneur destination
+    },
+
+    onMove(evt) {
+        // Déclenché pendant le déplacement (à chaque position)
+        // return false = empêche le dépôt à cet endroit
+        const targetEl = evt.related; // l'élément sous le curseur
+        if (targetEl.classList.contains('locked')) return false;
+    },
+
+    onDragenter(evt) {
+        // L'élément entre dans un conteneur (groupes)
+        evt.to.classList.add('bg-blue-50'); // highlight drop zone
+    },
+
+    onDragleave(evt) {
+        // L'élément quitte un conteneur
+        evt.to.classList.remove('bg-blue-50');
+    },
+});
+
+4. Récupérer l'ordre après drag
+onEnd(evt) {
+    // Méthode 1 : lire les data-id de tous les enfants dans l'ordre actuel
+    const order = [...container.querySelectorAll('[data-id]')]
+        .map(el => el.dataset.id);
+    // → ['3', '1', '2']  (nouvel ordre après drag)
+
+    // Méthode 2 : utiliser evt.oldIndex / evt.newIndex
+    console.log(`Déplacé de la position ${evt.oldIndex} vers ${evt.newIndex}`);
+
+    // Méthode 3 : Sortable.toArray() si option 'dataIdAttr' définie
+    const ids = Sortable.get(container).toArray();
+}
+
+5. Persister l'ordre en base de données
+Côté JS — Envoyer l'ordre via AJAX
+onEnd(evt) {
+    const order = [...container.querySelectorAll('[data-id]')]
+        .map(el => el.dataset.id);
+
+    fetch('/students/reorder', {
+        method : 'POST',
+        headers: {
+            'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type' : 'application/json',
+        },
+        body: JSON.stringify({ order }),
+        // body envoyé : { "order": ["3", "1", "2"] }
+    })
+    .then(r => r.json())
+    .then(data => console.log('Sauvegardé', data))
+    .catch(err => console.error('Erreur', err));
+}
+
+6. Drag entre plusieurs conteneurs (cas timetables)
+C'est la fonctionnalité utilisée pour déplacer un créneau d'un jour à l'autre :
+// Même nom de groupe = migration autorisée entre conteneurs
+const options = {
+    group    : 'timetable-slots', // ← clé du partage
+    animation: 200,
+
+    onEnd(evt) {
+        const slotId = evt.item.dataset.id;   // ID du créneau bougé
+        const newDay = evt.to.dataset.day;    // jour de destination
+        // evt.from = colonne source
+        // evt.to   = colonne destination
+
+        // Persister le changement de jour
+        fetch(`/timetables/${slotId}/move`, {
+            method : 'PATCH',
+            headers: { 'X-CSRF-TOKEN': '...', 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ day_of_week: newDay }),
+        });
+    }
+};
+
+// Appliquer sur CHAQUE colonne jour
+document.querySelectorAll('.day-column').forEach(col => {
+    Sortable.create(col, options);
+});
+<!-- Colonne Lundi -->
+<div class="day-column" data-day="lundi">
+    <div class="schedule-slot" data-id="5">Maths 08h-09h</div>
+    <div class="schedule-slot" data-id="8">Physique 10h-11h</div>
+</div>
+
+<!-- Colonne Mardi -->
+<div class="day-column" data-day="mardi">
+    <div class="schedule-slot" data-id="3">Français 08h-09h</div>
+</div>
+
+7. Schéma récapitulatif
+┌─────────────────────────────────────────────────────────┐
+│                    CONTENEUR (ul, div, tbody)            │
+│                                                         │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
+│  │ Élément  │  │ Élément  │  │ Élément  │             │
+│  │ data-id=1│  │ data-id=2│  │ data-id=3│             │
+│  └──────────┘  └──────────┘  └──────────┘             │
+│                                                         │
+│  ghostClass ──→ place vide (opacity réduite)           │
+│  chosenClass ──→ élément tenu en main                  │
+│  dragClass ──→ clone visuel qui suit la souris         │
+└─────────────────────────────────────────────────────────┘
+
+Événements :
+onStart  → drag commence
+onMove   → pendant le déplacement (peut bloquer)
+onEnd    → drag terminé → récupérer l'ordre → AJAX → BDD
+
+8. Pourquoi data-id sur les enfants ?
+<!-- SortableJS utilise data-id pour identifier les éléments -->
+<div data-id="{{ $student->id }}">...</div>
+
+<!-- Récupérer l'ordre = lire les data-id dans l'ordre du DOM -->
+const order = [...container.querySelectorAll('[data-id]')]
+    .map(el => el.dataset.id);
+// → ['2', '3', '1'] = nouvel ordre à sauvegarder
+
+En résumé : SortableJS gère le visuel du drag, toi tu gères la persistance dans onEnd() 
+en lisant l'ordre des data-id et en l'envoyant à Laravel via fetch().

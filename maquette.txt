@@ -1,0 +1,10 @@
+Primary     : Blue 600    (#2563EB)
+Secondary   : Emerald 500 (#10B981)
+
+Success     : Emerald 500
+Warning     : Amber 500
+Danger      : Red 500
+Info        : Cyan 500
+
+Background  : Slate 50
+Text        : Slate 800
