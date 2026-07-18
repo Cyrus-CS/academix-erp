@@ -62,8 +62,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('timetables/{schedule}/move', [SchedulesController::class, 'move'])
             ->name('timetables.move');
             
-            Route::post('classes/reorder', [\App\Http\Controllers\Academic\ClassController::class, 'reorder'])
-                ->name('classes.reorder');
+        Route::post('classes/reorder', [\App\Http\Controllers\Academic\ClassController::class, 'reorder'])
+            ->name('classes.reorder');
+
+        Route::post('subjects/reorder', [\App\Http\Controllers\Academic\SubjectController::class, 'reorder'])
+            ->name('subjects.reorder');
+
+        Route::post('teachers/reorder', [\App\Http\Controllers\Teacher\TeacherController::class, 'reorder'])
+            ->name('teachers.reorder');
         
         Route::post('academic-years/reorder', [AcademicYearController::class, 'reorder'])
                 ->name('academic-years.reorder');
@@ -76,6 +82,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     */
     Route::middleware('role:Admin')->group(function () {
         Route::resource('students', StudentController::class);
+        Route::post('students/reorder', [StudentController::class, 'reorder'])
+            ->name('students.reorder');
         Route::resource('parents', \App\Http\Controllers\Student\ParentController::class);
     });
 

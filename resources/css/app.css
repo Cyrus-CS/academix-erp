@@ -12,6 +12,12 @@
     font-family: 'Inter', sans-serif;
 }
 
+/* Dark mode ghost */
+.dark .sortable-ghost {
+    background: theme('colors.blue.950') !important;
+    border-color: theme('colors.blue.700') !important;
+}
+
 /* ── SortableJS : désactiver sélection texte pendant le drag ── */
 .sortable-drag,
 .sortable-ghost,
@@ -19,6 +25,7 @@
 .drag-handle {
     user-select: none;
     -webkit-user-select: none;
+    transition  : opacity 200ms ease, color 200ms ease;
 }
 
 /* Désactiver TOUTE sélection sur le conteneur sortable et ses enfants */
@@ -47,25 +54,9 @@
     cursor: grabbing;
 }
 
-/* Ghost element pendant le drag */
-.sortable-ghost {
-    opacity: 0.4;
-    background: theme('colors.blue.50') !important;
-    border: 2px dashed theme('colors.blue.300') !important;
-}
-
-/* Element en cours de drag */
-.sortable-drag {
-    opacity: 1 !important;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2) !important;
-    transform: rotate(1deg) scale(1.02) !important;
-    cursor: grabbing !important;
-}
-
-/* Dark mode ghost */
-.dark .sortable-ghost {
-    background: theme('colors.blue.950') !important;
-    border-color: theme('colors.blue.700') !important;
+/* ── Indicateur de sauvegarde global ─────────────────────────── */
+#sortable-save-indicator {
+    pointer-events: none;
 }
 
 /* ── Supprimer outline/focus-visible sur les boutons dropdown ── */
@@ -103,6 +94,14 @@ button:focus-visible {
     transition-timing-function: ease;
 }
 
+/* Curseur global pendant le drag */
+body.is-dragging,
+body.is-dragging * {
+    cursor         : grabbing !important;
+    user-select    : none !important;
+    -webkit-user-select: none !important;
+}
+
 /* ── Sidebar collapsed ── */
 .sidebar-collapsed .sidebar-label,
 .sidebar-collapsed .sidebar-section-title,
@@ -120,21 +119,43 @@ button:focus-visible {
     margin-right: auto;
 }
 
-.sortable-ghost {
-    opacity: 0.4;
-    background: #EFF6FF !important;
-    border: 2px dashed #93C5FD !important;
+
+/* ── SortableJS grid ── */
+#subjects-grid [data-id] {
+    user-select        : none !important;
+    -webkit-user-select: none !important;
+    cursor             : grab;
+    touch-action       : none;
 }
 
+#subjects-grid [data-id]:active {
+    cursor: grabbing;
+}
+
+.sortable-ghost {
+    opacity    : 0.35;
+    background : #EFF6FF !important;
+    border     : 2px dashed #93C5FD !important;
+}
+
+.dark .sortable-ghost {
+    background : #1e3a5f !important;
+    border     : 2px dashed #3B82F6 !important;
+}
+
+/* Élément sélectionné (en cours de drag) */
 .sortable-chosen {
-    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.15) !important;
-    cursor: grabbing !important;
+    box-shadow     : 0 20px 40px rgba(37, 99, 235, 0.2) !important;
+    transform      : scale(1.02) rotate(0.5deg);
+    transition     : transform 150ms ease, box-shadow 150ms ease;
+    z-index        : 999;
 }
 
 .sortable-drag {
-    opacity: 1 !important;
-    cursor: grabbing !important;
-    transform: scale(1.02) !important;
+    opacity   : 1 !important;
+    cursor    : grabbing !important;
+    transform : scale(1.03) rotate(0.5deg) !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* ── Toast animations ── */

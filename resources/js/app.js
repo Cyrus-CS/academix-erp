@@ -1,53 +1,20 @@
 import './bootstrap';
-
-import { initTheme }     from './theme';
-import { initSidebar }   from './sidebar';
-import { Chart } from 'chart.js';
-import { initNotifications } from './notifications';
-import flatpickr from "flatpickr";
-import { initToasts } from './Toasts';
+import { initTheme }   from './theme';
+import { initSidebar }  from './sidebar';
+import { initToasts }  from './Toasts';
 import { initDropdowns, initMarkAllRead } from './dropdown';
-import { initSearch }    from './search';
+import { initSearch } from './search';
+import { initNotifications }  from './notifications';
+import { SchoolSortable } from './sortable/sortable-core';
+import Sortable from 'sortablejs';
+import flatpickr from 'flatpickr';
 
-// ── Config Sortable par défaut ────────────────────────────────────
-const SORTABLE_DEFAULTS = {
-    animation        : 200,
-    ghostClass       : 'sortable-ghost',
-    dragClass        : 'sortable-drag',
-    forceFallback    : false,
-    preventOnFilter  : true,
-    filter           : 'input, textarea, select, button, a',
-    // Désactiver la sélection texte pendant le drag
-    onStart() {
-        document.body.style.userSelect       = 'none';
-        document.body.style.webkitUserSelect = 'none';
-    },
-    onEnd() {
-        document.body.style.userSelect       = '';
-        document.body.style.webkitUserSelect = '';
-    },
-};
+// ── Rendre disponibles globalement ──────────────────────────────
+// → utilisable directement dans les <script> inline des vues Blade
+window.Sortable       = Sortable;
+window.SchoolSortable = SchoolSortable;
 
-// Rendre Sortable accessible globalement avec les defaults
-window.Sortable = Sortable;
-window.createSortable = (el, options = {}) => {
-    // Fusionner les callbacks onStart/onEnd
-    const merged = {
-        ...SORTABLE_DEFAULTS,
-        ...options,
-        onStart(evt) {
-            SORTABLE_DEFAULTS.onStart.call(this, evt);
-            options.onStart?.call(this, evt);
-        },
-        onEnd(evt) {
-            SORTABLE_DEFAULTS.onEnd.call(this, evt);
-            options.onEnd?.call(this, evt);
-        },
-    };
-    return Sortable.create(el, merged);
-};
-
-// ── Initialisation au chargement du DOM ──────────────────────────
+// ── Initialisation globale ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initSidebar();
@@ -56,8 +23,17 @@ document.addEventListener('DOMContentLoaded', () => {
     initToasts();
     initNotifications();
 
-    // Notifications : marquer comme lues
-    const meta = document.querySelector('meta[name="csrf-token"]');
-    initMarkAllRead('/notifications/mark-all-read', meta?.content ?? '');
-});
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    initMarkAllRead('/notifications/mark-all-read', csrfMeta?.content ?? '');
 
+    // ── Auto-init : toutes les grilles Sortable de la page ──────
+    // Cherche tous les éléments ayant data-sortable-url
+    // → permet d'initialiser sans écrire de JS dans chaque vue
+    document.querySelectorAll('[data-sortable-url]').forEach(grid => {
+        SchoolSortable.init({
+            gridId  : grid.id,
+            saveUrl : grid.dataset.sortableUrl,
+            handle  : grid.dataset.sortableHandle ?? null,
+        });
+    });
+});

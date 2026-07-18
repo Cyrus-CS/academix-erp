@@ -3,9 +3,11 @@ namespace App\Services;
 
 use App\Models\Student;
 use App\Models\User;
+use App\Notifications\StudentNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -37,6 +39,22 @@ class StudentService{
                 'address' => $data['address'],
             ]);
             $this->saveImage($student, $data);
+
+            // ── Notification création ──────────────────────────────
+            // Notifier tous les admins
+            $admins = auth()->user()->hasRole('Admin');
+
+            Notification::send(
+                $admins,
+                new StudentNotification($student, StudentNotification::TYPE_CREATED)
+            );
+
+            // Notifier les parents si déjà associés
+            $student->parents->each(function ($parent) use ($student) {
+                $parent->user->notify(
+                    new StudentNotification($student, StudentNotification::TYPE_CREATED)
+                );
+            });
             
         });
     }
@@ -68,6 +86,14 @@ class StudentService{
             ]);
 
             $this->saveImage($student, $data);
+
+            // ── Notification mise à jour ───────────────────────────
+            // Notifier les parents
+            $student->parents->each(function ($parent) use ($student) {
+                $parent->user->notify(
+                    new StudentNotification($student, StudentNotification::TYPE_UPDATED)
+                );
+            });
 
             return $student->fresh();
         });

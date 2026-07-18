@@ -87,7 +87,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl px-5 py-4
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl flex-shrink-0
+            <div class="w-12 h-12 rounded-2xl shrink-0
                         bg-{{ $card['color'] }}-100 dark:bg-{{ $card['color'] }}-900/30
                         flex items-center justify-center">
                 <i class="bi {{ $card['icon'] }}
@@ -135,7 +135,8 @@
             </a>
         </div>
         @else
-        <div id="classes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <x-sortable-grid resource="classes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
             @foreach($classes as $class)
             @php
             $occupancy = $class->occupancyRate();
@@ -154,14 +155,12 @@
             ];
             $gradient = $gradients[$loop->index % count($gradients)];
             @endphp
-            <div class="class-card group bg-white dark:bg-slate-800 rounded-2xl
-                        border border-slate-200 dark:border-slate-700 shadow-sm
-                        hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800
-                        transition-all duration-200 overflow-hidden
-                        cursor-grab active:cursor-grabbing" data-id="{{ $class->id }}">
+            <x-sortable-item :id="$class->id" class="class-card group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
+                dark:border-slate-700 shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800
+                transition-all duration-200 overflow-hidden cursor-grab active:cursor-grabbing">
 
                 {{-- Header coloré --}}
-                <div class="relative h-24 bg-gradient-to-br {{ $gradient }}
+                <div class="relative h-24 bg-linear-to-br {{ $gradient }}
                             flex items-center justify-center">
 
                     {{-- Déco --}}
@@ -306,8 +305,8 @@
                         <div class="flex -space-x-2 flex-1">
                             @foreach($class->teachers->take(4) as $teacher)
                             <div class="w-7 h-7 rounded-full ring-2 ring-white dark:ring-slate-800
-                                        bg-gradient-to-br from-emerald-400 to-teal-500
-                                        flex items-center justify-center flex-shrink-0"
+                                        bg-linear-to-br from-emerald-400 to-teal-500
+                                        flex items-center justify-center shrink-0"
                                 title="{{ $teacher->user->name ?? '' }}">
                                 @if($teacher->user->avatar)
                                 <img src="{{ asset('storage/' . $teacher->user->avatar) }}"
@@ -322,7 +321,7 @@
                             @if($class->teachers->count() > 4)
                             <div class="w-7 h-7 rounded-full ring-2 ring-white dark:ring-slate-800
                                         bg-slate-200 dark:bg-slate-600
-                                        flex items-center justify-center flex-shrink-0">
+                                        flex items-center justify-center shrink-0">
                                 <span class="text-[9px] font-bold text-slate-600 dark:text-slate-300">
                                     +{{ $class->teachers->count() - 4 }}
                                 </span>
@@ -354,9 +353,9 @@
                         </a>
                     </div>
                 </div>
-            </div>
+            </x-sortable-item>
             @endforeach
-        </div>
+        </x-sortable-grid>
         @endif
 
         {{-- Pagination --}}
@@ -651,52 +650,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedView = localStorage.getItem('classes-view') ?? 'grid';
     setView(savedView, false);
 
-    // ── SortableJS — Grille ────────────────────────────────────
-    const grid = document.getElementById('classes-grid');
-    if (grid && typeof Sortable !== 'undefined') {
-        Sortable.create(grid, {
-            animation: 200,
-            ghostClass: 'opacity-40',
-            chosenClass: 'ring-2 ring-blue-400 shadow-xl scale-[1.02]',
-            dragClass: 'shadow-2xl rotate-1',
-            delay: 80,
-            delayOnTouchOnly: true,
-            onEnd(evt) {
-                const order = [...grid.querySelectorAll('[data-id]')]
-                    .map(el => el.dataset.id);
-
-                fetch('{{ route("classes.reorder") }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                            .content,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        order
-                    }),
-                }).catch(() => {});
-
-                window.showToast({
-                    type: 'info',
-                    title: 'Ordre mis à jour',
-                    message: 'Les classes ont été réorganisées.',
-                    delay: 2500,
-                });
-            }
-        });
-    }
-
-    // ── SortableJS — Liste ─────────────────────────────────────
-    const list = document.getElementById('classes-list');
-    if (list && typeof Sortable !== 'undefined') {
-        window.createSortable(list, {
-            animation: 150,
-            ghostClass: 'opacity-40 bg-blue-50 dark:bg-blue-950/30',
-            delay: 80,
-            delayOnTouchOnly: true,
-        });
-    }
 });
 
 function setView(view, save = true) {

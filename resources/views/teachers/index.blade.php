@@ -269,7 +269,9 @@
             @endif
         </div>
         @else
-        <div id="teachers-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <x-sortable-grid resource="teachers"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
             @foreach($teachers as $teacher)
             @php
             $contract = $teacher->contracts->where('status', 'active')->first();
@@ -291,11 +293,9 @@
             ->unique()
             ->take(3);
             @endphp
-            <div class="teacher-card group bg-white dark:bg-slate-800 rounded-2xl
-                        border border-slate-200 dark:border-slate-700 shadow-sm
-                        hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800
-                        transition-all duration-200 overflow-hidden cursor-grab active:cursor-grabbing"
-                data-id="{{ $teacher->id }}">
+            <x-sortable-item :id="$teacher->id" class="teacher-card group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
+                dark:border-slate-700 shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800
+                transition-all duration-200 overflow-hidden cursor-grab active:cursor-grabbing">
 
                 {{-- Header --}}
                 <div class="relative h-20 bg-linear-to-br from-emerald-500 to-teal-600">
@@ -362,8 +362,8 @@
                     <div class="absolute -bottom-7 left-1/2 -translate-x-1/2">
                         <div class="w-14 h-14 rounded-2xl ring-4 ring-white dark:ring-slate-800
                                     overflow-hidden shadow-md">
-                            @if($teacher->user->avatar)
-                            <img src="{{ asset('storage/' . $teacher->user->avatar) }}" alt="{{ $teacher->user->name }}"
+                            @if($teacher->photo)
+                            <img src="{{ asset('storage/' . $teacher?->photo) }}" alt="{{ $teacher->user->name }}"
                                 class="w-full h-full object-cover" />
                             @else
                             <div class="w-full h-full bg-linear-to-br
@@ -487,10 +487,10 @@
                         </a>
                     </div>
                 </div>
-            </div>
-            @endforeach
-        </div>
-        @endif
+                </x-sortbale-item>
+                @endforeach
+                </x-sortbale-item>
+                @endif
     </div>
 
     {{-- ══════════════════════════════════════════════════════════
@@ -556,7 +556,7 @@
                                     <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0
                                                 ring-2 ring-slate-200 dark:ring-slate-700">
                                         @if($teacher->user->avatar)
-                                        <img src="{{ asset('storage/' . $teacher->user?->avatar) }}"
+                                        <img src="{{ asset('storage/' . $teacher?->photo) }}"
                                             alt="{{ $teacher->user->name }}" class="w-full h-full object-cover" />
                                         @else
                                         <div class="w-full h-full bg-linear-to-br
@@ -784,38 +784,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const savedView = localStorage.getItem('teachers-view') ?? 'grid';
     setView(savedView, false);
-
-    // SortableJS — Grille
-    const grid = document.getElementById('teachers-grid');
-    if (grid && typeof Sortable !== 'undefined') {
-        Sortable.create(grid, {
-            animation: 200,
-            ghostClass: 'opacity-40',
-            chosenClass: 'ring-2 ring-emerald-500 shadow-xl scale-[1.02]',
-            dragClass: 'shadow-2xl rotate-1',
-            delay: 80,
-            delayOnTouchOnly: true,
-            onEnd() {
-                window.showToast({
-                    type: 'info',
-                    title: 'Ordre mis à jour',
-                    message: 'Le classement a été réorganisé.',
-                    delay: 2500,
-                });
-            }
-        });
-    }
-
-    // SortableJS — Liste
-    const list = document.getElementById('teachers-list');
-    if (list && typeof Sortable !== 'undefined') {
-        Sortable.create(list, {
-            animation: 150,
-            ghostClass: 'opacity-40 bg-emerald-50 dark:bg-emerald-950/30',
-            delay: 80,
-            delayOnTouchOnly: true,
-        });
-    }
 });
 
 function setView(view, save = true) {

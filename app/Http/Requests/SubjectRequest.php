@@ -24,8 +24,6 @@ class SubjectRequest extends FormRequest
     public function rules(): array
     {
         $subject = $this->route('subject');
-        $code = $subject?->code;
-        $name = $subject?->name;
         
         return [
             'name'  => ['required', 'string', 'max:100', Rule::unique('subjects', 'name')->ignore($subject?->id)],

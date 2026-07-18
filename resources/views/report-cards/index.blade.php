@@ -105,7 +105,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-3.5
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex-shrink-0
+            <div class="w-10 h-10 rounded-xl shrink-0
                         bg-{{ $card['color'] }}-100 dark:bg-{{ $card['color'] }}-900/30
                         flex items-center justify-center">
                 <i class="bi {{ $card['icon'] }}
@@ -213,7 +213,7 @@
                     Filtrer
                 </button>
                 @if(request()->hasAny(['search', 'class_id', 'term_id']))
-                <a href="{{ route('report-cards.index') }}" class="flex-shrink-0 inline-flex items-center justify-center
+                <a href="{{ route('report-cards.index') }}" class="shrink-0 inline-flex items-center justify-center
                           w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700
                           text-slate-500 dark:text-slate-400
                           hover:bg-slate-100 dark:hover:bg-slate-700 transition-all" title="Réinitialiser">
@@ -255,7 +255,8 @@
             </a>
         </div>
         @else
-        <div id="report-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <x-sortable-grid resource="report-cards"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             @foreach($reportCards as $reportCard)
             @php
             $avg = $reportCard->average ?? 0;
@@ -269,27 +270,27 @@
             default => ['label' => 'Insuffisant','color' => 'red'],
             };
             @endphp
-            <div class="report-card-item group bg-white dark:bg-slate-800 rounded-2xl
+            <x-sortable-item :id="$reportCard->id" class="report-card-item group bg-white dark:bg-slate-800 rounded-2xl
                         border border-slate-200 dark:border-slate-700 shadow-sm
                         hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800
                         transition-all duration-200 overflow-hidden
-                        cursor-grab active:cursor-grabbing" data-id="{{ $reportCard->id }}">
+                        cursor-grab active:cursor-grabbing">
 
                 {{-- Header --}}
-                <div class="relative h-20 bg-gradient-to-br
+                <div class="relative h-20 bg-linear-to-br
                             from-slate-700 to-slate-900
                             dark:from-slate-800 dark:to-slate-950
                             flex items-center px-4 gap-3">
 
                     {{-- Avatar élève --}}
-                    <div class="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0
+                    <div class="w-12 h-12 rounded-2xl overflow-hidden shrink-0
                                 ring-2 ring-white/20 shadow-md">
                         @if($reportCard->student->photo_path)
                         <img src="{{ asset('storage/' . $reportCard->student->photo_path) }}"
                             class="w-full h-full object-cover" alt="{{ $reportCard->student->user->name }}" />
                         @else
                         <div class="w-full h-full
-                                        bg-gradient-to-br from-blue-500 to-indigo-600
+                                        bg-linear-to-br from-blue-500 to-indigo-600
                                         flex items-center justify-center">
                             <span class="text-lg font-black text-white">
                                 {{ strtoupper(substr($reportCard->student->user->name ?? 'E', 0, 1)) }}
@@ -308,7 +309,7 @@
                     </div>
 
                     {{-- Menu --}}
-                    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button data-dropdown="rc-actions-{{ $reportCard->id }}" class="w-7 h-7 rounded-lg bg-white/10 backdrop-blur-sm
                                        flex items-center justify-center text-white
                                        hover:bg-white/20 transition-colors focus:outline-none">
@@ -434,9 +435,9 @@
                         </a>
                     </div>
                 </div>
-            </div>
+            </x-sortable-item>
             @endforeach
-        </div>
+        </x-sortable-grid>
         @endif
     </div>
 
@@ -505,7 +506,7 @@
                             {{-- Élève --}}
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0
+                                    <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0
                                                 ring-2 ring-slate-200 dark:ring-slate-700">
                                         @if($reportCard->student->photo_path)
                                         <img src="{{ asset('storage/' . $reportCard->student->photo_path) }}"
@@ -513,7 +514,7 @@
                                             alt="{{ $reportCard->student->user->name }}" />
                                         @else
                                         <div class="w-full h-full
-                                                        bg-gradient-to-br from-blue-400 to-indigo-500
+                                                        bg-linear-to-br from-blue-400 to-indigo-500
                                                         flex items-center justify-center">
                                             <span class="text-xs font-bold text-white">
                                                 {{ strtoupper(substr($reportCard->student->user->name ?? 'E', 0, 1)) }}
@@ -524,7 +525,7 @@
                                     <div class="min-w-0">
                                         <a href="{{ route('report-cards.show', $reportCard) }}" class="text-sm font-semibold text-slate-700 dark:text-slate-200
                                                   hover:text-blue-600 dark:hover:text-blue-400
-                                                  transition-colors truncate block max-w-[140px]">
+                                                  transition-colors truncate block max-w-35">
                                             {{ $reportCard->student->user->name ?? '—' }}
                                         </a>
                                         <p class="text-[10px] font-mono text-slate-400">
@@ -705,38 +706,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const savedView = localStorage.getItem('report-cards-view') ?? 'grid';
     setView(savedView, false);
-
-    // ── SortableJS — Grille ────────────────────────────────────
-    const grid = document.getElementById('report-cards-grid');
-    if (grid && typeof Sortable !== 'undefined') {
-        Sortable.create(grid, {
-            animation: 200,
-            ghostClass: 'opacity-40',
-            chosenClass: 'ring-2 ring-blue-400 shadow-xl scale-[1.02]',
-            dragClass: 'shadow-2xl rotate-1',
-            delay: 80,
-            delayOnTouchOnly: true,
-            onEnd() {
-                window.showToast({
-                    type: 'info',
-                    title: 'Réorganisé',
-                    message: 'Les bulletins ont été réorganisés.',
-                    delay: 2500,
-                });
-            }
-        });
-    }
-
-    // ── SortableJS — Liste ─────────────────────────────────────
-    const list = document.getElementById('report-cards-list');
-    if (list && typeof Sortable !== 'undefined') {
-        Sortable.create(list, {
-            animation: 150,
-            ghostClass: 'opacity-40 bg-blue-50 dark:bg-blue-950/30',
-            delay: 80,
-            delayOnTouchOnly: true,
-        });
-    }
 });
 
 function setView(view, save = true) {

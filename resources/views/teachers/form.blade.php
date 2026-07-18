@@ -80,7 +80,7 @@
                             :value="old('employee_number', $teacher->employee_number)" placeholder="EMP-001"
                             icon="bi-badge-sd" required />
                     </div>
-
+                    @if(!$teacher->exists)
                     {{-- Mot de passe --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="space-y-1.5">
@@ -145,7 +145,7 @@
                             </div>
                         </div>
                     </div>
-
+                    @endif
                 </div>
             </div>
 
@@ -174,8 +174,8 @@
 
                     {{-- Spécialisation + Statut --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <x-forms.input-field name="specialization" label="Spécialisation" type="text"
-                            :value="old('specialization', $teacher->specialization)"
+                        <x-forms.input-field name="specialty" label="Spécialisation" type="text"
+                            :value="old('specialty', $teacher->specialty)"
                             placeholder="Ex : Algèbre, Physique quantique…" icon="bi-stars" />
 
                         <x-forms.select name="status" label="Statut" icon="bi-circle-fill" :options="[
@@ -187,9 +187,6 @@
 
                     {{-- Date d'embauche + Genre --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <x-forms.input-field name="hire_date" label="Date d'embauche" type="text"
-                            :value="old('hire_date', $teacher->hire_date?->format('Y-m-d'))" icon="bi-calendar-event"
-                            class="flatpickr-date" required />
 
                         <x-forms.select name="gender" label="Genre" icon="bi-gender-ambiguous"
                             :options="['male' => 'Masculin', 'female' => 'Féminin']"
@@ -219,7 +216,7 @@
 
                     {{-- Date de naissance + Nationalité --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <x-forms.input-field name="date_of_birth" label="Date de naissance" type="text"
+                        <x-forms.input-field name="date_of_birth" label="Date de naissance" type="date"
                             :value="old('date_of_birth', $teacher->date_of_birth?->format('Y-m-d'))" icon="bi-cake"
                             class="flatpickr-date" help="Optionnel." />
 
@@ -231,7 +228,8 @@
                     {{-- Téléphone + Adresse --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <x-forms.input-field name="phone" label="Téléphone" type="tel"
-                            :value="old('phone', $teacher->phone)" placeholder="+228 90 00 00 00" icon="bi-telephone" />
+                            :value="old('phone', $teacher->user->phone)" placeholder="+228 90 00 00 00"
+                            icon="bi-telephone" />
 
                         <x-forms.input-field name="address" label="Adresse" type="text"
                             :value="old('address', $teacher->address)" placeholder="Adresse complète…"
@@ -275,9 +273,9 @@
                                         border-2 border-dashed border-slate-300 dark:border-slate-600
                                         bg-slate-50 dark:bg-slate-700/50
                                         flex items-center justify-center">
-                                @if($teacher->exists && $teacher->user?->avatar)
-                                <img src="{{ asset('storage/' . $teacher->user->avatar) }}"
-                                    alt="{{ $teacher->user->name }}" id="avatar-img" class="w-full h-full object-cover">
+                                @if($teacher->exists && $teacher->avatar)
+                                <img src="{{ asset('storage/' . $teacher->avatar) }}" alt="{{ $teacher->user->name }}"
+                                    id="avatar-img" class="w-full h-full object-cover">
                                 @else
                                 <div id="avatar-placeholder" class="flex flex-col items-center gap-1 text-slate-400">
                                     <i class="bi bi-person-fill text-4xl"></i>
@@ -296,7 +294,7 @@
 
                     {{-- Input file --}}
                     <div>
-                        <input type="file" name="avatar" id="avatar" accept="image/*" class="hidden">
+                        <input type="file" name="photo" id="avatar" accept="image/*" class="hidden">
                         <label for="avatar" class="flex items-center justify-center gap-2 w-full
                                       px-4 py-2.5 rounded-xl border border-dashed
                                       border-slate-300 dark:border-slate-600

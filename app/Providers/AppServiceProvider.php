@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\ReportCard;
 use App\Models\Student;
 use App\Models\User;
 use App\Policies\MenuPolicy;
@@ -57,7 +58,14 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view roles',                [MenuPolicy::class, 'viewRoles']);
         Gate::define('view settings',             [MenuPolicy::class, 'viewSettings']);
 
-        // -------------------------------------------------------------
+        // ----------------------- STUDENTPOLICY --------------------------------------
         Gate::define('create', [Student::class, 'create']);
+        Gate::define('delete', [Student::class, 'create']);
+        Gate::define('update', [Student::class, 'create']);
+
+        // ----------------------- REPORT CARDPOLICY --------------------------------------
+        Gate::define('create', [ReportCard::class, 'create']);
+        Gate::define('delete', [ReportCard::class, 'create']);
+        Gate::define('update', [ReportCard::class, 'create']);
     }
 }

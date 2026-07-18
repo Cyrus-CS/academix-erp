@@ -93,7 +93,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-3.5
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex-shrink-0
+            <div class="w-10 h-10 rounded-xl shrink-0
                         bg-{{ $card['color'] }}-100 dark:bg-{{ $card['color'] }}-900/30
                         flex items-center justify-center">
                 <i class="bi {{ $card['icon'] }}
@@ -233,7 +233,7 @@
                     Filtrer
                 </button>
                 @if(request()->hasAny(['teacher_id', 'subject_id', 'class_id', 'academic_year_id']))
-                <a href="{{ route('teacher-assignments.index') }}" class="flex-shrink-0 inline-flex items-center justify-center
+                <a href="{{ route('teacher-assignments.index') }}" class="shrink-0 inline-flex items-center justify-center
                           w-10 h-10 rounded-xl
                           border border-slate-200 dark:border-slate-700
                           text-slate-500 dark:text-slate-400
@@ -275,7 +275,9 @@
             </a>
         </div>
         @else
-        <div id="assignments-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <x-sortable-grid resource="teacher-assignments"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
             @foreach($assignments as $assignment)
             @php
             $colors = [
@@ -284,11 +286,11 @@
             ];
             $color = $colors[$loop->index % count($colors)];
             @endphp
-            <div class="assignment-card group bg-white dark:bg-slate-800 rounded-2xl
+            <x-sortable-item :id="$assignment->id" class="assignment-card group bg-white dark:bg-slate-800 rounded-2xl
                         border border-slate-200 dark:border-slate-700 shadow-sm
                         hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800
                         transition-all duration-200 overflow-hidden
-                        cursor-grab active:cursor-grabbing" data-id="{{ $assignment->id }}">
+                        cursor-grab active:cursor-grabbing">
 
                 {{-- Bande colorée --}}
                 <div class="h-1.5 bg-{{ $color }}-500"></div>
@@ -298,7 +300,7 @@
                     {{-- En-tête : matière + menu --}}
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-9 h-9 rounded-xl flex-shrink-0
+                            <div class="w-9 h-9 rounded-xl shrink-0
                                         bg-{{ $color }}-100 dark:bg-{{ $color }}-900/30
                                         flex items-center justify-center">
                                 <i class="bi bi-book-fill
@@ -318,7 +320,7 @@
                         </div>
 
                         {{-- Menu --}}
-                        <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button data-dropdown="assign-actions-{{ $assignment->id }}" class="w-7 h-7 rounded-lg flex items-center justify-center
                                            bg-slate-100 dark:bg-slate-700
                                            text-slate-500 dark:text-slate-400
@@ -353,8 +355,8 @@
                     {{-- Enseignant --}}
                     <div class="flex items-center gap-2.5 p-2.5 rounded-xl
                                 bg-slate-50 dark:bg-slate-700/40">
-                        <div class="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0
-                                    bg-gradient-to-br from-emerald-400 to-teal-500
+                        <div class="w-8 h-8 rounded-xl overflow-hidden shrink-0
+                                    bg-linear-to-br from-emerald-400 to-teal-500
                                     flex items-center justify-center">
                             @if($assignment->teacher->user->avatar)
                             <img src="{{ asset('storage/' . $assignment->teacher->user->avatar) }}"
@@ -373,7 +375,7 @@
                                 {{ $assignment->teacher->employee_number ?? 'Enseignant' }}
                             </p>
                         </div>
-                        <i class="bi bi-person-badge-fill text-emerald-400 text-sm ml-auto flex-shrink-0"></i>
+                        <i class="bi bi-person-badge-fill text-emerald-400 text-sm ml-auto shrink-0"></i>
                     </div>
 
                     {{-- Classe + Année --}}
@@ -418,9 +420,9 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </x-sortable-item>
             @endforeach
-        </div>
+        </x-sortable-grid>
         @endif
     </div>
 
@@ -476,8 +478,8 @@
                             {{-- Enseignant --}}
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0
-                                                bg-gradient-to-br from-emerald-400 to-teal-500
+                                    <div class="w-8 h-8 rounded-xl overflow-hidden shrink-0
+                                                bg-linear-to-br from-emerald-400 to-teal-500
                                                 flex items-center justify-center">
                                         @if($assignment->teacher->user->avatar)
                                         <img src="{{ asset('storage/' . $assignment->teacher->user->avatar) }}"
@@ -503,7 +505,7 @@
                             {{-- Matière --}}
                             <td class="px-4 py-3.5">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0
+                                    <span class="w-2.5 h-2.5 rounded-full shrink-0
                                                  bg-{{ $color }}-500">
                                     </span>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -649,36 +651,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const savedView = localStorage.getItem('assignments-view') ?? 'grid';
     setView(savedView, false);
-
-    const grid = document.getElementById('assignments-grid');
-    if (grid && typeof Sortable !== 'undefined') {
-        Sortable.create(grid, {
-            animation: 200,
-            ghostClass: 'opacity-40',
-            chosenClass: 'ring-2 ring-blue-400 shadow-xl scale-[1.02]',
-            dragClass: 'shadow-2xl rotate-1',
-            delay: 80,
-            delayOnTouchOnly: true,
-            onEnd() {
-                window.showToast({
-                    type: 'info',
-                    title: 'Réorganisé',
-                    message: 'Les affectations ont été réorganisées.',
-                    delay: 2500,
-                });
-            }
-        });
-    }
-
-    const list = document.getElementById('assignments-list');
-    if (list && typeof Sortable !== 'undefined') {
-        Sortable.create(list, {
-            animation: 150,
-            ghostClass: 'opacity-40 bg-blue-50 dark:bg-blue-950/30',
-            delay: 80,
-            delayOnTouchOnly: true,
-        });
-    }
 });
 
 function setView(view, save = true) {

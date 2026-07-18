@@ -257,16 +257,16 @@
     </div>
 
     {{-- ══════════════════════════════════════════════════════════
-         VUE GRILLE (SortableJS)
+     VUE GRILLE (SortableJS)
     ══════════════════════════════════════════════════════════ --}}
     <div id="view-grid">
         @if($students->isEmpty())
         {{-- État vide --}}
         <div class="bg-white dark:bg-slate-800 rounded-2xl
-                        border border-slate-200 dark:border-slate-700
-                        shadow-sm flex flex-col items-center justify-center py-20 px-4">
+                    border border-slate-200 dark:border-slate-700
+                    shadow-sm flex flex-col items-center justify-center py-20 px-4">
             <div class="w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-700
-                            flex items-center justify-center mb-5">
+                        flex items-center justify-center mb-5">
                 <i class="bi bi-people text-4xl text-slate-300 dark:text-slate-500"></i>
             </div>
             <h3 class="text-base font-semibold text-slate-700 dark:text-slate-200 mb-1">
@@ -281,216 +281,168 @@
             </p>
             @if(request()->hasAny(['search', 'class_id', 'gender']))
             <a href="{{ route('students.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
-                              border border-slate-200 dark:border-slate-700
-                              text-slate-600 dark:text-slate-400
-                              hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                          border border-slate-200 dark:border-slate-700
+                          text-slate-600 dark:text-slate-400
+                          hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
                 <i class="bi bi-arrow-counterclockwise"></i>
                 Réinitialiser les filtres
             </a>
             @else
             <a href="{{ route('students.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
-                              bg-blue-600 hover:bg-blue-700 text-white
-                              transition-all shadow-sm shadow-blue-500/30">
+                          bg-blue-600 hover:bg-blue-700 text-white
+                          transition-all shadow-sm shadow-blue-500/30">
                 <i class="bi bi-person-plus-fill"></i>
                 Inscrire un élève
             </a>
             @endif
         </div>
+
         @else
-        {{-- Grille --}}
-        <div id="students-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {{-- ── Indicateur de sauvegarde ────────────────────── --}}
+        <div id="saving-indicator" class="opacity-0 flex items-center gap-2 mb-4
+                    px-3 py-2 rounded-xl text-xs font-medium
+                    bg-blue-50 dark:bg-blue-900/20
+                    border border-blue-200 dark:border-blue-800
+                    text-blue-700 dark:text-blue-300
+                    w-fit transition-opacity duration-300">
+            <svg class="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Sauvegarde de l'ordre en cours…
+        </div>
+
+        {{-- ── Grille SortableJS ───────────────────────────── --}}
+        <x-sortable-grid resource="students" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
             @foreach($students as $student)
-            <div class="student-card group bg-white dark:bg-slate-800 rounded-2xl
-                            border border-slate-200 dark:border-slate-700 shadow-sm
-                            hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800
-                            transition-all duration-200 overflow-hidden cursor-grab active:cursor-grabbing"
-                data-id="{{ $student->id }}">
+            <x-sortable-item :id="$student->id" class="student-card group bg-white dark:bg-slate-800 rounded-2xl
+                        border border-slate-200 dark:border-slate-700 shadow-sm
+                        hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800
+                        transition-all duration-200 overflow-hidden">
 
-                {{-- Header carte --}}
-                <div class="relative h-20 bg-linear-to-br
-                                @if($student->gender === 'female')
-                                    from-pink-500 to-rose-600
-                                @else
-                                    from-blue-500 to-indigo-600
-                                @endif">
+                {{-- ── Header carte ─────────────────────────── --}}
+                <div class=" relative p-4 pb-3">
 
-                    {{-- Badge genre --}}
-                    <span class="absolute top-3 left-3 inline-flex items-center gap-1
-                                     px-2 py-0.5 rounded-full text-[10px] font-medium
-                                     bg-white/20 text-white backdrop-blur-sm">
-                        <i class="bi {{ $student->gender === 'female' ? 'bi-gender-female' : 'bi-gender-male' }}"></i>
-                        {{ $student->gender === 'female' ? 'Fille' : 'Garçon' }}
-                    </span>
-
-                    {{-- Menu actions --}}
-                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100
-                                    transition-opacity duration-200">
-                        <div class="relative" data-dropdown="card-menu-{{ $student->id }}">
-                            <button data-dropdown="card-actions-{{ $student->id }}" class="w-7 h-7 rounded-lg bg-white/20 backdrop-blur-sm
-                                               flex items-center justify-center
-                                               text-white hover:bg-white/30
-                                               transition-colors focus:outline-none">
-                                <i class="bi bi-three-dots-vertical text-sm"></i>
-                            </button>
-                            <div id="card-actions-{{ $student->id }}" data-dropdown-menu class="hidden absolute right-0 top-8 w-40
-                                            bg-white dark:bg-slate-800
-                                            border border-slate-200 dark:border-slate-700
-                                            rounded-xl shadow-lg overflow-hidden z-20
-                                            opacity-0 scale-95 translate-y-1
-                                            transition-all duration-150">
-                                <a href="{{ route('students.show', $student) }}" class="flex items-center gap-2.5 px-3 py-2.5 text-xs
-                                              text-slate-700 dark:text-slate-300
-                                              hover:bg-slate-50 dark:hover:bg-slate-700/50
-                                              hover:text-blue-600 dark:hover:text-blue-400
-                                              transition-colors">
-                                    <i class="bi bi-eye-fill w-4 text-center"></i>
-                                    Voir le profil
-                                </a>
-                                <a href="{{ route('students.edit', $student) }}" class="flex items-center gap-2.5 px-3 py-2.5 text-xs
-                                              text-slate-700 dark:text-slate-300
-                                              hover:bg-slate-50 dark:hover:bg-slate-700/50
-                                              hover:text-blue-600 dark:hover:text-blue-400
-                                              transition-colors">
-                                    <i class="bi bi-pencil-fill w-4 text-center"></i>
-                                    Modifier
-                                </a>
-                                <button
-                                    onclick="deleteStudent({{ $student->id }}, '{{ addslashes($student->user->name) }}')"
-                                    class="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs
-                                                   text-red-600 dark:text-red-400
-                                                   hover:bg-red-50 dark:hover:bg-red-900/20
-                                                   transition-colors focus:outline-none">
-                                    <i class="bi bi-trash3-fill w-4 text-center"></i>
-                                    Supprimer
-                                </button>
-                            </div>
-                        </div>
+                    {{-- Poignée de drag (visible au survol) --}}
+                    <div class="drag-handle absolute top-3 right-3
+                                w-7 h-7 rounded-lg
+                                flex items-center justify-center
+                                text-slate-300 dark:text-slate-600
+                                hover:text-slate-500 dark:hover:text-slate-400
+                                hover:bg-slate-100 dark:hover:bg-slate-700
+                                opacity-0 group-hover:opacity-100
+                                transition-all duration-200" title="Glisser pour réorganiser">
+                        <i class="bi bi-grip-vertical text-sm"></i>
                     </div>
 
                     {{-- Avatar --}}
-                    <div class="absolute -bottom-7 left-1/2 -translate-x-1/2">
-                        <div class="w-14 h-14 rounded-2xl ring-4 ring-white dark:ring-slate-800
-                                        overflow-hidden shrink-0 shadow-md">
-                            @if($student->photo)
-                            <img src="{{ asset('storage/' . $student->photo) }}" alt="{{ $student->user->name }}"
-                                class="w-full h-full object-cover" />
-                            @else
-                            <div class="w-full h-full
-                                                bg-linear-to-br
-                                                @if($student->gender === 'female')
-                                                    from-pink-400 to-rose-500
-                                                @else
-                                                    from-blue-400 to-indigo-500
-                                                @endif
-                                                flex items-center justify-center
-                                                text-white text-xl font-bold">
-                                {{ strtoupper(substr($student->user->name, 0, 1)) }}
-                            </div>
-                            @endif
+                    <div class="flex items-center gap-3">
+                        @if($student->photo)
+                        <img src="{{ asset('storage/' . $student->photo) }}" alt="{{ $student->user->name }}" class="w-12 h-12 rounded-full object-cover
+                                        ring-2 ring-blue-500/20 shrink-0">
+                        @else
+                        <div class="w-12 h-12 rounded-full shrink-0
+                                        bg-linear-to-br from-blue-600 to-emerald-500
+                                        flex items-center justify-center
+                                        text-white text-sm font-bold shadow-sm">
+                            {{ strtoupper(substr($student->user->name ?? 'E', 0, 2)) }}
+                        </div>
+                        @endif
+
+                        <div class="min-w-0 flex-1 pr-6">
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                                {{ $student->user->name ?? 'N/A' }}
+                            </p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                {{ $student->admission_number ?? $student->matricule ?? '—' }}
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {{-- Corps carte --}}
-                <div class="pt-10 px-4 pb-4">
-
-                    {{-- Nom + matricule --}}
-                    <div class="text-center mb-3">
-                        <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100
-                                       truncate group-hover:text-blue-600
-                                       dark:group-hover:text-blue-400 transition-colors">
-                            {{ $student->user->name }}
-                        </h3>
-                        <p class="text-[11px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">
-                            {{ $student->matricule }}
-                        </p>
+                {{-- ── Infos ─────────────────────────────────── --}}
+                <div class="px-4 pb-3 space-y-2">
+                    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <i class="bi bi-collection text-slate-400 dark:text-slate-500 w-3.5 shrink-0"></i>
+                        <span class="truncate">{{ $student->classe->name ?? 'Pas de classe' }}</span>
                     </div>
-
-                    {{-- Infos --}}
-                    <div class="space-y-1.5 mb-4">
-                        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <i class="bi bi-building w-3.5 text-center text-blue-400"></i>
-                            <span class="truncate">{{ $student->classe->name ?? '—' }}</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <i class="bi bi-calendar3 w-3.5 text-center text-emerald-400"></i>
-                            <span>{{ $student->age ?? '—' }} ans</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <i class="bi bi-envelope w-3.5 text-center text-violet-400"></i>
-                            <span class="truncate">{{ $student->user->email }}</span>
-                        </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <i class="bi bi-envelope text-slate-400 dark:text-slate-500 w-3.5 shrink-0"></i>
+                        <span class="truncate">{{ $student->user->email ?? 'Aucun email' }}</span>
                     </div>
-
-                    {{-- Stats mini --}}
-                    <div class="grid grid-cols-3 gap-2 mb-4
-                                    bg-slate-50 dark:bg-slate-700/40
-                                    rounded-xl p-2">
-                        @php
-                        $rate = $student->attendanceRate();
-                        $rateColor = $rate >= 80
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : ($rate >= 60
-                        ? 'text-amber-600 dark:text-amber-400'
-                        : 'text-red-600 dark:text-red-400');
-                        @endphp
-                        <div class="text-center">
-                            <p class="text-xs font-bold {{ $rateColor }}">
-                                {{ $rate }}%
-                            </p>
-                            <p class="text-[10px] text-slate-400 dark:text-slate-500">
-                                Présence
-                            </p>
-                        </div>
-                        <div class="text-center border-x border-slate-200 dark:border-slate-600">
-                            <p class="text-xs font-bold text-slate-700 dark:text-slate-200">
-                                {{ $student->absencesCount() }}
-                            </p>
-                            <p class="text-[10px] text-slate-400 dark:text-slate-500">
-                                Absences
-                            </p>
-                        </div>
-                        <div class="text-center">
-                            @php $avg = $student->average(); @endphp
-                            <p class="text-xs font-bold
-                                          {{ $avg >= 10
-                                            ? 'text-emerald-600 dark:text-emerald-400'
-                                            : 'text-red-600 dark:text-red-400' }}">
-                                {{ $avg > 0 ? $avg : '—' }}
-                            </p>
-                            <p class="text-[10px] text-slate-400 dark:text-slate-500">
-                                Moyenne
-                            </p>
-                        </div>
+                    @if($student->gender ?? null)
+                    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <i class="bi bi-person-fill text-slate-400 dark:text-slate-500 w-3.5 shrink-0"></i>
+                        <span>{{ $student->gender === 'male' ? 'Masculin' : 'Féminin' }}</span>
                     </div>
+                    @endif
+                </div>
 
-                    {{-- Actions --}}
-                    <div class="flex gap-2">
-                        <a href="{{ route('students.show', $student) }}" class="flex-1 inline-flex items-center justify-center gap-1.5
-                                      py-2 rounded-xl text-xs font-medium
-                                      bg-blue-50 dark:bg-blue-900/20
-                                      text-blue-600 dark:text-blue-400
-                                      hover:bg-blue-100 dark:hover:bg-blue-900/40
-                                      transition-all">
-                            <i class="bi bi-eye-fill"></i>
-                            Profil
+                {{-- ── Séparateur --}}
+                <div class="mx-4 h-px bg-slate-100 dark:bg-slate-700"></div>
+
+                {{-- ── Actions ─────────────────────────────────── --}}
+                <div class="px-4 py-3 flex items-center justify-between">
+                    <a href="{{ route('students.show', $student) }}" class="inline-flex items-center gap-1.5 text-xs font-medium
+                              text-blue-600 dark:text-blue-400
+                              hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                        <i class="bi bi-eye text-xs"></i>
+                        Voir
+                    </a>
+
+                    <div class="flex items-center gap-1">
+                        <a href="{{ route('students.edit', $student) }}" class="w-7 h-7 rounded-lg flex items-center justify-center
+                                  text-slate-500 dark:text-slate-400
+                                  hover:bg-blue-50 dark:hover:bg-blue-900/20
+                                  hover:text-blue-600 dark:hover:text-blue-400 transition-all" title="Modifier">
+                            <i class="bi bi-pencil text-xs"></i>
                         </a>
-                        <a href="{{ route('students.edit', $student) }}" class="flex-1 inline-flex items-center justify-center gap-1.5
-                                      py-2 rounded-xl text-xs font-medium
-                                      bg-slate-100 dark:bg-slate-700
-                                      text-slate-600 dark:text-slate-300
-                                      hover:bg-slate-200 dark:hover:bg-slate-600
-                                      transition-all">
-                            <i class="bi bi-pencil-fill"></i>
-                            Modifier
-                        </a>
+
+                        @can('delete', $student)
+                        <button type="button" data-delete-student="{{ $student->id }}"
+                            data-student-name="{{ $student->user->name ?? 'cet élève' }}" class="w-7 h-7 rounded-lg flex items-center justify-center
+                                       text-slate-500 dark:text-slate-400
+                                       hover:bg-red-50 dark:hover:bg-red-900/20
+                                       hover:text-red-600 dark:hover:text-red-400 transition-all" title="Supprimer">
+                            <i class="bi bi-trash3 text-xs"></i>
+                        </button>
+                        @endcan
                     </div>
                 </div>
-            </div>
+
+                {{-- Formulaire de suppression caché --}}
+                @can('delete', $student)
+                <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student) }}"
+                    method="POST" class="hidden">
+                    @csrf
+                    @method('DELETE')
+                </form>
+                @endcan
+
+            </x-sortable-item>
             @endforeach
-        </div>
+        </x-sortable-grid>
         @endif
     </div>
+
+    {{-- ── Script local : suppression par carte ────────────────────── --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ── Suppression depuis la carte ──────────────────────────
+        // ── Suppression depuis la carte ──────────────────────────
+        document.querySelectorAll('[data-delete-student]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.deleteStudent;
+                const name = btn.dataset.studentName;
+                if (confirm(`Supprimer définitivement ${name} ?`)) {
+                    document.getElementById(`delete-form-${id}`)?.submit();
+                }
+            });
+        });
+    });
+    </script>
 
     {{-- ══════════════════════════════════════════════════════════
          VUE LISTE (masquée par défaut)
@@ -558,8 +510,8 @@
                                     {{-- Avatar --}}
                                     <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0
                                                 ring-2 ring-slate-200 dark:ring-slate-700">
-                                        @if($student->photo_path)
-                                        <img src="{{ asset('storage/' . $student->photo_path) }}"
+                                        @if($student->photo)
+                                        <img src="{{ asset('storage/' . $student->photo) }}"
                                             alt="{{ $student->user->name }}" class="w-full h-full object-cover" />
                                         @else
                                         <div class="w-full h-full
@@ -795,37 +747,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ── SortableJS — Vue grille ────────────────────────────────
     const grid = document.getElementById('students-grid');
-    if (grid && typeof Sortable !== 'undefined') {
-        Sortable.create(grid, {
-            animation: 200,
-            ghostClass: 'opacity-40',
-            chosenClass: 'ring-2 ring-blue-500 shadow-xl scale-[1.02]',
-            dragClass: 'shadow-2xl rotate-1',
-            handle: '.student-card',
-            delay: 80,
-            delayOnTouchOnly: true,
 
-            onEnd(evt) {
-                // Récupérer le nouvel ordre des IDs
-                const order = [...grid.querySelectorAll('[data-id]')]
-                    .map(el => el.dataset.id);
-
-                // Persister l'ordre (optionnel : appel API)
-                localStorage.setItem('students-order', JSON.stringify(order));
-
-                window.showToast({
-                    type: 'info',
-                    title: 'Ordre mis à jour',
-                    message: 'Le classement a été réorganisé.',
-                    delay: 2500,
-                });
-            }
-        });
-    }
 
     // ── SortableJS — Vue liste ─────────────────────────────────
     const list = document.getElementById('students-list');
+    if (!list) return;
     if (list && typeof Sortable !== 'undefined') {
+
         Sortable.create(list, {
             animation: 150,
             ghostClass: 'opacity-40 bg-blue-50 dark:bg-blue-950/30',

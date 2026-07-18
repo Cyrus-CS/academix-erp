@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TeacherRequest;
 use App\Models\AcademicYear;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\TeacherContract;
 use App\Models\User;
+use App\Services\TeacherService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +20,10 @@ use Illuminate\View\View;
 
 class TeacherController extends Controller
 {
+
+    public function __construct(protected TeacherService $teacherService){
+        
+    }
     /**
      * Display a listing of teachers.
      */
@@ -76,97 +82,14 @@ class TeacherController extends Controller
     /**
      * Store a newly created teacher.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(TeacherRequest $request, Teacher $teacher): RedirectResponse
     {
-        $validated = $request->validate([
-            // Compte utilisateur
-            'name'                  => ['required', 'string', 'max:100'],
-            'email'                 => ['required', 'email', 'unique:users,email'],
-            'password'              => ['required', Password::defaults(), 'confirmed'],
-            'avatar'                => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-
-            // Informations enseignant
-            'employee_number'       => ['required', 'string', 'max:50', 'unique:teachers,employee_number'],
-            'phone'                 => ['nullable', 'string', 'max:20'],
-            'nationality'           => ['nullable', 'string', 'max:100'],
-            'qualification'         => ['required', 'string', 'max:150'],
-            'specialization'        => ['nullable', 'string', 'max:150'],
-            'date_of_birth'         => ['nullable', 'date', 'before:today'],
-            'gender'                => ['required', 'in:male,female'],
-            'address'               => ['nullable', 'string', 'max:255'],
-            'hire_date'             => ['required', 'date'],
-            'status'                => ['required', 'in:active,inactive,on_leave'],
-            'bio'                   => ['nullable', 'string', 'max:1000'],
-        ], [
-            'name.required'            => 'Le nom complet est obligatoire.',
-            'email.required'           => "L'email est obligatoire.",
-            'email.unique'             => 'Cet email est déjà utilisé.',
-            'password.required'        => 'Le mot de passe est obligatoire.',
-            'password.confirmed'       => 'La confirmation du mot de passe ne correspond pas.',
-            'employee_number.required' => 'Le numéro employé est obligatoire.',
-            'employee_number.unique'   => 'Ce numéro employé est déjà utilisé.',
-            'qualification.required'   => 'La qualification est obligatoire.',
-            'gender.required'          => 'Le genre est obligatoire.',
-            'hire_date.required'       => "La date d'embauche est obligatoire.",
-            'status.required'          => 'Le statut est obligatoire.',
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            // Upload avatar
-            $avatarPath = null;
-            if ($request->hasFile('avatar')) {
-                $avatarPath = $request->file('avatar')
-                    ->store('avatars/teachers', 'public');
-            }
-
-            // Créer l'utilisateur
-            $user = User::create([
-                'name'     => $validated['name'],
-                'email'    => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'avatar'   => $avatarPath,
-            ]);
-
-            // Assigner le rôle Teacher
-            $user->assignRole('Teacher');
-
-            // Créer le profil enseignant
-            $teacher = Teacher::create([
-                'user_id'         => $user->id,
-                'employee_number' => $validated['employee_number'],
-                'phone'           => $validated['phone'] ?? null,
-                'nationality'     => $validated['nationality'] ?? null,
-                'qualification'   => $validated['qualification'],
-                'specialization'  => $validated['specialization'] ?? null,
-                'date_of_birth'   => $validated['date_of_birth'] ?? null,
-                'gender'          => $validated['gender'],
-                'address'         => $validated['address'] ?? null,
-                'hire_date'       => $validated['hire_date'],
-                'status'          => $validated['status'],
-                'bio'             => $validated['bio'] ?? null,
-            ]);
-
-            DB::commit();
+        $this->teacherService->store($request->validated());
 
             return redirect()
                 ->route('teachers.show', $teacher)
-                ->with('success', "L'enseignant « {$user->name} » a été créé avec succès.");
-
-        } catch (\Throwable $e) {
-            DB::rollBack();
-
-            if (isset($avatarPath)) {
-                Storage::disk('public')->delete($avatarPath);
-            }
-
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Une erreur est survenue : ' . $e->getMessage());
+                ->with('success', "L'enseignant « {$teacher->user->name} » a été créé avec succès.");
         }
-    }
 
     /**
      * Display the specified teacher.
@@ -175,16 +98,16 @@ class TeacherController extends Controller
     {
         $teacher->load([
             'user',
-            'teacherAssignments.subject',
-            'teacherAssignments.schoolClass',
-            'teacherAssignments.academicYear',
+            'assignments.subject',
+            'assignments.schoolClass',
+            'assignments.academicYear',
             'contracts' => fn($q) => $q->latest()->limit(5),
             'grades'    => fn($q) => $q->with('student.user', 'subject')->latest()->limit(10),
         ]);
 
         $stats = [
-            'total_classes'      => $teacher->teacherAssignments()->distinct('school_class_id')->count(),
-            'total_subjects'     => $teacher->teacherAssignments()->distinct('subject_id')->count(),
+            'total_classes'      => $teacher->assignments()->distinct('class_id')->count(),
+            'total_subjects'     => $teacher->assignments()->distinct('subject_id')->count(),
             'total_grades'       => $teacher->grades()->count(),
             'active_contract'    => $teacher->contracts()->where('status', 'active')->first(),
         ];
@@ -205,86 +128,15 @@ class TeacherController extends Controller
     /**
      * Update the specified teacher.
      */
-    public function update(Request $request, Teacher $teacher): RedirectResponse
+    public function update(TeacherRequest $request, Teacher $teacher): RedirectResponse
     {
         $teacher->load('user');
 
-        $validated = $request->validate([
-            // Compte utilisateur
-            'name'                  => ['required', 'string', 'max:100'],
-            'email'                 => ['required', 'email', 'unique:users,email,' . $teacher->user_id],
-            'password'              => ['nullable', Password::defaults(), 'confirmed'],
-            'avatar'                => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-
-            // Informations enseignant
-            'employee_number'       => ['required', 'string', 'max:50', 'unique:teachers,employee_number,' . $teacher->id],
-            'phone'                 => ['nullable', 'string', 'max:20'],
-            'nationality'           => ['nullable', 'string', 'max:100'],
-            'qualification'         => ['required', 'string', 'max:150'],
-            'specialization'        => ['nullable', 'string', 'max:150'],
-            'date_of_birth'         => ['nullable', 'date', 'before:today'],
-            'gender'                => ['required', 'in:male,female'],
-            'address'               => ['nullable', 'string', 'max:255'],
-            'hire_date'             => ['required', 'date'],
-            'status'                => ['required', 'in:active,inactive,on_leave'],
-            'bio'                   => ['nullable', 'string', 'max:1000'],
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            // Mise à jour utilisateur
-            $userPayload = [
-                'name'  => $validated['name'],
-                'email' => $validated['email'],
-            ];
-
-            // Nouveau avatar
-            if ($request->hasFile('avatar')) {
-                // Supprimer l'ancien
-                if ($teacher->user->avatar) {
-                    Storage::disk('public')->delete($teacher->user->avatar);
-                }
-                $userPayload['avatar'] = $request->file('avatar')
-                    ->store('avatars/teachers', 'public');
-            }
-
-            // Nouveau mot de passe (optionnel)
-            if ($request->filled('password')) {
-                $userPayload['password'] = Hash::make($validated['password']);
-            }
-
-            $teacher->user->update($userPayload);
-
-            // Mise à jour profil enseignant
-            $teacher->update([
-                'employee_number' => $validated['employee_number'],
-                'phone'           => $validated['phone'] ?? null,
-                'nationality'     => $validated['nationality'] ?? null,
-                'qualification'   => $validated['qualification'],
-                'specialization'  => $validated['specialization'] ?? null,
-                'date_of_birth'   => $validated['date_of_birth'] ?? null,
-                'gender'          => $validated['gender'],
-                'address'         => $validated['address'] ?? null,
-                'hire_date'       => $validated['hire_date'],
-                'status'          => $validated['status'],
-                'bio'             => $validated['bio'] ?? null,
-            ]);
-
-            DB::commit();
+        $this->teacherService->update($teacher, $request->validated());
 
             return redirect()
                 ->route('teachers.show', $teacher)
                 ->with('success', "Le profil de « {$teacher->user->name} » a été mis à jour avec succès.");
-
-        } catch (\Throwable $e) {
-            DB::rollBack();
-
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Une erreur est survenue : ' . $e->getMessage());
-        }
     }
 
     /**
@@ -313,8 +165,8 @@ class TeacherController extends Controller
             $name = $teacher->user->name;
 
             // Supprimer l'avatar
-            if ($teacher->user->avatar) {
-                Storage::disk('public')->delete($teacher->user->avatar);
+            if ($teacher->avatar) {
+                Storage::disk('public')->delete($teacher->avatar);
             }
 
             $teacher->delete();
@@ -333,5 +185,19 @@ class TeacherController extends Controller
                 ->route('teachers.index')
                 ->with('error', 'Une erreur est survenue lors de la suppression.');
         }
+    }
+
+    public function reorder(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'order'   => ['required', 'array'],
+            'order.*' => ['integer', 'exists:teachers,id'],
+        ]);
+
+        foreach ($request->input('order') as $position => $id) {
+            Teacher::where('id', $id)->update(['position' => $position + 1]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

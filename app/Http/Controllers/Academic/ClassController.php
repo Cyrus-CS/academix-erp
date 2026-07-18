@@ -15,7 +15,7 @@ class ClassController extends Controller
 {
     public function index(): View
     {
-        $classes    = Classe::with(['students', 'teachers', 'subjects'])->paginate(9)->withQueryString();
+        $classes    = Classe::with(['students', 'teachers', 'subjects'])->paginate(12)->withQueryString();
         $activeYear = AcademicYear::active()->first();
 
         return view('classes.index', [
@@ -31,12 +31,14 @@ class ClassController extends Controller
     {
         $classe = new Classe();
         $classe->fill([
-            'name'     => 'Licence 3',
-            'level'    => 'Licence Professionnelle',
+            'name' => 'Licence 3',
+            'level' => 'Licence Professionnelle',
             'capacity' => 50,
         ]);
+        $activeYear = AcademicYear::active()->first();
+        $academicYears  = AcademicYear::orderBy('name')->get();
 
-        return view('classes.form', compact('classe'));
+        return view('classes.form', compact('classe', 'academicYears', 'activeYear'));
     }
 
     public function store(ClasseRequest $request): RedirectResponse

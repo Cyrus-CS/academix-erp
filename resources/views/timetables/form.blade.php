@@ -183,7 +183,7 @@
                                     <option value="{{ $teacher->id }}"
                                         {{ old('teacher_id', $schedule->teacher_id) == $teacher->id ? 'selected' : '' }}>
                                         {{ $teacher->user->name }}
-                                        — {{ $teacher->employee_number }}
+                                        | {{ $teacher->employee_number }}
                                     </option>
                                     @endforeach
                                 </select>
@@ -521,7 +521,7 @@
                                shadow-sm hover:shadow-md transition-all duration-200
                                focus:outline-none focus:ring-2 focus:ring-blue-500/40">
                     <i class="bi {{ $schedule->exists ? 'bi-check-lg' : 'bi-plus-lg' }}"></i>
-                    {{ $schedule->exists ? 'Enregistrer' : 'Ajouter le créneau' }}
+                    {{ $schedule->exists ? 'Enregistrer' : 'Ajouter' }}
                 </button>
             </div>
 

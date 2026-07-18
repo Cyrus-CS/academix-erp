@@ -1,0 +1,6 @@
+Qu'est-ce qui bloquait SortableJS ? 🤔
+Trois choses majeures entraient en conflit avec SortableJS dans ta vue :
+
+La sélection de texte (user-select) : Quand tu cliquais pour glisser, le navigateur croyait que tu voulais surligner le texte des cartes. On a dû forcer user-select: none en CSS et en JS (onStart).
+Les éléments cliquables : Les liens (<a>) et les boutons dans tes cartes interceptaient le clic de la souris. On a ajouté pointerEvents = 'none' pendant le drag pour que la carte entière reste "solide".
+L'absence d'identifiant : Sortable déplaçait bien l'élément visuellement, mais le backend ne savait pas quelle matière allait à quelle place car l'attribut data-id="{{ $subject->id }}" manquait sur les cartes.

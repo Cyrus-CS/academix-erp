@@ -89,11 +89,11 @@
 
     {{-- ── Grille matières ── --}}
     @if($subjects->isNotEmpty())
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <x-sortable-grid resource="subjects" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @foreach($subjects as $subject)
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
-                    dark:border-slate-700 shadow-sm hover:shadow-md
-                    transition-all duration-200 overflow-hidden group">
+        <x-sortable-item :id="$subject->id" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
+                dark:border-slate-700 shadow-sm hover:shadow-md
+                transition-all duration-200 overflow-hidden group">
 
             {{-- Barre colorée top --}}
             <div class="h-1.5 bg-linear-to-r from-blue-600 to-emerald-500"></div>
@@ -194,9 +194,9 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </x-sortable-item>
         @endforeach
-    </div>
+    </x-sortable-grid>
 
     {{-- Pagination --}}
     @if($subjects->hasPages())

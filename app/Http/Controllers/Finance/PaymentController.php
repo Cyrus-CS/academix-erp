@@ -66,12 +66,12 @@ class PaymentController extends Controller
 
         // Statistiques globales
         $stats = [
-            'total_collected' => Payment::where('status', 'paid')->sum('amount'),
-            'pending_amount'  => Payment::where('status', 'pending')->sum('amount'),
+            'total_collected' => Payment::where('status', 'paid')->sum('amount_paid'),
+            'pending_amount'  => Payment::where('status', 'pending')->sum('amount_paid'),
             'overdue_count'   => Payment::where('status', 'overdue')->count(),
             'today_collected' => Payment::where('status', 'paid')
                                         ->whereDate('paid_at', today())
-                                        ->sum('amount'),
+                                        ->sum('amount_paid'),
         ];
 
         $students  = Student::with('user')->orderBy('student_number')->get();
@@ -100,7 +100,7 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'student_id'            => ['required', 'exists:students,id'],
             'fee_type_id'           => ['required', 'exists:fee_types,id'],
-            'amount'                => ['required', 'numeric', 'min:0'],
+            'amount_paid'                => ['required', 'numeric', 'min:0'],
             'payment_method'        => ['required', 'in:cash,bank_transfer,mobile_money,check,card'],
             'transaction_reference' => ['nullable', 'string', 'max:100'],
             'status'                => ['required', 'in:paid,pending,overdue,cancelled'],
@@ -109,7 +109,7 @@ class PaymentController extends Controller
         ], [
             'student_id.required'     => "L'étudiant est obligatoire.",
             'fee_type_id.required'    => 'Le type de frais est obligatoire.',
-            'amount.required'         => 'Le montant est obligatoire.',
+            'amount_paid.required'         => 'Le montant est obligatoire.',
             'payment_method.required' => 'Le mode de paiement est obligatoire.',
             'payment_method.in'       => 'Le mode de paiement sélectionné est invalide.',
             'status.required'         => 'Le statut est obligatoire.',
@@ -190,7 +190,7 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'student_id'            => ['required', 'exists:students,id'],
             'fee_type_id'           => ['required', 'exists:fee_types,id'],
-            'amount'                => ['required', 'numeric', 'min:0'],
+            'amount_paid'                => ['required', 'numeric', 'min:0'],
             'payment_method'        => ['required', 'in:cash,bank_transfer,mobile_money,check,card'],
             'transaction_reference' => ['nullable', 'string', 'max:100'],
             'status'                => ['required', 'in:paid,pending,overdue,cancelled'],

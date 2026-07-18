@@ -11,7 +11,7 @@ class Classe extends Model
 {
     protected $table = 'classes';
 
-    protected $fillable = ['name', 'level', 'capacity', 'academic_year_id'];
+    protected $fillable = ['name', 'level', 'capacity', 'academic_year_id', 'description'];
 
     /**
      * Liste des Meilleurs élèves

@@ -4,6 +4,10 @@
 └── sidebar-nav.blade.php    ← items de navigation (séparé car volumineux)
 
 --}}
+@php
+use App\Models\AcademicYear;
+$activeYear = AcademicYear::active()->first();
+@endphp
 <aside id="sidebar" class="fixed top-0 left-0 h-full z-40
 bg-white dark:bg-slate-900
 border-r border-slate-200 dark:border-slate-700
@@ -63,7 +67,7 @@ mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
                 </p>
                 <p class="text-xs font-semibold text-blue-700 dark:text-blue-300 truncate">
                     {{-- Récupérer depuis la config ou la session --}}
-                    {{ config('school.current_year', '2024 – 2025') }}
+                    {{ $activeYear?->name }}
                 </p>
             </div>
         </div>

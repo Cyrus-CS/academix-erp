@@ -11,6 +11,7 @@ use App\Models\Teacher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 // use Illuminate\Http\Request;
 
@@ -38,7 +39,7 @@ class SchedulesController extends Controller
             'teachers'      => $teachers,
             'activeYear'    => $activeYear,
             'selectedClass' => $selectedClass,
-            'days'          => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+            'days'  => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
         ]);
     }
 
@@ -66,7 +67,7 @@ class SchedulesController extends Controller
             'subject_id'       => ['required', 'exists:subjects,id'],
             'teacher_id'       => ['required', 'exists:teachers,id'],
             'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'day_of_week'      => ['required', 'in:Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi'],
+            'day_of_week'      => ['required', Rule::in(array_keys(Schedule::DAYS))],
             'start_time'       => ['required', 'date_format:H:i'],
             'end_time'         => ['required', 'date_format:H:i', 'after:start_time'],
             'room'             => ['nullable', 'string', 'max:50'],
@@ -79,6 +80,9 @@ class SchedulesController extends Controller
             'end_time.required'    => "L'heure de fin est obligatoire.",
             'end_time.after'       => "L'heure de fin doit être après l'heure de début.",
         ]);
+
+        // ── Conversion nom du jour → entier (ce qui manquait) ──
+        $validated['day_of_week'] = Schedule::DAYS[$validated['day_of_week']];
 
         // Vérifier chevauchement de créneau
         $conflict = Schedule::where('class_id', $validated['class_id'])
@@ -130,11 +134,14 @@ class SchedulesController extends Controller
             'subject_id'       => ['required', 'exists:subjects,id'],
             'teacher_id'       => ['required', 'exists:teachers,id'],
             'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'day_of_week'      => ['required', 'in:Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi'],
+            'day_of_week'      => ['required', Rule::in(array_keys(Schedule::DAYS))],
             'start_time'       => ['required', 'date_format:H:i'],
             'end_time'         => ['required', 'date_format:H:i', 'after:start_time'],
             'room'             => ['nullable', 'string', 'max:50'],
         ]);
+
+         // ── Conversion nom du jour → entier (ce qui manquait) ──
+        $validated['day_of_week'] = Schedule::DAYS[$validated['day_of_week']];
 
         // Vérifier chevauchement en excluant le créneau actuel
         $conflict = Schedule::where('class_id', $validated['class_id'])

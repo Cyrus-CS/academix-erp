@@ -14,12 +14,25 @@ class Teacher extends Model
 
     protected $table = 'teachers';
     protected $fillable = [
-      'user_id',
+        'user_id',
         'employee_number',
         'specialty',
         'qualification',
-        'nationality'
+        'nationality',
+        'status',
+        'bio',
+        'gender',
+        'date_of_birth',
+        'position',
+        'address',
+        'photo'
     ];
+
+    protected function casts() : array{
+        return [
+            'date_of_birth' => 'datetime'   
+        ];
+    }
 
     /**
      * Methode pour gerer les contrats actifs

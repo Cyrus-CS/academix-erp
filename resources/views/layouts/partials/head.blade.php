@@ -11,7 +11,7 @@
     </title>
 
     {{-- ── Favicon ── --}}
-    <link rel="icon" type="image/png+xml" href="{{ asset('favicon.png') }}" />
+    <link rel="icon" type="image/png+xml" href="{{ asset('favicon-1.png') }}" />
 
     {{-- ── Fonts : Inter ── --}}
     <link rel="preconnect" href="https://fonts.googleapis.com" />

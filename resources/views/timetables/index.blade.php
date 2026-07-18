@@ -222,8 +222,7 @@
                     <div class="grid grid-cols-6 gap-3">
                         @foreach($days as $day)
                         @php
-                        $daySlots = $classSchedules
-                        ->filter(fn($s) => strtolower($s->day_of_week) === strtolower($day))
+                        $daySlots = $classSchedules->filter(fn($s) => strtolower($s->day_name) === strtolower($day))
                         ->sortBy('start_time');
                         $isToday = strtolower(now()->locale('fr')->dayName) === strtolower($day);
                         @endphp
@@ -326,7 +325,7 @@
             @php
             $class = $classes->firstWhere('id', $classId);
             if (!$class) continue;
-            $slotsByDay = $classSlots->groupBy(fn($s) => strtolower($s->day_of_week));
+            $slotsByDay = $classSlots->groupBy(fn($s) => strtolower($s->day_name));
             @endphp
             <div class="timetable-class-card bg-white dark:bg-slate-800 rounded-2xl
                         border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden
@@ -364,7 +363,8 @@
                         @php
                         $dayKey = strtolower($day);
                         $slots = $slotsByDay->get($dayKey, collect());
-                        $isToday = strtolower(now()->locale('fr')->dayName) === $dayKey;
+                        $isToday = strtolower(now()->locale('fr')->dayName)
+                        === strtolower($slot->day_name);
                         @endphp
                         <div class="text-center">
                             <div class="text-[10px] font-semibold uppercase tracking-wide mb-1.5
@@ -473,7 +473,7 @@
                                              {{ $isToday
                                                 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
                                                 : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300' }}">
-                                    {{ ucfirst($slot->day_of_week) }}
+                                    {{ ucfirst($slot->day_name) }}
                                     @if($isToday)
                                     <span class="ml-1 w-1.5 h-1.5 rounded-full
                                                  bg-blue-500 animate-pulse"></span>

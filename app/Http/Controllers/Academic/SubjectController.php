@@ -141,4 +141,18 @@ class SubjectController extends Controller
             ->route('subjects.index')
             ->with('success', "La matière « {$name} » a été supprimée avec succès.");
     }
+
+    public function reorder(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'order'   => ['required', 'array'],
+            'order.*' => ['integer', 'exists:subjects,id'],
+        ]);
+        
+        $order = $request->input('order', []);
+        foreach ($order as $position => $id) {
+            Subject::where('id', $id)->update(['order' => $position + 1]);
+        }
+        return response()->json(['ok' => true]);
+    }
 }

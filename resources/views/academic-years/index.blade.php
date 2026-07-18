@@ -248,7 +248,9 @@
             </a>
         </div>
         @else
-        <ul id="academic-years-list" class="divide-y divide-slate-100 dark:divide-slate-700">
+        <x-sortable-grid resource="academic-years" class="divide-y divide-slate-100 dark:divide-slate-700">
+
+            {{-- <ul id="academic-years-list" class=""> --}}}
             @foreach($academicYears as $year)
             @php
             $isActive = $year->id === $activeYear?->id;
@@ -261,9 +263,9 @@
             $progress = $total > 0 ? min(100, round(($elapsed / $total) * 100)) : 0;
             }
             @endphp
-            <li class="year-item group flex flex-col sm:flex-row sm:items-center gap-4
+            <x-sortable-item :id="$year->id" class="year-item group flex flex-col sm:flex-row sm:items-center gap-4
                        px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50
-                       transition-colors cursor-grab active:cursor-grabbing" data-id="{{ $year->id }}">
+                       transition-colors cursor-grab active:cursor-grabbing">
 
                 {{-- Drag handle --}}
                 <div class="hidden sm:flex items-center shrink-0
@@ -434,9 +436,9 @@
                     </div>
                     @endif
                 </div>
-            </li>
+            </x-sortable-item>
             @endforeach
-        </ul>
+        </x-sortable-grid>
 
         {{-- Pagination --}}
         @if($academicYears->hasPages())
@@ -496,48 +498,6 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    // ── SortableJS ─────────────────────────────────────────────
-    const list = document.getElementById('academic-years-list');
-    if (list && typeof Sortable !== 'undefined') {
-        Sortable.create(list, {
-            animation: 200,
-            handle: '.year-item',
-            ghostClass: 'opacity-40 bg-blue-50 dark:bg-blue-950/30',
-            chosenClass: 'ring-2 ring-blue-400 rounded-xl',
-            delay: 80,
-            delayOnTouchOnly: true,
-
-            onEnd(evt) {
-                const order = [...list.querySelectorAll('[data-id]')]
-                    .map(el => el.dataset.id);
-
-                // Optionnel : persister l'ordre via AJAX
-                fetch('{{ route("academic-years.reorder") }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                            .content,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        order
-                    }),
-                }).catch(() => {});
-
-                window.showToast({
-                    type: 'info',
-                    title: 'Ordre mis à jour',
-                    message: 'Le classement des années a été réorganisé.',
-                    delay: 2500,
-                });
-            }
-        });
-    }
-});
-
-
 function deleteYear(id, name) {
     if (!confirm(`Supprimer l'année "${name}" ? Cette action supprimera aussi les trimestres associés.`)) return;
     const form = document.getElementById('delete-form');

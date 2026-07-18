@@ -44,7 +44,7 @@ class StudentPolicy
      */
     public function delete(User $user, Student $student): bool
     {
-        return false;
+        return $user->hasAnyRole(['Admin']);
     }
 
     /**
@@ -52,7 +52,7 @@ class StudentPolicy
      */
     public function restore(User $user, Student $student): bool
     {
-        return false;
+        return $user->hasAnyRole(['Admin']);
     }
 
     /**
@@ -60,6 +60,6 @@ class StudentPolicy
      */
     public function forceDelete(User $user, Student $student): bool
     {
-        return false;
+        return $user->hasAnyRole(['Admin']);
     }
 }

@@ -44,7 +44,7 @@ class TeacherContractController extends Controller
                 ->count(),
         ];
 
-        return view('teacher-contracts.index', compact('contracts', 'teachers', 'stats'));
+        return view('teacher-assignments.index', compact('contracts', 'teachers', 'stats'));
     }
 
     public function create(): View
@@ -55,7 +55,7 @@ class TeacherContractController extends Controller
             ->orderBy('employee_number')
             ->get();
 
-        return view('teacher-contracts.form', compact('contract', 'teachers'));
+        return view('teacher-assignments.form', compact('contract', 'teachers'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -95,7 +95,7 @@ class TeacherContractController extends Controller
     {
         $teacherContract->load('teacher.user');
 
-        return view('teacher-contracts.show', compact('teacherContract'));
+        return view('teacher-assignments.show', compact('teacherContract'));
     }
 
     public function edit(TeacherContract $teacherContract): View
@@ -105,7 +105,7 @@ class TeacherContractController extends Controller
             ->orderBy('employee_number')
             ->get();
 
-        return view('teacher-contracts.form', compact('teacherContract', 'teachers'));
+        return view('teacher-assignments.form', compact('teacherContract', 'teachers'));
     }
 
     public function update(Request $request, TeacherContract $teacherContract): RedirectResponse
@@ -133,7 +133,7 @@ class TeacherContractController extends Controller
 
         $teacherContract->update($validated);
 
-        return to_route('teacher-contracts.index')
+        return to_route('teacher-assignments.index')
             ->with('success', 'Le contrat a été mis à jour avec succès.');
     }
 

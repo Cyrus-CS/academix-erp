@@ -75,7 +75,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl px-5 py-4
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl flex-shrink-0
+            <div class="w-12 h-12 rounded-2xl shrink-0
                         bg-{{ $card['color'] }}-100 dark:bg-{{ $card['color'] }}-900/30
                         flex items-center justify-center">
                 <i class="bi {{ $card['icon'] }}
@@ -178,7 +178,7 @@
             </div>
 
             {{-- Actions --}}
-            <div class="flex items-center gap-2 flex-shrink-0">
+            <div class="flex items-center gap-2 shrink-0">
                 <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
                                bg-blue-600 hover:bg-blue-700 text-white
                                transition-all shadow-sm shadow-blue-500/20">
@@ -240,7 +240,7 @@
     @else
 
     {{-- Grille d'annonces (SortableJS) --}}
-    <div id="announcements-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <x-sortable-grid resource="announcements-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         @foreach($announcements as $announcement)
         @php
         $isExpired = $announcement->expires_at && now()->isAfter($announcement->expires_at);
@@ -261,15 +261,15 @@
         ];
         $priorityCfg = $priorityConfig[$announcement->priority ?? 'normal'] ?? $priorityConfig['normal'];
         @endphp
-
-        <div class="announcement-card group bg-white dark:bg-slate-800 rounded-2xl
+        <x-sortable-item :id="$announcement->id"
+            class="announcement-card group bg-white dark:bg-slate-800 rounded-2xl
                     border shadow-sm overflow-hidden
                     hover:shadow-md transition-all duration-200
                     cursor-grab active:cursor-grabbing
                     {{ $isExpired
                         ? 'border-slate-200 dark:border-slate-700 opacity-70'
-                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-800' }}"
-            data-id="{{ $announcement->id }}">
+                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-800' }}">
+
 
             {{-- Bande de couleur priorité --}}
             <div class="h-1 w-full
@@ -322,7 +322,7 @@
                     </div>
 
                     {{-- Menu actions --}}
-                    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button data-dropdown="ann-actions-{{ $announcement->id }}" class="w-7 h-7 rounded-lg flex items-center justify-center
                                        bg-slate-100 dark:bg-slate-700
                                        text-slate-500 dark:text-slate-400
@@ -398,9 +398,9 @@
 
                     {{-- Auteur --}}
                     <div class="flex items-center gap-2 min-w-0">
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-br
+                        <div class="w-6 h-6 rounded-full bg-linear-to-br
                                     from-blue-500 to-indigo-600
-                                    flex items-center justify-center flex-shrink-0">
+                                    flex items-center justify-center shrink-0">
                             <span class="text-[9px] font-bold text-white">
                                 {{ strtoupper(substr($announcement->user->name ?? 'A', 0, 1)) }}
                             </span>
@@ -416,7 +416,7 @@
                     </div>
 
                     {{-- Expiration --}}
-                    <div class="flex-shrink-0 text-right">
+                    <div class="shrink-0 text-right">
                         @if($announcement->expires_at)
                         <p class="text-[10px] font-medium
                                   {{ $isExpired
@@ -451,9 +451,9 @@
                     Lire l'annonce
                 </a>
             </div>
-        </div>
+        </x-sortable-item>
         @endforeach
-    </div>
+    </x-sortable-grid>
 
     {{-- ══════════════════════════════════════════════════════════
          PAGINATION
