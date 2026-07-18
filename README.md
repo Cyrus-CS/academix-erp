@@ -1,59 +1,279 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Academix ERP
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern School Enterprise Resource Planning (ERP) system built with Laravel 12.
 
-## About Laravel
+## About The Project
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Academix ERP is a comprehensive school management platform designed to simplify academic, administrative, financial, and human resources operations within educational institutions.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The application provides a centralized system for managing students, teachers, parents, classes, attendance, grades, report cards, payments, and teacher contracts.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Built with Laravel 12, Tailwind CSS, and modern development practices, this project demonstrates real-world enterprise application architecture.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Key Features
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Authentication & Authorization
 
-## Laravel Sponsors
+* Laravel Breeze Authentication
+* Role & Permission Management with Spatie Laravel Permission
+* Secure Access Control
+* Multi-Role Support
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Roles:
 
-### Premium Partners
+* Administrator
+* Teacher
+* Student
+* Parent
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+### Student Management
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+* Student Registration
+* Student Profiles
+* Parent Association
+* Class Assignment
+* Academic Tracking
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Teacher Management
 
-## Security Vulnerabilities
+* Teacher Profiles
+* Subject Assignments
+* Teacher Contracts
+* Qualifications Management
+* Employment Tracking
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
+
+### Academic Management
+
+* Academic Years
+* Terms / Trimesters
+* Classes
+* Subjects
+* Timetables
+* Teacher-Class Assignments
+
+---
+
+### Attendance Management
+
+* Daily Attendance Tracking
+* Present / Absent / Late Records
+* Attendance History
+* Attendance Statistics
+
+---
+
+### Grade Management
+
+* Homework Scores
+* Tests
+* Examinations
+* Automatic Average Calculation
+* Student Ranking
+
+---
+
+### Report Cards
+
+* PDF Report Card Generation
+* Academic Performance Summary
+* Ranking Information
+* Downloadable Reports
+
+---
+
+### Financial Management
+
+* Fee Type Management
+* Student Payments
+* Payment Tracking
+* Receipt Generation
+* QR Code Verification
+
+---
+
+### Communication
+
+* SMS Notifications via Twilio
+* Parent Alerts
+* Attendance Notifications
+* Payment Notifications
+* School Announcements
+
+---
+
+### Reports & Analytics
+
+* Dashboard Overview
+* Attendance Statistics
+* Financial Statistics
+* Student Statistics
+* Interactive Charts with Chart.js
+
+---
+
+### Data Export
+
+Export school data to Excel using Laravel Excel:
+
+* Students
+* Grades
+* Attendance
+* Payments
+
+---
+
+## Technology Stack
+
+### Backend
+
+* Laravel 12
+* PHP 8+
+* MySQL
+* Eloquent ORM
+
+### Frontend
+
+* Blade
+* Tailwind CSS
+* Bootstrap Icons
+* Chart.js
+* Flatpickr
+
+### Packages
+
+* Laravel Breeze
+* Spatie Laravel Permission
+* Barryvdh DomPDF
+* Laravel Excel
+* Simple QRCode
+* Twilio SDK
+* Bondage
+
+---
+
+## Database Modules
+
+### User Management
+
+* Users
+* Students
+* Teachers
+* Parents
+
+### Academic
+
+* Academic Years
+* Terms
+* Classes
+* Subjects
+* Timetables
+* Teacher Assignments
+
+### Evaluation
+
+* Grades
+* Report Cards
+
+### Attendance
+
+* Attendance Records
+
+### Finance
+
+* Fee Types
+* Payments
+
+### Human Resources
+
+* Teacher Contracts
+
+---
+
+## UI Design
+
+### Color Palette
+
+Primary Color
+
+```text
+Blue 600 (#2563EB)
+```
+
+Secondary Color
+
+```text
+Emerald 500 (#10B981)
+```
+
+Framework
+
+```text
+Tailwind CSS
+Bootstrap Icons
+```
+
+---
+
+## Installation
+
+```bash
+git clone [https://github.com/Cyrus-CS/academix-erp.git
+
+cd academix-erp
+
+composer install
+
+cp .env.example .env
+
+php artisan key:generate
+
+php artisan migrate
+
+npm install
+
+npm run build
+
+php artisan serve
+```
+
+---
+
+## Project Status
+
+🚧 In Development
+
+The project is actively under development and new modules are being added progressively.
+
+---
+
+## Planned Features
+
+* Parent Portal
+* Student Portal
+* Mobile Money Integration
+* REST API
+* Email Notifications
+* Multi-School Support
+* Mobile Application
+
+---
+
+## Author
+
+Eben-ezer Sissou
+
+Laravel Developer
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License
