@@ -99,7 +99,7 @@ class TeacherController extends Controller
         $teacher->load([
             'user',
             'assignments.subject',
-            'assignments.schoolClass',
+            'assignments.classe',
             'assignments.academicYear',
             'contracts' => fn($q) => $q->latest()->limit(5),
             'grades'    => fn($q) => $q->with('student.user', 'subject')->latest()->limit(10),

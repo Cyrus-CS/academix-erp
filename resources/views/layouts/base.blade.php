@@ -14,7 +14,7 @@
         @include('layouts.partials.sidebar')
 
         {{-- ------------------- Main Content Area ------------------- --}}
-        <div class="flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out"
+        <div class="flex flex-col flex-1 min-h-0  min-w-0 transition-all duration-300 ease-in-out"
             :class="isCollapsed ? 'ml-18' : 'ml-65'">
             {{-- ------------------- Top Navbar ------------------- --}}
             @include('layouts.partials.navbar')
@@ -49,8 +49,7 @@
             @endif
 
             {{-- ------------------- Main Content ------------------- --}}
-            <main
-                class="flex flex-col flex-1 px-4 sm:px-6 py-6 overflow-auto min-w-0 transition-all duration-300 ease-in-out ml-65"
+            <main class="flex flex-col flex-1 px-4 sm:px-6 py-6 min-w-0 transition-all duration-300 ease-in-out"
                 id="main-content">
                 @yield('content')
             </main>

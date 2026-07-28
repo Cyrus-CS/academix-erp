@@ -55,25 +55,26 @@ export function initNotifications() {
 
     // ── Polling : vérifier le nombre de notifs toutes les 30s ─────
     function startPolling() {
-        fetchCount(); // immédiat
-        pollingTimer = setInterval(fetchCount, 30000);
+        fetchUnreadCount();
+        pollingTimer = setInterval(fetchUnreadCount, 90000);;
     }
 
-    async function fetchCount() {
+    async function fetchUnreadCount() {
         try {
-            const res  = await fetch('/notifications/unread-count', {
-                headers: { 'Accept': 'application/json' },
+            const res = await fetch('/notifications/unread-count', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
             });
 
             if (!res.ok) return;
 
-            const data  = await res.json();
-            const count = data.count ?? 0;
+            const { count } = await res.json();
 
             updateBadge(count);
-
         } catch {
-            // Silencieux : pas de connexion ou erreur serveur
+            // Silencieux — pas de spam console en prod
         }
     }
 

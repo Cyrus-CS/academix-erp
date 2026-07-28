@@ -12,7 +12,8 @@ class Term extends Model
         'name', 
         'academic_year_id',
         'start_date',
-        'end_date'
+        'end_date',
+        'is_current',
     ];
 
     protected function casts(){

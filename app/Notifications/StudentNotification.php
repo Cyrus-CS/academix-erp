@@ -36,9 +36,9 @@ use Illuminate\Notifications\Notification;
  *       'fee_type' => 'Scolarité T1',
  *   ]));
  */
-class StudentNotification extends Notification implements ShouldQueue
+class StudentNotification extends Notification
 {
-    use Queueable;
+    // use Queueable;
 
     /**
      * Types d'événements supportés.

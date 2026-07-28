@@ -24,11 +24,11 @@
                 Détail de l'affectation
             </h1>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                {{ $teacherAssignment->teacher->user->name ?? '—' }}
+                {{ $teacherAssignment->teacher->user->name ?? '-' }}
                 &rarr;
-                {{ $teacherAssignment->subject->name ?? '—' }}
+                {{ $teacherAssignment->subject->name ?? '-' }}
                 &bull;
-                {{ $teacherAssignment->schoolClass->name ?? '—' }}
+                {{ $teacherAssignment->classe->name ?? '-' }}
             </p>
         </div>
     </div>
@@ -56,7 +56,7 @@
 
 @section('content')
 @php
-$studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
+$studentsCount = $teacherAssignment->classe?->students->count() ?? 0;
 @endphp
 
 {{-- ── Hero ─────────────────────────────────────────────────────── --}}
@@ -106,7 +106,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
                         {{ $teacherAssignment->teacher->qualification ?? 'Enseignant' }}
                         &bull; Matricule :
                         <span class="font-mono font-semibold text-slate-700 dark:text-slate-300">
-                            {{ $teacherAssignment->teacher->employee_number ?? '—' }}
+                            {{ $teacherAssignment->teacher->employee_number ?? '-' }}
                         </span>
                     </p>
                 </div>
@@ -127,11 +127,11 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
                         <p class="text-[10px] font-semibold uppercase tracking-wider
                                   text-amber-500 dark:text-amber-400">Matière</p>
                         <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
-                            {{ $teacherAssignment->subject->name ?? '—' }}
+                            {{ $teacherAssignment->subject->name ?? '-' }}
                         </p>
                         <p class="text-[11px] text-slate-500">
-                            Code : {{ $teacherAssignment->subject->code ?? '—' }}
-                            &bull; Coeff {{ $teacherAssignment->subject->coefficient ?? '—' }}
+                            Code : {{ $teacherAssignment->subject->code ?? '-' }}
+                            &bull; Coeff {{ $teacherAssignment->subject->coefficient ?? '-' }}
                         </p>
                     </div>
                 </div>
@@ -152,7 +152,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
                         <p class="text-[10px] font-semibold uppercase tracking-wider
                                   text-blue-500 dark:text-blue-400">Classe</p>
                         <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
-                            {{ $teacherAssignment->schoolClass->name ?? '—' }}
+                            {{ $teacherAssignment->classe->name ?? '-' }}
                         </p>
                         <p class="text-[11px] text-slate-500">
                             {{ $studentsCount }} élève(s) inscrit(s)
@@ -172,7 +172,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
             <div class="space-y-4">
                 @foreach([
                 ['icon' => 'bi-calendar-range', 'color' => 'blue', 'label' => 'Année académique', 'value' =>
-                $teacherAssignment->academicYear->name ?? '—'],
+                $teacherAssignment->academicYear->name ?? '-'],
                 ['icon' => 'bi-calendar-plus', 'color' => 'emerald', 'label' => 'Créé le', 'value' =>
                 $teacherAssignment->created_at->format('d/m/Y')],
                 ['icon' => 'bi-calendar-check', 'color' => 'amber', 'label' => 'Mis à jour', 'value' =>
@@ -221,7 +221,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
                     </span>
                     <i class="bi bi-arrow-right-short text-slate-400 group-hover:text-amber-500 transition-colors"></i>
                 </a>
-                <a href="{{ route('classes.show', $teacherAssignment->schoolClass) }}" class="flex items-center justify-between p-3 rounded-xl
+                <a href="{{ route('classes.show', $teacherAssignment->classe) }}" class="flex items-center justify-between p-3 rounded-xl
                           bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
                           hover:border-emerald-300 dark:hover:border-emerald-600
                           hover:bg-emerald-50 dark:hover:bg-emerald-950/20
@@ -266,7 +266,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
         @endif
     </div>
 
-    @if($teacherAssignment->schoolClass?->students->count())
+    @if($teacherAssignment->classe?->students->count())
 
     {{-- Desktop --}}
     <div class="hidden sm:block overflow-x-auto">
@@ -283,7 +283,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50" id="students-body">
-                @foreach($teacherAssignment->schoolClass->students as $i => $student)
+                @foreach($teacherAssignment->classe->students as $i => $student)
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors student-row"
                     data-name="{{ strtolower($student->user->name ?? '') }}">
                     <td class="px-5 py-3 text-slate-400 dark:text-slate-500 font-mono text-xs">
@@ -303,13 +303,13 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
                         </div>
                     </td>
                     <td class="px-5 py-3 text-slate-500 dark:text-slate-400 text-xs">
-                        {{ $student->user->email ?? '—' }}
+                        {{ $student->user->email ?? '-' }}
                     </td>
                     <td class="px-5 py-3">
                         <span class="px-2.5 py-1 rounded-full text-xs font-mono
                                          bg-slate-100 dark:bg-slate-700
                                          text-slate-600 dark:text-slate-300">
-                            {{ $student->admission_number ?? $student->matricule ?? '—' }}
+                            {{ $student->admission_number ?? $student->matricule ?? '-' }}
                         </span>
                     </td>
                     <td class="px-5 py-3 text-right">
@@ -329,7 +329,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
 
     {{-- Mobile --}}
     <div class="sm:hidden divide-y divide-slate-100 dark:divide-slate-700" id="students-mobile">
-        @foreach($teacherAssignment->schoolClass->students as $student)
+        @foreach($teacherAssignment->classe->students as $student)
         <div class="p-4 flex items-center gap-3 student-row" data-name="{{ strtolower($student->user->name ?? '') }}">
             <div class="w-10 h-10 rounded-full
                             bg-linear-to-br from-blue-500 to-emerald-500
@@ -341,7 +341,7 @@ $studentsCount = $teacherAssignment->schoolClass?->students->count() ?? 0;
                     {{ $student->user->name ?? 'N/A' }}
                 </p>
                 <p class="text-xs text-slate-500">
-                    {{ $student->admission_number ?? '—' }}
+                    {{ $student->admission_number ?? '-' }}
                 </p>
             </div>
             <a href="{{ route('students.show', $student) }}" class="w-8 h-8 rounded-xl bg-slate-50 dark:bg-slate-700

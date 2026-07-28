@@ -11,7 +11,8 @@ class Payment extends Model
     protected $fillable = [
         'student_id', 'fee_type_id', 'created_by',
         'amount_paid', 'receipt_number', 'status',
-        'paid_at', 'note',
+        'paid_at', 'note','transaction_reference',
+        'payment_method'
     ];
 
     protected $casts = [
@@ -77,7 +78,8 @@ class Payment extends Model
         return $this->belongsTo(FeeType::class);
     }
 
-    public function creator(): BelongsTo
+    // Celui ou celle qui genere le paiement
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }

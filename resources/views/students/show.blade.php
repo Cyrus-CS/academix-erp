@@ -299,7 +299,7 @@ $tabs = [
                     ['icon' => 'bi-cake', 'label' => 'Date de naissance', 'value' => $student->birth_date ?
                     \Carbon\Carbon::parse($student->birth_date)->format('d/m/Y') : '—'],
                     ['icon' => 'bi-geo-alt', 'label' => 'Adresse', 'value' => $student->address ?? '—'],
-                    ['icon' => 'bi-telephone', 'label' => 'Téléphone', 'value' => $student->phone ?? '—'],
+                    ['icon' => 'bi-telephone', 'label' => 'Téléphone', 'value' => $student->user->phone ?? '—'],
                     ] as $info)
                     <div class="flex items-start gap-3 py-2.5
                                 border-b border-slate-100 dark:border-slate-700/50 last:border-0">

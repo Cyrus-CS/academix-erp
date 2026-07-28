@@ -57,6 +57,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('subjects', \App\Http\Controllers\Academic\SubjectController::class);
         Route::resource('timetables', SchedulesController::class);
         Route::resource('teacher-assignments', \App\Http\Controllers\Academic\TeacherAssignmentController::class);
+
+        Route::post('academic-years/active', [AcademicYearController::class, 'activate'])
+                ->name('academic-years.activate');
         
         // Déplacer un créneau via drag & drop
         Route::patch('timetables/{schedule}/move', [SchedulesController::class, 'move'])
@@ -131,6 +134,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Télécharger un bulletin PDF
     Route::get('report-cards/{reportCard}/download', [ReportCardController::class, 'download'])
         ->name('report-cards.download');
+
+    Route::get('report-cards/reorder', [ReportCardController::class, 'reorder'])
+        ->name('report-cards.reorder');
 
     // Générer tous les bulletins du trimestre actif
     Route::post('report-cards/generate-all', [ReportCardController::class, 'generateAll'])
@@ -226,13 +232,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])
             ->name('settings.update');
     });
-
-    /*
-    |----------------------------------------------------------------------
-    | AIDE
-    |----------------------------------------------------------------------
-    */
-    Route::get('/help', fn() => view('help.index'))->name('help.index');
 
     /*
     |----------------------------------------------------------------------

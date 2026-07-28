@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\Attendance;
 use App\Models\Classe;
+use App\Models\Schedule;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Notifications\AbsenceNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
@@ -53,7 +54,7 @@ class AttendanceController extends Controller
 
         $attendances = $query->paginate(20)->withQueryString();
         $classes     = Classe::orderBy('name')->get();
-        $students    = Student::with('user')->orderBy('student_number')->get();
+        $students    = Student::with('user')->orderBy('matricule')->get();
 
         // Statistiques globales
         $stats = [
@@ -64,7 +65,7 @@ class AttendanceController extends Controller
             'rate'    => $this->attendanceRate(),
         ];
 
-        return view('attendance.index', compact(
+        return view('attendances.index', compact(
             'attendances',
             'classes',
             'students',
@@ -73,47 +74,75 @@ class AttendanceController extends Controller
         ));
     }
 
-    public function create(Request $request): View
+   public function create(Request $request): View
     {
-        $classes     = Classe::orderBy('name')->get();
-        $selectedClass = Classe::with('students.user')
-            ->find($request->input('class_id'));
+        $classes       = Classe::orderBy('name')->get();
+        $selectedClass = Classe::with('students.user')->find($request->input('class_id'));
+        $date          = $request->input('date', today()->format('Y-m-d'));
+        $activeYear    = AcademicYear::active()->first();
+        $scheduleId    = $request->input('schedule_id');
 
-        $date = $request->input('date', today()->format('Y-m-d'));
+        $dayOfWeek = Carbon::parse($date)->dayOfWeekIso - 1;
 
-        // Pré-charger les présences existantes pour cette date/classe
+        // Créneaux (matière + enseignant) programmés pour cette classe, ce jour, cette année active
+        $schedules = collect();
+        
+        if ($selectedClass && $activeYear) {
+            $schedules = Schedule::where('class_id', $selectedClass->id)
+                ->where('day_of_week', $dayOfWeek)
+                ->where('academic_year_id', $activeYear->id)
+                ->with(['subject', 'teacher.user'])
+                ->orderBy('start_time')
+                ->get();
+        }
+
+        $selectedSchedule = $scheduleId ? $schedules->firstWhere('id', (int) $scheduleId) : null;
+
+        // Présences déjà saisies pour cette classe/matière/date
         $existing = [];
-        if ($selectedClass && $date) {
+        if ($selectedClass && $date && $selectedSchedule) {
             $existing = Attendance::where('class_id', $selectedClass->id)
+                ->where('subject_id', $selectedSchedule->subject_id)
                 ->whereDate('date', $date)
                 ->get()
                 ->keyBy('student_id')
                 ->toArray();
         }
 
-        return view('attendance.form', compact(
-            'classes',
-            'selectedClass',
-            'date',
-            'existing'
+        return view('attendances.form', compact(
+            'classes', 'selectedClass', 'date', 'existing', 'schedules', 'scheduleId', 'selectedSchedule'
         ));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'class_id'       => ['required', 'exists:classes,id'],
-            'date'           => ['required', 'date', 'before_or_equal:today'],
-            'attendances'    => ['required', 'array'],
-            'attendances.*.student_id' => ['required', 'exists:students,id'],
-            'attendances.*.status'     => ['required', 'in:present,absent,late'],
-            'attendances.*.note'       => ['nullable', 'string', 'max:200'],
+            'class_id'  => ['required', 'exists:classes,id'],
+            'schedule_id' => ['required', 'exists:schedules,id'],
+            'date'  => ['required', 'date', 'before_or_equal:today'],
+            'attendances'  => ['required', 'array'],
+            'attendances.*.student_id'  => ['required', 'exists:students,id'],
+            'attendances.*.status'      => ['required', 'in:present,absent,late'],
+            'attendances.*.note'        => ['nullable', 'string', 'max:200'],
         ], [
-            'class_id.required'  => 'La classe est obligatoire.',
-            'date.required'      => 'La date est obligatoire.',
+            'class_id.required'    => 'La classe est obligatoire.',
+            'schedule_id.required' => 'Le créneau est obligatoire.',
+            'date.required'        => 'La date est obligatoire.',
             'date.before_or_equal' => 'La date ne peut pas être dans le futur.',
             'attendances.required' => 'Aucun étudiant sélectionné.',
         ]);
+
+        $schedule = Schedule::find($validated['schedule_id']);
+
+        if (!$schedule || (int) $schedule->class_id !== (int) $validated['class_id']) {
+            return back()->withInput()->with(
+                'error',
+                'Le créneau sélectionné ne correspond pas à cette classe.'
+            );
+        }
+
+        $subjectId = $schedule->subject_id;
+        $teacherId = $schedule->teacher_id;
 
         DB::beginTransaction();
 
@@ -121,16 +150,17 @@ class AttendanceController extends Controller
             $absentStudents = [];
 
             foreach ($validated['attendances'] as $item) {
-                // Upsert : mettre à jour si existant, créer sinon
                 $attendance = Attendance::updateOrCreate(
                     [
                         'student_id' => $item['student_id'],
                         'class_id'   => $validated['class_id'],
+                        'subject_id' => $subjectId,
                         'date'       => $validated['date'],
                     ],
                     [
-                        'status' => $item['status'],
-                        'note'   => $item['note'] ?? null,
+                        'status'     => $item['status'],
+                        'reason'     => $item['note'] ?? null,
+                        'teacher_id' => $teacherId,
                     ]
                 );
 
@@ -139,7 +169,6 @@ class AttendanceController extends Controller
                 }
             }
 
-            // Notifier les parents des absents
             if (!empty($absentStudents)) {
                 $this->notifyAbsences($absentStudents, $validated['date']);
             }
@@ -161,7 +190,7 @@ class AttendanceController extends Controller
     {
         $attendance->load(['student.user', 'classe']);
 
-        return view('attendance.show', compact('attendance'));
+        return view('attendances.show', compact('attendance'));
     }
 
     public function edit(Attendance $attendance): View
@@ -172,14 +201,14 @@ class AttendanceController extends Controller
             ->orderBy('student_number')
             ->get();
 
-        return view('attendance.edit', compact('attendance', 'classes', 'students'));
+        return view('attendances.form', compact('attendance', 'classes', 'students'));
     }
 
     public function update(Request $request, Attendance $attendance): RedirectResponse
     {
         $validated = $request->validate([
             'status' => ['required', 'in:present,absent,late'],
-            'note'   => ['nullable', 'string', 'max:200'],
+            'reason'   => ['nullable', 'string', 'max:200'],
         ]);
 
         $attendance->update($validated);

@@ -108,7 +108,7 @@ class Student extends Model
             $coefficients += $coef;
         }
 
-        return round($total / $coefficients, 2);
+        return $coefficients > 0 ? round($total / $coefficients, 2) : 0;
     }
     
     /**

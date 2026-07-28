@@ -13,12 +13,14 @@ class Grade extends Model
     protected $fillable = [
         'student_id', 'subject_id', 'class_id',
         'score', 'max_score', 'type', 'period',
-        'academic_year', 'comment',
+        'academic_year_id', 'comment', 'term_id','teacher_id',
+        'graded_at','report_card_id'
     ];
 
     protected $casts = [
         'score' => 'decimal:2',
         'max_score' => 'decimal:2',
+        'graded_at' =>'date'
     ];
 
     protected function percentage(): Attribute
@@ -30,7 +32,8 @@ class Grade extends Model
             )
         );
     }
-
+    
+    // ------------------------------------------- RELATIONS -------------------------------------------------
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
@@ -49,6 +52,14 @@ class Grade extends Model
     public function classe(): BelongsTo
     {
         return $this->belongsTo(Classe::class, 'class_id');
+    }
+
+    public function term() : BelongsTo{
+        return $this->belongsTo(Term::class);
+    }
+
+    public function report_card() : BelongsTo{
+        return $this->belongsTo(Grade::class);
     }
 
     // Score normalisé sur 20

@@ -97,7 +97,7 @@
          ANNÉE ACTIVE — MISE EN AVANT
     ══════════════════════════════════════════════════════════ --}}
     @if($activeYear)
-    <div class="relative bg-gradient-to-br from-blue-600 to-indigo-700
+    <div class="relative bg-linear-to-br from-blue-600 to-indigo-700
                 dark:from-blue-700 dark:to-indigo-800
                 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/20">
 
@@ -250,7 +250,7 @@
         @else
         <x-sortable-grid resource="academic-years" class="divide-y divide-slate-100 dark:divide-slate-700">
 
-            {{-- <ul id="academic-years-list" class=""> --}}}
+            {{-- <ul id="academic-years-list" class=""> --}}
             @foreach($academicYears as $year)
             @php
             $isActive = $year->id === $activeYear?->id;
@@ -263,7 +263,7 @@
             $progress = $total > 0 ? min(100, round(($elapsed / $total) * 100)) : 0;
             }
             @endphp
-            <x-sortable-item :id="$year->id" class="year-item group flex flex-col sm:flex-row sm:items-center gap-4
+            <x-sortable-item :id="$year?->id" class="year-item group flex flex-col sm:flex-row sm:items-center gap-4
                        px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50
                        transition-colors cursor-grab active:cursor-grabbing">
 

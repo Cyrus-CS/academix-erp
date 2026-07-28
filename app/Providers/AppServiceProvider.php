@@ -3,13 +3,17 @@
 namespace App\Providers;
 
 use App\Models\ReportCard;
+use App\Models\Setting;
 use App\Models\Student;
 use App\Models\User;
+use App\Observers\SettingObserver;
 use App\Policies\MenuPolicy;
 use App\Policies\StudentPolicy;
+use App\Services\SettingService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(MustVerifyEmail::class, 
         User::class);
+        Setting::observe(SettingObserver::class);
+        $this->app->singleton(SettingService::class, fn() => new SettingService());
     }
 
     /**
@@ -33,6 +39,19 @@ class AppServiceProvider extends ServiceProvider
          // ── Enregistrement MenuPolicy ──────────────────────────────
         Gate::policy(User::class, MenuPolicy::class);
         Gate::policy(User::class, StudentPolicy::class);
+
+        // Observer pour invalider le cache après chaque modification
+        Setting::observe(SettingObserver::class);
+
+        // View composer lazy : ne s'exécute que quand une vue est rendue
+        // (pas lors du boot de l'application)
+        View::composer('*', function ($view) {
+            // Injection via le singleton — le try/catch est dans SettingService::all()
+            $view->with(
+                'schoolSettings',
+                $this->app->make(SettingService::class)->all()
+            );
+        });
 
         // ── Gates individuels pour la sidebar ─────────────────────
         Gate::define('view academic_years',       [MenuPolicy::class, 'viewAcademicYears']);
@@ -67,5 +86,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('create', [ReportCard::class, 'create']);
         Gate::define('delete', [ReportCard::class, 'create']);
         Gate::define('update', [ReportCard::class, 'create']);
+
+         // Partager les settings avec TOUTES les vues Blade automatiquement
+        view()->composer('*', function ($view) {
+            $view->with('schoolSettings', app(SettingService::class)->all());
+        });
     }
 }

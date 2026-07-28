@@ -3,17 +3,30 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\AcademicYear;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AcademicYearsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        AcademicYear::create([
-            'name' => '2025-2026',
-            'start_date' => '2025-09-01',
-            'end_date' => '2026-07-31',
-            'is_current' => true,
-        ]);
+        $years = [];
+        $currentYear = Carbon::now()->year;
+
+        for ($i = 1; $i <= 20; $i++) {
+            $start = Carbon::create($currentYear - $i, 9, 1); // Septembre
+            $end = Carbon::create($currentYear - $i + 1, 6, 30); // Juin suivant
+
+            $years[] = [
+                'name' => $start->year . '-' . $end->year,
+                'start_date' => $start->toDateString(),
+                'end_date' => $end->toDateString(),
+                'is_current' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        DB::table('academic_years')->insert($years);
     }
 }

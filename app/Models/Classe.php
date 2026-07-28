@@ -11,7 +11,7 @@ class Classe extends Model
 {
     protected $table = 'classes';
 
-    protected $fillable = ['name', 'level', 'capacity', 'academic_year_id', 'description'];
+    protected $fillable = ['name', 'level', 'capacity', 'academic_year_id', 'description', 'position'];
 
     /**
      * Liste des Meilleurs élèves
@@ -61,7 +61,7 @@ class Classe extends Model
             'class_subject_teacher',
             'class_id',
             'teacher_id'
-        )->withPivot('subject_id', 'academic_year');
+        )->withPivot('subject_id', 'academic_year_id');
     }
 
     public function subjects(): BelongsToMany
@@ -71,7 +71,7 @@ class Classe extends Model
             'class_subject_teacher',
             'class_id',
             'subject_id'
-        )->withPivot('teacher_id', 'academic_year');
+        )->withPivot('teacher_id', 'academic_year_id');
     }
 
     /**

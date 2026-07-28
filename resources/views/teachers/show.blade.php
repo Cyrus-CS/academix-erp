@@ -262,7 +262,7 @@ $hasAvatar = $teacher->user?->avatar;
                                 </div>
                             </td>
                             <td class="px-5 py-3 text-slate-600 dark:text-slate-300">
-                                {{ $assign->schoolClass->name ?? '—' }}
+                                {{ $assign->classe->name ?? '-' }}
                             </td>
                             <td class="px-5 py-3">
                                 <span class="px-2.5 py-1 rounded-full text-xs

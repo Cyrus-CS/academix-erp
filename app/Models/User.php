@@ -54,16 +54,6 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function childrens()
-    {
-        return $this->belongsToMany(
-            Student::class,
-            'parent_users',
-            'user_id',
-            'student_id'
-        );
-    }
-
     public function teacher() : HasOne{
         return $this->hasOne(Teacher::class);
     }
@@ -73,7 +63,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(ParentUser::class);
     }
 
-    public function parentStudents(): BelongsToMany{
+    /**
+     * Les élèves associés à ce parent.
+     */
+    public function students(): BelongsToMany{
         return $this->belongsToMany(Student::class, 'parents_users', 'user_id', 'student_id')->withTimestamps();
     }
 

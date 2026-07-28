@@ -16,6 +16,7 @@ protected $table = 'report_cards';
         'academic_year_id',
         'average',
         'rank',
+        'term_id',
         'appreciation',
         'report_card_pdf_path',
     ];

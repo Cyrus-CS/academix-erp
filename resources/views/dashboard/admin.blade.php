@@ -8,7 +8,7 @@
 
 @php
 use Illuminate\Support\Facades\Auth;
-Auth::loginUsingId(64);
+Auth::loginUsingId(1);
 @endphp
 
 @section('content')
@@ -85,7 +85,7 @@ Auth::loginUsingId(64);
                     </p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/40
-                            flex items-center justify-center flex-shrink-0">
+                            flex items-center justify-center shrink-0">
                     <i class="bi bi-people-fill text-blue-600 dark:text-blue-400 text-xl"></i>
                 </div>
             </div>
@@ -116,7 +116,7 @@ Auth::loginUsingId(64);
                     </p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40
-                            flex items-center justify-center flex-shrink-0">
+                            flex items-center justify-center shrink-0">
                     <i class="bi bi-person-badge-fill text-emerald-600 dark:text-emerald-400 text-xl"></i>
                 </div>
             </div>
@@ -145,7 +145,7 @@ Auth::loginUsingId(64);
                     </p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/40
-                            flex items-center justify-center flex-shrink-0">
+                            flex items-center justify-center shrink-0">
                     <i class="bi bi-building text-violet-600 dark:text-violet-400 text-xl"></i>
                 </div>
             </div>
@@ -174,7 +174,7 @@ Auth::loginUsingId(64);
                     </p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/40
-                            flex items-center justify-center flex-shrink-0">
+                            flex items-center justify-center shrink-0">
                     <i class="bi bi-cash-stack text-amber-600 dark:text-amber-400 text-xl"></i>
                 </div>
             </div>
@@ -196,7 +196,7 @@ Auth::loginUsingId(64);
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-4">
             <div class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40
-                        flex items-center justify-center flex-shrink-0">
+                        flex items-center justify-center shrink-0">
                 <i class="bi bi-check-circle-fill text-emerald-500 text-2xl"></i>
             </div>
             <div>
@@ -215,7 +215,7 @@ Auth::loginUsingId(64);
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-4">
             <div class="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/40
-                        flex items-center justify-center flex-shrink-0">
+                        flex items-center justify-center shrink-0">
                 <i class="bi bi-x-circle-fill text-red-500 text-2xl"></i>
             </div>
             <div>
@@ -234,7 +234,7 @@ Auth::loginUsingId(64);
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-4">
             <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40
-                        flex items-center justify-center flex-shrink-0">
+                        flex items-center justify-center shrink-0">
                 <i class="bi bi-exclamation-circle-fill text-amber-500 text-2xl"></i>
             </div>
             <div>
@@ -347,7 +347,7 @@ Auth::loginUsingId(64);
                 @endphp
                 <div class="flex items-center gap-3">
                     <span class="text-xs font-medium text-slate-600 dark:text-slate-300
-                                 w-20 sm:w-24 truncate flex-shrink-0">
+                                 w-20 sm:w-24 truncate shrink-0">
                         {{ $item['name'] }}
                     </span>
                     <div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -355,7 +355,7 @@ Auth::loginUsingId(64);
                             style="width: {{ $pct }}%"></div>
                     </div>
                     <span class="text-xs font-semibold text-slate-700 dark:text-slate-300
-                                 w-8 text-right flex-shrink-0">
+                                 w-8 text-right shrink-0">
                         {{ $item['count'] }}
                     </span>
                 </div>
@@ -391,8 +391,8 @@ Auth::loginUsingId(64);
                 <div class="flex items-center gap-3 px-5 py-3
                             hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     {{-- Avatar --}}
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-red-600
-                                flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-linear-to-br from-red-400 to-red-600
+                                flex items-center justify-center text-white text-xs font-bold shrink-0">
                         {{ strtoupper(substr($student->user->name ?? 'E', 0, 1)) }}
                     </div>
                     <div class="min-w-0 flex-1">
@@ -403,7 +403,7 @@ Auth::loginUsingId(64);
                             {{ $student->classe->name ?? '—' }}
                         </p>
                     </div>
-                    <span class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold
+                    <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold
                                  bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
                         {{ $student->absences_count }}x
                     </span>
@@ -475,15 +475,14 @@ Auth::loginUsingId(64);
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full bg-gradient-to-br
+                                    <div class="w-7 h-7 rounded-full bg-linear-to-br
                                                 from-blue-500 to-emerald-500
                                                 flex items-center justify-center
-                                                text-white text-[10px] font-bold flex-shrink-0">
+                                                text-white text-[10px] font-bold shrink-0">
                                         {{ strtoupper(substr($payment->student->user->name ?? 'E', 0, 1)) }}
                                     </div>
                                     <div class="min-w-0">
-                                        <p
-                                            class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[120px]">
+                                        <p class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-30">
                                             {{ $payment->student->user->name ?? '—' }}
                                         </p>
                                         <p class="text-[10px] text-slate-400 dark:text-slate-500">
@@ -493,8 +492,8 @@ Auth::loginUsingId(64);
                                 </div>
                             </td>
                             <td class="px-3 py-3 text-slate-500 dark:text-slate-400
-                                       hidden sm:table-cell truncate max-w-[100px]">
-                                {{ $payment->feeType->name ?? '—' }}
+                                       hidden sm:table-cell truncate max-w-25">
+                                {{ $payment->feeType->name ?? '|' }}
                             </td>
                             <td class="px-3 py-3 text-right font-semibold
                                        text-slate-700 dark:text-slate-200 whitespace-nowrap">
@@ -564,8 +563,8 @@ Auth::loginUsingId(64);
                     $urgency = $daysLeft <= 7 ? 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30'
                         : 'text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30' ; @endphp <div class="flex items-center gap-3 px-5 py-3
                                 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-violet-600
-                                    flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-linear-to-br from-violet-400 to-violet-600
+                                    flex items-center justify-center text-white text-xs font-bold shrink-0">
                             {{ strtoupper(substr($contract->teacher->user->name ?? 'P', 0, 1)) }}
                         </div>
                         <div class="min-w-0 flex-1">
@@ -576,7 +575,7 @@ Auth::loginUsingId(64);
                                 Expire le {{ $contract->end_date->format('d/m/Y') }}
                             </p>
                         </div>
-                        <span class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold {{ $urgency }}">
+                        <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold {{ $urgency }}">
                             J-{{ $daysLeft }}
                         </span>
                 </div>
@@ -607,7 +606,7 @@ Auth::loginUsingId(64);
                 @forelse($announcements as $announcement)
                 <div class="px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <div class="flex items-start gap-2">
-                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
                         <div class="min-w-0">
                             <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
                                 {{ $announcement->title }}

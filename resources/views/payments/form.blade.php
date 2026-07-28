@@ -89,7 +89,7 @@
                                 @foreach($students as $student)
                                 <option value="{{ $student->id }}"
                                     {{ old('student_id', $payment->student_id) == $student->id ? 'selected' : '' }}>
-                                    {{ $student->user->name }} — {{ $student->student_number }}
+                                    {{ $student->user->name }} -{{ $student->matricule }}
                                 </option>
                                 @endforeach
                             </select>
@@ -128,7 +128,7 @@
                                 @foreach($feeTypes as $feeType)
                                 <option value="{{ $feeType->id }}" data-amount="{{ $feeType->amount }}"
                                     {{ old('fee_type_id', $payment->fee_type_id) == $feeType->id ? 'selected' : '' }}>
-                                    {{ $feeType->name }} — {{ number_format($feeType->amount, 0, ',', ' ') }} FCFA
+                                    {{ $feeType->name }} - {{ number_format($feeType->amount, 0, ',', ' ') }} FCFA
                                 </option>
                                 @endforeach
                             </select>
@@ -152,13 +152,13 @@
                             <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
-                            <input type="number" name="amount" id="amount" min="0" step="100"
-                                value="{{ old('amount', $payment->amount) }}" placeholder="0"
+                            <input type="number" name="amount_paid" id="amount_paid" min="0" step="100"
+                                value="{{ old('amount_paid', $payment->amount_paid) }}" placeholder="0"
                                 class="w-full pl-3.5 pr-24 py-2.5 rounded-xl border text-sm font-semibold
                                           text-slate-800 dark:text-slate-100
                                           bg-white dark:bg-slate-700/50 placeholder-slate-400
                                           focus:outline-none focus:ring-2 transition-all duration-200
-                                          {{ $errors->has('amount')
+                                          {{ $errors->has('amount_paid')
                                               ? 'border-red-500 focus:ring-red-500/40'
                                               : 'border-slate-200 dark:border-slate-600 focus:ring-blue-500/30 focus:border-blue-500' }}" required>
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3.5
@@ -174,7 +174,7 @@
                             <i class="bi bi-lightbulb"></i>
                             <span id="suggestion-text"></span>
                         </p>
-                        @error('amount')
+                        @error('amount_paid')
                         <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
                             <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
                         </p>
@@ -281,10 +281,10 @@
                         </div>
 
                         <x-forms.select name="status" label="Statut" icon="bi-circle-fill" :options="[
-                                'paid'      => '✅ Payé',
-                                'pending'   => '⏳ En attente',
-                                'overdue'   => '⚠️ En retard',
-                                'cancelled' => '❌ Annulé',
+                                'paid'      => 'Payé',
+                                'pending'   => 'En attente',
+                                'overdue'   => 'En retard',
+                                'cancelled' => 'Annulé',
                             ]" :value="old('status', $payment->status ?? 'paid')" required />
                     </div>
 
@@ -294,7 +294,7 @@
                         icon="bi-calendar-event" class="flatpickr-date" required />
 
                     {{-- Notes --}}
-                    <x-forms.textarea name="notes" label="Notes" :value="old('notes', $payment->notes)"
+                    <x-forms.textarea name="note" label="Notes" :value="old('note', $payment->note)"
                         placeholder="Remarques ou informations complémentaires…" rows="2"
                         help="Optionnel. Maximum 500 caractères." />
 
@@ -412,7 +412,7 @@
     // ── Refs DOM ──────────────────────────────────────────────────
     const studentSel = document.getElementById('student_id');
     const feeTypeSel = document.getElementById('fee_type_id');
-    const amountInput = document.getElementById('amount');
+    const amountInput = document.getElementById('amount_paid');
     const methodOpts = document.querySelectorAll('.payment-method-option');
     const statusSel = document.querySelector('[name="status"]');
     const refInput = document.getElementById('transaction_reference');
@@ -435,10 +435,10 @@
     };
 
     const statusLabels = {
-        paid: '✅ Payé',
-        pending: '⏳ En attente',
-        overdue: '⚠️ En retard',
-        cancelled: '❌ Annulé',
+        paid: 'Payé',
+        pending: 'En attente',
+        overdue: 'En retard',
+        cancelled: 'Annulé',
     };
 
     // ── Auto-remplir montant depuis fee type ───────────────────────

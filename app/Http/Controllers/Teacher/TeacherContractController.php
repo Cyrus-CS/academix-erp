@@ -8,6 +8,7 @@ use App\Models\TeacherContract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 // use Illuminate\Http\Request;
 
@@ -28,8 +29,8 @@ class TeacherContractController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        if ($request->filled('type')) {
-            $query->where('type', $request->input('type'));
+        if ($request->filled('contract_ttype')) {
+            $query->where('contract_type', $request->input('contract_type'));
         }
 
         $contracts = $query->paginate(15)->withQueryString();
@@ -44,7 +45,7 @@ class TeacherContractController extends Controller
                 ->count(),
         ];
 
-        return view('teacher-assignments.index', compact('contracts', 'teachers', 'stats'));
+        return view('teacher-contracts.index', compact('contracts', 'teachers', 'stats'));
     }
 
     public function create(): View
@@ -55,33 +56,35 @@ class TeacherContractController extends Controller
             ->orderBy('employee_number')
             ->get();
 
-        return view('teacher-assignments.form', compact('contract', 'teachers'));
+        return view('teacher-contracts.form', compact('contract', 'teachers'));
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $teacher_contract = $request->route('teacher-contracts');
         $validated = $request->validate([
             'teacher_id'  => ['required', 'exists:teachers,id'],
-            'type'        => ['required', 'in:permanent,temporary,part_time,internship'],
+            'contract_type' => ['required', 'in:permanent,temporary,part_time,internship'],
             'start_date'  => ['required', 'date'],
+            'contract_number' => ['required', 'string', 'max:150', Rule::unique('teachers_contracts', 'contract_number')->ignore($teacher_contract?->teacher_id)],
             'end_date'    => ['nullable', 'date', 'after:start_date'],
             'salary'      => ['required', 'numeric', 'min:0'],
             'status'      => ['required', 'in:active,expired,terminated'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'document'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+            'contract_pdf_path'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
         ], [
             'teacher_id.required' => "L'enseignant est obligatoire.",
             'type.required'       => 'Le type de contrat est obligatoire.',
             'start_date.required' => 'La date de début est obligatoire.',
             'salary.required'     => 'Le salaire est obligatoire.',
             'end_date.after'      => 'La date de fin doit être après la date de début.',
-            'document.mimes'      => 'Le document doit être un fichier PDF, DOC ou DOCX.',
-            'document.max'        => 'Le document ne doit pas dépasser 5 Mo.',
+            'contract_pdf_path.mimes'      => 'Le document doit être un fichier PDF, DOC ou DOCX.',
+            'contract_pdf_path.max'        => 'Le document ne doit pas dépasser 5 Mo.',
         ]);
 
         // Upload document contrat
-        if ($request->hasFile('document')) {
-            $validated['document_path'] = $request->file('document')
+        if ($request->hasFile('contract_pdf_path')) {
+            $validated['contract_pdf_path'] = $request->file('contract_pdf_path')
                 ->store('contracts', 'public');
         }
 
@@ -95,7 +98,7 @@ class TeacherContractController extends Controller
     {
         $teacherContract->load('teacher.user');
 
-        return view('teacher-assignments.show', compact('teacherContract'));
+        return view('teacher-contracts.show', compact('teacherContract'));
     }
 
     public function edit(TeacherContract $teacherContract): View
@@ -105,35 +108,37 @@ class TeacherContractController extends Controller
             ->orderBy('employee_number')
             ->get();
 
-        return view('teacher-assignments.form', compact('teacherContract', 'teachers'));
+        return view('teacher-contracts.form', compact('teacherContract', 'teachers'));
     }
 
     public function update(Request $request, TeacherContract $teacherContract): RedirectResponse
     {
+        $teacher_contract = $request->route('teacher-contracts');
         $validated = $request->validate([
             'teacher_id'  => ['required', 'exists:teachers,id'],
-            'type'        => ['required', 'in:permanent,temporary,part_time,internship'],
+            'contract_type'        => ['required', 'in:permanent,temporary,part_time,internship'],
+            'contract_number' => ['required', 'string', 'max:150', Rule::unique('teachers_contracts', 'contract_number')->ignore($teacher_contract?->teacher_id)],
             'start_date'  => ['required', 'date'],
             'end_date'    => ['nullable', 'date', 'after:start_date'],
             'salary'      => ['required', 'numeric', 'min:0'],
             'status'      => ['required', 'in:active,expired,terminated'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'document'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+            'contract_pdf_path'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
         ]);
 
         // Nouveau document
-        if ($request->hasFile('document')) {
+        if ($request->hasFile('contract_pdf_path')) {
             // Supprimer l'ancien
-            if ($teacherContract->document_path) {
-                Storage::disk('public')->delete($teacherContract->document_path);
+            if ($teacherContract->contract_pdf_path) {
+                Storage::disk('public')->delete($teacherContract->contract_pdf_path);
             }
-            $validated['document_path'] = $request->file('document')
+            $validated['contract_pdf_path'] = $request->file('contract_pdf_path')
                 ->store('contracts', 'public');
         }
 
         $teacherContract->update($validated);
 
-        return to_route('teacher-assignments.index')
+        return to_route('teacher-contracts.index')
             ->with('success', 'Le contrat a été mis à jour avec succès.');
     }
 
@@ -145,8 +150,8 @@ class TeacherContractController extends Controller
         }
 
         // Supprimer le document
-        if ($teacherContract->document_path) {
-            Storage::disk('public')->delete($teacherContract->document_path);
+        if ($teacherContract->contract_pdf_path) {
+            Storage::disk('public')->delete($teacherContract->contract_pdf_path);
         }
 
         $teacherContract->delete();

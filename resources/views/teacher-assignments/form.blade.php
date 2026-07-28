@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('page_title', isset($teacherAssignment) && $teacherAssignment->exists
+@section('page_title', isset($assignment) && $assignment->exists
 ? 'Modifier l\'assignation'
 : 'Nouvelle assignation')
 
@@ -13,7 +13,7 @@
 @endsection
 
 @section('page_header')
-@php $isEdit = isset($teacherAssignment) && $teacherAssignment->exists; @endphp
+@php $isEdit = isset($assignment) && $assignment->exists; @endphp
 <div class="flex items-center justify-between gap-4">
     <div class="flex items-center gap-3 min-w-0">
         <div class="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-emerald-500
@@ -42,9 +42,7 @@
 
 @section('content')
 @php
-$model = isset($teacherAssignment) && $teacherAssignment->exists
-? $teacherAssignment
-: new \App\Models\TeacherContract();
+$model = isset($assignment) && $assignment->exists ? $assignment : new \App\Models\ClassSubjectTeacher();
 @endphp
 
 <x-forms.form :model="$model" resource="teacher-assignments" class="space-y-6 max-w-3xl mx-auto">
@@ -98,7 +96,7 @@ $model = isset($teacherAssignment) && $teacherAssignment->exists
                         <option value="{{ $teacher->id }}"
                             {{ old('teacher_id', $model->teacher_id) == $teacher->id ? 'selected' : '' }}
                             data-number="{{ $teacher->employee_number }}">
-                            {{ $teacher->user->name }} — {{ $teacher->employee_number }}
+                            {{ $teacher->user->name }} - {{ $teacher->employee_number }}
                         </option>
                         @endforeach
                     </select>
@@ -119,8 +117,8 @@ $model = isset($teacherAssignment) && $teacherAssignment->exists
                     option-value="id" option-label="name" :value="old('subject_id', $model->subject_id)"
                     placeholder="Sélectionner une matière…" required />
 
-                <x-forms.select name="school_class_id" label="Classe" icon="bi-building" :options="$classes"
-                    option-value="id" option-label="name" :value="old('school_class_id', $model->school_class_id)"
+                <x-forms.select name="class_id" label="Classe" icon="bi-building" :options="$classes" option-value="id"
+                    option-label="name" :value="old('class_id', $model->class_id)"
                     placeholder="Sélectionner une classe…" required />
             </div>
 
@@ -193,7 +191,7 @@ $model = isset($teacherAssignment) && $teacherAssignment->exists
 (() => {
     const teacherSel = document.getElementById('teacher_id');
     const subjectSel = document.querySelector('[name="subject_id"]');
-    const classSel = document.querySelector('[name="school_class_id"]');
+    const classSel = document.querySelector('[name="class_id"]');
     const yearSel = document.querySelector('[name="academic_year_id"]');
     const preview = document.getElementById('assignment-preview');
     const conflictBox = document.getElementById('conflict-alert');

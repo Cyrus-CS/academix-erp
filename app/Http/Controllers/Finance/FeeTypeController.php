@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicYear;
 use App\Models\FeeType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class FeeTypeController extends Controller
     {
         $query = FeeType::query()
             ->withCount('payments')
-            ->withSum('payments', 'amount')
+            ->withSum('payments', 'amount_paid')
             ->latest();
 
         if ($request->filled('search')) {
@@ -65,6 +66,7 @@ class FeeTypeController extends Controller
         ]);
 
         $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['academic_year_id'] = AcademicYear::active()->value('id');
 
         FeeType::create($validated);
 
@@ -84,7 +86,7 @@ class FeeTypeController extends Controller
 
         $stats = [
             'total_payments'  => $feeType->payments()->count(),
-            'total_amount'    => $feeType->payments()->sum('amount'),
+            'total_amount'    => $feeType->payments()->sum('amount_paid'),
             'paid_count'      => $feeType->payments()->where('status', 'paid')->count(),
             'pending_count'   => $feeType->payments()->where('status', 'pending')->count(),
             'overdue_count'   => $feeType->payments()->where('status', 'overdue')->count(),
@@ -115,6 +117,7 @@ class FeeTypeController extends Controller
         ]);
 
         $validated['is_active'] = $request->boolean('is_active');
+        $validated['academic_year_id'] = AcademicYear::active()->value('id');
 
         $feeType->update($validated);
 

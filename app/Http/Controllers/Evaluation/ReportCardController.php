@@ -20,7 +20,7 @@ use Illuminate\View\View;
 
 class ReportCardController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $activeYear  = AcademicYear::active()->first();
         $reportCards = ReportCard::with('student.user', 'student.classe', 'term', 'academicYear')
@@ -51,7 +51,7 @@ class ReportCardController extends Controller
         $terms       = Term::where('academic_year_id', $activeYear?->id)
             ->orderBy('start_date')
             ->get();
-        $students    = Student::with('user')->orderBy('student_number')->get();
+        $students    = Student::with('user')->orderBy('matricule')->get();
         $reportCard  = new ReportCard();
 
         return view('report-cards.form', compact(
@@ -130,7 +130,7 @@ class ReportCardController extends Controller
         $activeYear = AcademicYear::active()->first();
         $classes    = Classe::orderBy('name')->get();
         $terms      = Term::where('academic_year_id', $activeYear?->id)->get();
-        $students   = Student::with('user')->orderBy('student_number')->get();
+        $students   = Student::with('user')->orderBy('matricule')->get();
 
         return view('report-cards.form', compact(
             'reportCard',
@@ -262,6 +262,7 @@ class ReportCardController extends Controller
         int $academicYearId,
         int $classId
     ): ReportCard {
+        
         // Récupérer les notes du trimestre
         $grades = Grade::where('student_id', $studentId)
             ->where('term_id', $termId)
@@ -289,7 +290,7 @@ class ReportCardController extends Controller
         // Appréciation
         $appreciation = $this->getAppreciation($average);
 
-        return ReportCard::create([
+        $reportCard = ReportCard::create([
             'student_id'       => $studentId,
             'term_id'          => $termId,
             'academic_year_id' => $academicYearId,
@@ -299,6 +300,12 @@ class ReportCardController extends Controller
             'appreciation'     => $appreciation,
             'total_students'   => Student::where('class_id', $classId)->count(),
         ]);
+        
+        Grade::where('student_id', $studentId)
+            ->where('term_id', $termId)
+            ->update(['report_card_id' => $reportCard->id]);
+
+        return $reportCard;
     }
 
     /**

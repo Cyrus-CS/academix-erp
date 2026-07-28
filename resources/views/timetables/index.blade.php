@@ -363,8 +363,7 @@
                         @php
                         $dayKey = strtolower($day);
                         $slots = $slotsByDay->get($dayKey, collect());
-                        $isToday = strtolower(now()->locale('fr')->dayName)
-                        === strtolower($slot->day_name);
+                        $isToday = strtolower(now()->locale('fr')->dayName) === $dayKey;
                         @endphp
                         <div class="text-center">
                             <div class="text-[10px] font-semibold uppercase tracking-wide mb-1.5

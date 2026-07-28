@@ -42,7 +42,7 @@ class StudentService{
 
             // ── Notification création ──────────────────────────────
             // Notifier tous les admins
-            $admins = auth()->user()->hasRole('Admin');
+            $admins = User::role('Admin')->get();
 
             Notification::send(
                 $admins,

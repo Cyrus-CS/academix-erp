@@ -11,12 +11,12 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-// use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
@@ -74,7 +74,7 @@ class PaymentController extends Controller
                                         ->sum('amount_paid'),
         ];
 
-        $students  = Student::with('user')->orderBy('student_number')->get();
+        $students  = Student::with('user')->orderBy('matricule')->get();
         $feeTypes  = FeeType::where('is_active', true)->orderBy('name')->get();
 
         return view('payments.index', compact('payments', 'stats', 'students', 'feeTypes'));
@@ -86,7 +86,7 @@ class PaymentController extends Controller
     public function create(): View
     {
         $payment  = new Payment();
-        $students = Student::with('user')->orderBy('student_number')->get();
+        $students = Student::with('user')->orderBy('matricule')->get();
         $feeTypes = FeeType::where('is_active', true)->orderBy('name')->get();
 
         return view('payments.form', compact('payment', 'students', 'feeTypes'));
@@ -103,9 +103,9 @@ class PaymentController extends Controller
             'amount_paid'                => ['required', 'numeric', 'min:0'],
             'payment_method'        => ['required', 'in:cash,bank_transfer,mobile_money,check,card'],
             'transaction_reference' => ['nullable', 'string', 'max:100'],
-            'status'                => ['required', 'in:paid,pending,overdue,cancelled'],
+            'status'  => ['required', 'in:paid,pending,overdue,cancelled'],
             'paid_at'               => ['required', 'date'],
-            'notes'                 => ['nullable', 'string', 'max:500'],
+            'note'                 => ['nullable', 'string', 'max:500'],
         ], [
             'student_id.required'     => "L'étudiant est obligatoire.",
             'fee_type_id.required'    => 'Le type de frais est obligatoire.',
@@ -123,7 +123,7 @@ class PaymentController extends Controller
             if (empty($validated['transaction_reference'])) {
                 $validated['transaction_reference'] = $this->generateReference();
             }
-
+            $validated['created_by'] = Auth::id(); 
             $payment = Payment::create($validated);
 
             // Générer le QR Code pour vérification du reçu
@@ -176,7 +176,7 @@ class PaymentController extends Controller
      */
     public function edit(Payment $payment): View
     {
-        $students = Student::with('user')->orderBy('student_number')->get();
+        $students = Student::with('user')->orderBy('matricule')->get();
         $feeTypes = FeeType::where('is_active', true)->orderBy('name')->get();
 
         return view('payments.form', compact('payment', 'students', 'feeTypes'));

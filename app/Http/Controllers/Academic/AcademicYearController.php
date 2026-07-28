@@ -96,11 +96,15 @@ class AcademicYearController extends Controller
     // Réordonner
     public function reorder(Request $request): \Illuminate\Http\JsonResponse
     {
+        $request->validate([
+            'order'   => ['required', 'array'],
+            'order.*' => ['integer', 'exists:academic_years,id'],
+        ]);
+    
         $order = $request->input('order', []);
         foreach ($order as $position => $id) {
             AcademicYear::where('id', $id)->update(['order' => $position + 1]);
         }
         return response()->json(['ok' => true]);
     }
-    
 }

@@ -30,7 +30,7 @@ class GradeController extends Controller
                 'subject',
                 'term.academicYear',
                 'teacher.user',
-                'schoolClass',
+                'classe',
             ])
             ->latest();
 
@@ -42,7 +42,7 @@ class GradeController extends Controller
 
         // Filtres
         if ($request->filled('class_id')) {
-            $query->where('school_class_id', $request->input('class_id'));
+            $query->where('class_id', $request->input('class_id'));
         }
 
         if ($request->filled('subject_id')) {
@@ -65,7 +65,7 @@ class GradeController extends Controller
         $classes  = Classe::orderBy('name')->get();
         $subjects = Subject::where('is_active', true)->orderBy('name')->get();
         $terms    = Term::with('academicYear')->orderByDesc('start_date')->get();
-        $students = Student::with('user')->orderBy('student_number')->get();
+        $students = Student::with('user')->orderBy('matricule')->get();
 
         return view('grades.index', compact(
             'grades',
@@ -83,20 +83,23 @@ class GradeController extends Controller
     {
         $grade    = new Grade();
         $user     = Auth::user();
-        $students = Student::with('user')->orderBy('student_number')->get();
+        $students = Student::with('user')->orderBy('matricule')->get();
         $terms    = Term::with('academicYear')->orderByDesc('start_date')->get();
         $classes  = Classe::orderBy('name')->get();
         $currentTerm = Term::where('is_current', true)->first();
 
         // Si enseignant : filtrer ses matières
+        // Récupérer le teacher_id selon le rôle
         if ($user->hasRole('Teacher')) {
             $teacher  = Teacher::where('user_id', $user->id)->firstOrFail();
-            $subjects = Subject::whereHas('teacherAssignments', fn($q) =>
+            $subjects = Subject::whereHas('assignments', fn($q) =>
                 $q->where('teacher_id', $teacher->id)
             )->get();
+            $teachers = collect(); // pas utilisé côté vue si $teacher existe
         } else {
             $subjects = Subject::where('is_active', true)->orderBy('name')->get();
             $teacher  = null;
+            $teachers = Teacher::with('user')->orderBy('id')->get(); 
         }
 
         return view('grades.form', compact(
@@ -106,7 +109,8 @@ class GradeController extends Controller
             'terms',
             'classes',
             'currentTerm',
-            'teacher'
+            'teacher',
+            'teachers'
         ));
     }
 
@@ -121,9 +125,10 @@ class GradeController extends Controller
             'student_id'      => ['required', 'exists:students,id'],
             'subject_id'      => ['required', 'exists:subjects,id'],
             'term_id'         => ['required', 'exists:terms,id'],
-            'school_class_id' => ['required', 'exists:school_classes,id'],
-            'type'            => ['required', Rule::in(['homework', 'test', 'exam'])],
-            'score'           => ['required', 'numeric', 'min:0', 'max:20'],
+            'class_id' => ['required', 'exists:classes,id'],
+            'teacher_id' => ['required', 'exists:teachers,id'],
+            'type'   => ['required', Rule::in(['homework', 'test', 'exam'])],
+            'score' => ['required', 'numeric', 'min:0', 'max:20'],
             'max_score'       => ['required', 'numeric', 'min:1', 'max:20'],
             'comment'         => ['nullable', 'string', 'max:500'],
             'graded_at'       => ['required', 'date'],
@@ -131,21 +136,13 @@ class GradeController extends Controller
             'student_id.required'      => "L'étudiant est obligatoire.",
             'subject_id.required'      => 'La matière est obligatoire.',
             'term_id.required'         => 'Le trimestre est obligatoire.',
-            'school_class_id.required' => 'La classe est obligatoire.',
+            'class_id.required' => 'La classe est obligatoire.',
             'type.required'            => 'Le type de note est obligatoire.',
             'score.required'           => 'La note est obligatoire.',
             'score.min'                => 'La note minimum est 0.',
             'score.max'                => 'La note maximum est 20.',
             'graded_at.required'       => 'La date d\'évaluation est obligatoire.',
         ]);
-
-        // Récupérer le teacher_id selon le rôle
-        if ($user->hasRole('Teacher')) {
-            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
-            $validated['teacher_id'] = $teacher->id;
-        } else {
-            $validated['teacher_id'] = $request->input('teacher_id');
-        }
 
         // Vérifier l'unicité (même étudiant, même matière, même trimestre, même type)
         $exists = Grade::where([
@@ -161,6 +158,10 @@ class GradeController extends Controller
                 ->withInput()
                 ->with('warning', 'Une note de ce type existe déjà pour cet étudiant dans cette matière ce trimestre.');
         }
+
+        // Déduire l'année académique depuis le trimestre sélectionné
+        $term = Term::findOrFail($validated['term_id']);
+        $validated['academic_year_id'] = $term->academic_year_id;
 
         Grade::create($validated);
 
@@ -181,7 +182,7 @@ class GradeController extends Controller
             'subject',
             'term.academicYear',
             'teacher.user',
-            'schoolClass',
+            'classe',
         ]);
 
         return view('grades.show', compact('grade'));
@@ -195,18 +196,20 @@ class GradeController extends Controller
         $this->authorizeGradeAccess($grade);
 
         $user     = Auth::user();
-        $students = Student::with('user')->orderBy('student_number')->get();
+        $students = Student::with('user')->orderBy('matricule')->get();
         $terms    = Term::with('academicYear')->orderByDesc('start_date')->get();
         $classes  = Classe::orderBy('name')->get();
 
-        if ($user->hasRole('Teacher')) {
+         if ($user->hasRole('Teacher')) {
             $teacher  = Teacher::where('user_id', $user->id)->firstOrFail();
-            $subjects = Subject::whereHas('teacherAssignments', fn($q) =>
+            $subjects = Subject::whereHas('assignments', fn($q) =>
                 $q->where('teacher_id', $teacher->id)
             )->get();
+            $teachers = collect(); // pas utilisé côté vue si $teacher existe
         } else {
             $subjects = Subject::where('is_active', true)->orderBy('name')->get();
             $teacher  = null;
+            $teachers = Teacher::with('user')->orderBy('id')->get(); 
         }
 
         return view('grades.form', compact(
@@ -215,7 +218,8 @@ class GradeController extends Controller
             'subjects',
             'terms',
             'classes',
-            'teacher'
+            'teacher',
+            'teachers'
         ));
     }
 
@@ -225,12 +229,14 @@ class GradeController extends Controller
     public function update(Request $request, Grade $grade): RedirectResponse
     {
         $this->authorizeGradeAccess($grade);
+        $user = Auth::user();
 
         $validated = $request->validate([
             'student_id'      => ['required', 'exists:students,id'],
             'subject_id'      => ['required', 'exists:subjects,id'],
             'term_id'         => ['required', 'exists:terms,id'],
-            'school_class_id' => ['required', 'exists:school_classes,id'],
+            'class_id' => ['required', 'exists:classes,id'],
+            'teacher_id' => ['required', 'exists:teachers,id'],
             'type'            => ['required', Rule::in(['homework', 'test', 'exam'])],
             'score'           => ['required', 'numeric', 'min:0', 'max:20'],
             'max_score'       => ['required', 'numeric', 'min:1', 'max:20'],

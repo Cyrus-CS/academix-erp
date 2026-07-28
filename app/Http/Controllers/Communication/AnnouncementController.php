@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Communication;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\User;
+use App\Notifications\AnnouncementNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class AnnouncementController extends Controller
@@ -38,8 +41,8 @@ class AnnouncementController extends Controller
 
         return view('announcements.form', [
             'announcement' => $announcement,
-            'audiences'    => [
-                'all'      => 'Tous',
+                'audiences'    => [
+                'all'=> 'Tous',
                 'teachers' => 'Enseignants',
                 'students' => 'Élèves',
                 'parents'  => 'Parents',
@@ -51,24 +54,50 @@ class AnnouncementController extends Controller
     {
         $validated = $request->validate([
             'title'      => ['required', 'string', 'max:200'],
-            'content'    => ['required', 'string'],
+            'message'    => ['required', 'string'],
             'audience'   => ['required', 'in:all,teachers,students,parents'],
             'expires_at' => ['nullable', 'date', 'after:now'],
             'is_pinned'  => ['boolean'],
         ], [
             'title.required'    => 'Le titre est obligatoire.',
-            'content.required'  => 'Le contenu est obligatoire.',
+            'message.required'  => 'Le contenu est obligatoire.',
             'audience.required' => 'L\'audience est obligatoire.',
             'expires_at.after'  => 'La date d\'expiration doit être dans le futur.',
         ]);
 
-        $validated['user_id']   = Auth::id();
+        $validated['published_at'] = now();
+        $validated['created_by']   = Auth::id();
         $validated['is_pinned'] = $request->boolean('is_pinned');
 
         $announcement = Announcement::create($validated);
 
-        return to_route('announcements.index')
-            ->with('success', "L'annonce « {$announcement->title} » a été publiée avec succès.");
+        // Cible selon l'audience choisie
+        $targets = match ($announcement->audience) {
+        'all' => User::whereHas('roles', fn ($q) =>
+            $q->whereIn('name', ['Admin', 'Teacher', 'Student', 'Parent'])
+        )->get(),
+
+        'teachers' => User::whereHas('roles', fn ($q) =>
+            $q->where('name', 'Teacher')
+        )->get(),
+
+        'students' => User::whereHas('roles', fn ($q) =>
+            $q->where('name', 'Student')
+        )->get(),
+
+        'parents' => User::whereHas('roles', fn ($q) =>
+            $q->where('name', 'Parent')
+        )->get(),
+    };
+
+    Notification::send($targets, new AnnouncementNotification($announcement));
+
+    // Notifier aussi les admins que l'annonce a bien été diffusée
+    $admins = User::role('Admin')->get();
+    Notification::send($admins, new AnnouncementNotification($announcement));
+
+    return to_route('announcements.index')
+        ->with('success', "L'annonce « {$announcement->title} » a été publiée avec succès.");
     }
 
     public function show(Announcement $announcement): View
@@ -95,12 +124,13 @@ class AnnouncementController extends Controller
     {
         $validated = $request->validate([
             'title'      => ['required', 'string', 'max:200'],
-            'content'    => ['required', 'string'],
+            'message'    => ['required', 'string'],
             'audience'   => ['required', 'in:all,teachers,students,parents'],
             'expires_at' => ['nullable', 'date'],
             'is_pinned'  => ['boolean'],
         ]);
 
+        $validated['published_at'] = now();
         $validated['is_pinned'] = $request->boolean('is_pinned');
 
         $announcement->update($validated);

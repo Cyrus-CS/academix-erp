@@ -149,7 +149,7 @@ $refNumber = str_pad($payment->id, 5, '0', STR_PAD_LEFT);
                     Montant réglé
                 </p>
                 <p class="text-3xl font-black text-white">
-                    {{ number_format($payment->amount ?? 0, 0, ',', ' ') }}
+                    {{ number_format($payment->amount_paid ?? 0, 0, ',', ' ') }}
                 </p>
                 <p class="text-white/80 text-sm">FCFA</p>
             </div>

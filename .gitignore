@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+erp_scolaire.sql
+/database
+/database/migrations
+/database/seeders

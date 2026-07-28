@@ -218,7 +218,6 @@
                     @foreach([
                     ['route' => 'profile.edit', 'icon' => 'bi-person-circle', 'label' => 'Mon profil'],
                     ['route' => 'settings.index', 'icon' => 'bi-gear-fill', 'label' => 'Paramètres'],
-                    ['route' => 'help.index', 'icon' => 'bi-question-circle', 'label' => 'Aide & Support'],
                     ] as $item)
                     <a href="{{ route($item['route']) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm
                       text-slate-700 dark:text-slate-300

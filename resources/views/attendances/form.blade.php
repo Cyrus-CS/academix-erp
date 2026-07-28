@@ -97,6 +97,36 @@
                                   focus:ring-blue-500/30 focus:border-blue-500">
                 </div>
 
+                {{-- Select créneau (remplace le select matière) --}}
+                <div class="flex-1 relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                        <i class="bi bi-journal-bookmark text-slate-400"></i>
+                    </span>
+
+                    <select name="schedule_id" class="w-full pl-10 pr-9 py-2.5 rounded-xl border text-sm
+                        text-slate-800 dark:text-slate-100
+                        bg-white dark:bg-slate-700/50 appearance-none
+                        focus:outline-none focus:ring-2 transition-all duration-200
+                        border-slate-200 dark:border-slate-600
+                        focus:ring-blue-500/30 focus:border-blue-500" {{ $schedules->isEmpty() ? 'disabled' : '' }}>
+                        <option value="">Sélectionner un créneau…</option>
+                        @foreach($schedules as $schedule)
+                        <option value="{{ $schedule->id }}"
+                            {{ (string) $scheduleId === (string) $schedule->id ? 'selected' : '' }}>
+                            {{ $schedule->subject?->name }}
+                            |
+                            {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}-{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
+                            @if($schedule->teacher?->user)
+                            ({{ $schedule->teacher->user->name }})
+                            @endif
+                        </option>
+                        @endforeach
+                    </select>
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+                        <i class="bi bi-chevron-down text-slate-400 text-xs"></i>
+                    </span>
+                </div>
+
                 <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
                                bg-blue-600 hover:bg-blue-700 text-white
                                transition-all duration-200 shrink-0">
@@ -108,11 +138,12 @@
     </div>
 
     {{-- ── Liste étudiants ── --}}
-    @if($selectedClass && $selectedClass->students->isNotEmpty())
+    @if($selectedClass && $selectedSchedule && $selectedClass->students->isNotEmpty())
     <form method="POST" action="{{ route('attendance.store') }}">
         @csrf
         <input type="hidden" name="class_id" value="{{ $selectedClass->id }}">
         <input type="hidden" name="date" value="{{ $date }}">
+        <input type="hidden" name="schedule_id" value="{{ $scheduleId }}">
 
         <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
                     dark:border-slate-700 shadow-sm overflow-hidden">

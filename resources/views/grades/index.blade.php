@@ -228,7 +228,7 @@
                         {{-- Classe --}}
                         <td class="px-4 py-3.5">
                             <span class="text-xs text-slate-600 dark:text-slate-400">
-                                {{ $grade->schoolClass?->name ?? '—' }}
+                                {{ $grade->classe?->name ?? '—' }}
                             </span>
                         </td>
 
@@ -268,7 +268,7 @@
                         {{-- Date --}}
                         <td class="px-4 py-3.5 whitespace-nowrap">
                             <span class="text-xs text-slate-500 dark:text-slate-400">
-                                {{ $grade->graded_at?->format('d/m/Y') ?? '—' }}
+                                {{ $grade->graded_at?->format('d/m/Y') ?? '-' }}
                             </span>
                         </td>
 

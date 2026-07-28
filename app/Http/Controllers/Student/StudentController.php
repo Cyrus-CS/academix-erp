@@ -13,7 +13,6 @@ use App\Services\StudentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class StudentController extends Controller
@@ -46,9 +45,9 @@ class StudentController extends Controller
 
             ->latest()
             
-            ->orderBy('position')   // ← trier par position SortableJS
+            ->orderBy('position')   // trier par position SortableJS
 
-            ->paginate(15)
+            ->paginate(10)
 
             ->withQueryString();
 
@@ -82,7 +81,6 @@ class StudentController extends Controller
 
         $this->studentService->store($request->validated());
         
-
         return redirect()
             ->route('students.index')
             ->with('success', __('Student created successfully.'));
@@ -93,7 +91,7 @@ class StudentController extends Controller
             'user',
             'classe',
             'parents.user',
-            'attendances'         => fn($q) => $q->latest('date')->limit(20),
+            'attendances'  => fn($q) => $q->latest('date')->limit(20),
             'grades.subject',
             'grades.term.academicYear',
             'payments.feeType',

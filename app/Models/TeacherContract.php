@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TeacherContract extends Model
@@ -17,14 +18,24 @@ class TeacherContract extends Model
         'salary',
         'start_date',
         'end_date',
-        'status'
+        'status',
+        'description',
+        'contract_pdf_path',
     ];
 
-    public function teacher()
+    protected function casts() : array{
+        return [
+            'start_date' => 'datetime',
+            'end_date' => 'datetime',
+        ];
+    }
+
+    public function teacher() : BelongsTo
     {
         return $this->belongsTo(Teacher::class);
     }
-
+    
+    // ------------------------- SCOPES -----------------------
     public function scopeActive(Builder $query)
     {
         return $query->where('status','active');

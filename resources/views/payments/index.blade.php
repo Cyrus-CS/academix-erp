@@ -241,7 +241,7 @@
                         {{-- Montant --}}
                         <td class="px-4 py-3.5">
                             <span class="text-sm font-bold text-slate-800 dark:text-slate-100">
-                                {{ number_format($payment->amount, 0, ',', ' ') }}
+                                {{ number_format($payment->amount_paid, 0, ',', ' ') }}
                             </span>
                             <span class="text-[10px] text-slate-400 ml-0.5">FCFA</span>
                         </td>

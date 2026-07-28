@@ -103,7 +103,7 @@
                         @foreach($students as $student)
                         <option value="{{ $student->id }}" data-class="{{ $student->class_id }}"
                             {{ old('student_id', $reportCard->student_id) == $student->id ? 'selected' : '' }}>
-                            {{ $student->user->name }} — {{ $student->student_number }}
+                            {{ $student->user->name }} | {{ $student->matricule }}
                         </option>
                         @endforeach
                     </select>

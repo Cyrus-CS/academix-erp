@@ -104,15 +104,15 @@
                             Contenu
                             <span class="text-red-500">*</span>
                         </label>
-                        <textarea name="content" id="content" rows="8" placeholder="Rédigez votre annonce ici…"
+                        <textarea name="message" id="message" rows="8" placeholder="Rédigez votre annonce ici…"
                             class="w-full px-3.5 py-2.5 rounded-xl border text-sm
                                          text-slate-800 dark:text-slate-100
                                          bg-white dark:bg-slate-700/50 placeholder-slate-400
                                          focus:outline-none focus:ring-2 transition-all duration-200 resize-y
-                                         {{ $errors->has('content')
+                                         {{ $errors->has('message')
                                              ? 'border-red-500 focus:ring-red-500/40'
-                                             : 'border-slate-200 dark:border-slate-600 focus:ring-blue-500/30 focus:border-blue-500' }}" required>{{ old('content', $announcement->content) }}</textarea>
-                        @error('content')
+                                             : 'border-slate-200 dark:border-slate-600 focus:ring-blue-500/30 focus:border-blue-500' }}" required>{{ old('message', $announcement->message) }}</textarea>
+                        @error('message')
                         <p class="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
                             <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
                         </p>
@@ -390,7 +390,7 @@
                 previewAudience.className =
                     `inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${color}`;
                 previewAudience.innerHTML =
-                `<i class="bi ${cfg.icon} text-[8px]"></i> ${cfg.label}`;
+                    `<i class="bi ${cfg.icon} text-[8px]"></i> ${cfg.label}`;
             }
         });
     });

@@ -240,7 +240,7 @@
     @else
 
     {{-- Grille d'annonces (SortableJS) --}}
-    <x-sortable-grid resource="announcements-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <x-sortable-grid resource="announcements" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         @foreach($announcements as $announcement)
         @php
         $isExpired = $announcement->expires_at && now()->isAfter($announcement->expires_at);
@@ -322,7 +322,7 @@
                     </div>
 
                     {{-- Menu actions --}}
-                    <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="relative shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button data-dropdown="ann-actions-{{ $announcement->id }}" class="w-7 h-7 rounded-lg flex items-center justify-center
                                        bg-slate-100 dark:bg-slate-700
                                        text-slate-500 dark:text-slate-400
@@ -407,7 +407,7 @@
                         </div>
                         <div class="min-w-0">
                             <p class="text-[10px] font-semibold text-slate-600 dark:text-slate-300 truncate">
-                                {{ $announcement->user->name ?? '—' }}
+                                {{ $announcement->user->name ?? '-' }}
                             </p>
                             <p class="text-[10px] text-slate-400 dark:text-slate-500">
                                 {{ $announcement->created_at->diffForHumans() }}

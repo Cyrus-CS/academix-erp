@@ -259,7 +259,7 @@
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             @foreach($reportCards as $reportCard)
             @php
-            $avg = $reportCard->average ?? 0;
+            $avg = $reportCard->calculateAverage() ?? 0;
             $avgColor = $avg >= 14
             ? 'emerald' : ($avg >= 10 ? 'blue' : ($avg >= 8 ? 'amber' : 'red'));
             $mention = match(true) {
@@ -407,7 +407,7 @@
                         <span class="font-bold text-slate-700 dark:text-slate-200">
                             {{ $reportCard->rank }}
                             <span class="text-slate-400 font-normal">
-                                / {{ $reportCard->total_students ?? '—' }}
+                                / {{ $reportCard->total_students ?? '-' }}
                             </span>
                         </span>
                     </div>

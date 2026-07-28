@@ -84,11 +84,6 @@ $expectedTotal = $totalCount * ($feeType->amount ?? 0);
 
             <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-2.5 mb-3">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                                 text-xs font-bold bg-emerald-600 text-white shadow-sm">
-                        <i class="bi bi-tag-fill"></i>
-                        {{ $feeType->category ?? 'Frais scolaire' }}
-                    </span>
 
                     @if($feeType->is_required ?? true)
                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
@@ -408,8 +403,7 @@ $expectedTotal = $totalCount * ($feeType->amount ?? 0);
                 ['icon' => 'bi-tag', 'label' => 'Nom', 'value' => $feeType->name, 'color' => 'blue'],
                 ['icon' => 'bi-currency-dollar', 'label' => 'Montant', 'value' => number_format($feeType->amount ?? 0,
                 0, ',', ' ').' FCFA', 'color' => 'emerald'],
-                ['icon' => 'bi-folder', 'label' => 'Catégorie', 'value' => $feeType->category ?? '—', 'color' =>
-                'amber'],
+
                 ['icon' => 'bi-arrow-repeat', 'label' => 'Fréquence', 'value' => ucfirst($feeType->frequency ??
                 'Unique'), 'color' => 'cyan'],
                 ['icon' => 'bi-calendar-plus', 'label' => 'Créé le', 'value' => $feeType->created_at->format('d/m/Y'),

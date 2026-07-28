@@ -62,14 +62,14 @@
 
             {{-- Trimestre --}}
             <x-forms.select name="term_id" label="Trimestre" icon="bi-calendar3"
-                :options="$terms->map(fn($t) => ['id' => $t->id, 'label' => $t->name . ' — ' . $t->academicYear?->name])"
+                :options="$terms->map(fn($t) => ['id' => $t->id, 'label' => $t->name . ' - ' . $t->academicYear?->name])"
                 option-value="id" option-label="label" :value="old('term_id', $grade->term_id ?? $currentTerm?->id)"
                 placeholder="Sélectionner un trimestre…" required />
 
             {{-- Classe + Matière --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <x-forms.select name="school_class_id" label="Classe" icon="bi-building" :options="$classes"
-                    option-value="id" option-label="name" :value="old('school_class_id', $grade->school_class_id)"
+                <x-forms.select name="class_id" label="Classe" icon="bi-building" :options="$classes" option-value="id"
+                    option-label="name" :value="old('class_id', $grade->class_id)"
                     placeholder="Sélectionner une classe…" required />
 
                 <x-forms.select name="subject_id" label="Matière" icon="bi-journal-bookmark" :options="$subjects"
@@ -79,7 +79,7 @@
 
             {{-- Étudiant --}}
             <x-forms.select name="student_id" label="Étudiant" icon="bi-person-fill"
-                :options="$students->map(fn($s) => ['id' => $s->id, 'label' => $s->user->name . ' — ' . $s->student_number])"
+                :options="$students->map(fn($s) => ['id' => $s->id, 'label' => $s->user->name . ' - ' . $s->matricule])"
                 option-value="id" option-label="label" :value="old('student_id', $grade->student_id)"
                 placeholder="Sélectionner un étudiant…" required />
 
@@ -88,9 +88,9 @@
             <input type="hidden" name="teacher_id" value="{{ $teacher->id }}">
             @else
             <x-forms.select name="teacher_id" label="Enseignant" icon="bi-person-badge"
-                :options="$students->map(fn($s) => ['id' => $s->id, 'label' => $s->user->name])" option-value="id"
+                :options="$teachers->map(fn($t) => ['id' => $t->id, 'label' => $t->user->name])" option-value="id"
                 option-label="label" :value="old('teacher_id', $grade->teacher_id)"
-                placeholder="Sélectionner un enseignant…" />
+                placeholder="Sélectionner un enseignant…" required />
             @endif
 
         </div>

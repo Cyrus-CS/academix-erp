@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Academic;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\Classe;
+use App\Models\ClassSubjectTeacher;
 use App\Models\Subject;
 use App\Models\Teacher;
-use App\Models\TeacherContract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,11 +21,11 @@ class TeacherAssignmentController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = TeacherContract::query()
+        $query = ClassSubjectTeacher::query()
             ->with([
                 'teacher.user',
                 'subject',
-                'schoolClass',
+                'classe',
                 'academicYear',
             ])
             ->latest();
@@ -42,7 +42,7 @@ class TeacherAssignmentController extends Controller
 
         // Filtre classe
         if ($request->filled('class_id')) {
-            $query->where('school_class_id', $request->input('class_id'));
+            $query->where('class_id', $request->input('class_id'));
         }
 
         // Filtre année académique
@@ -50,7 +50,7 @@ class TeacherAssignmentController extends Controller
             $query->where('academic_year_id', $request->input('academic_year_id'));
         } else {
             // Par défaut : année courante
-            $currentYear = AcademicYear::where('is_current', true)->first();
+            $currentYear = AcademicYear::active()->first();
             if ($currentYear) {
                 $query->where('academic_year_id', $currentYear->id);
             }
@@ -76,12 +76,12 @@ class TeacherAssignmentController extends Controller
      */
     public function create(): View
     {
-        $assignment    = new TeacherContract();
+        $assignment    = new ClassSubjectTeacher();
         $teachers      = Teacher::with('user')->orderBy('employee_number')->get();
         $subjects      = Subject::where('is_active', true)->orderBy('name')->get();
         $classes       = Classe::orderBy('name')->get();
         $academicYears = AcademicYear::orderByDesc('start_date')->get();
-        $currentYear   = AcademicYear::where('is_current', true)->first();
+        $currentYear   = AcademicYear::active()->first();
 
         return view('teacher-assignments.form', compact(
             'assignment',
@@ -101,17 +101,17 @@ class TeacherAssignmentController extends Controller
         $validated = $request->validate([
             'teacher_id'       => ['required', 'exists:teachers,id'],
             'subject_id'       => ['required', 'exists:subjects,id'],
-            'school_class_id'  => ['required', 'exists:school_classes,id'],
+            'class_id'  => ['required', 'exists:classes,id'],
             'academic_year_id' => ['required', 'exists:academic_years,id'],
         ], [
             'teacher_id.required'       => "L'enseignant est obligatoire.",
             'subject_id.required'       => 'La matière est obligatoire.',
-            'school_class_id.required'  => 'La classe est obligatoire.',
+            'class_id.required'  => 'La classe est obligatoire.',
             'academic_year_id.required' => "L'année académique est obligatoire.",
         ]);
 
         // Vérifier l'unicité de l'assignation
-        $exists = TeacherContract::where($validated)->exists();
+        $exists = ClassSubjectTeacher::where($validated)->exists();
 
         if ($exists) {
             return redirect()
@@ -121,9 +121,9 @@ class TeacherAssignmentController extends Controller
         }
 
         // Vérifier qu'un autre enseignant n'enseigne pas déjà cette matière dans cette classe
-        $conflict = TeacherContract::where([
+        $conflict = ClassSubjectTeacher::where([
             'subject_id'       => $validated['subject_id'],
-            'school_class_id'  => $validated['school_class_id'],
+            'class_id'  => $validated['class_id'],
             'academic_year_id' => $validated['academic_year_id'],
         ])->where('teacher_id', '!=', $validated['teacher_id'])->exists();
 
@@ -134,7 +134,7 @@ class TeacherAssignmentController extends Controller
                 ->with('warning', 'Un autre enseignant est déjà assigné à cette matière dans cette classe.');
         }
 
-        TeacherContract::create($validated);
+        ClassSubjectTeacher::create($validated);
 
         return redirect()
             ->route('teacher-assignments.index')
@@ -144,12 +144,12 @@ class TeacherAssignmentController extends Controller
     /**
      * Display the specified assignment.
      */
-    public function show(TeacherContract $teacherAssignment): View
+    public function show(ClassSubjectTeacher $teacherAssignment): View
     {
         $teacherAssignment->load([
             'teacher.user',
             'subject',
-            'schoolClass.students.user',
+            'classe.students.user',
             'academicYear',
         ]);
 
@@ -159,7 +159,7 @@ class TeacherAssignmentController extends Controller
     /**
      * Show the form for editing the specified assignment.
      */
-    public function edit(TeacherContract $teacherAssignment): View
+    public function edit(ClassSubjectTeacher $teacherAssignment): View
     {
         $teachers      = Teacher::with('user')->orderBy('employee_number')->get();
         $subjects      = Subject::where('is_active', true)->orderBy('name')->get();
@@ -180,17 +180,17 @@ class TeacherAssignmentController extends Controller
     /**
      * Update the specified assignment.
      */
-    public function update(Request $request, TeacherContract $teacherAssignment): RedirectResponse
+    public function update(Request $request, ClassSubjectTeacher $teacherAssignment): RedirectResponse
     {
         $validated = $request->validate([
             'teacher_id'       => ['required', 'exists:teachers,id'],
             'subject_id'       => ['required', 'exists:subjects,id'],
-            'school_class_id'  => ['required', 'exists:school_classes,id'],
+            'class_id'  => ['required', 'exists:classes,id'],
             'academic_year_id' => ['required', 'exists:academic_years,id'],
         ]);
 
         // Vérifier l'unicité (en excluant l'enregistrement actuel)
-        $exists = TeacherContract::where($validated)
+        $exists = ClassSubjectTeacher::where($validated)
             ->where('id', '!=', $teacherAssignment->id)
             ->exists();
 
@@ -211,7 +211,7 @@ class TeacherAssignmentController extends Controller
     /**
      * Remove the specified assignment.
      */
-    public function destroy(TeacherContract $teacherAssignment): RedirectResponse
+    public function destroy(ClassSubjectTeacher $teacherAssignment): RedirectResponse
     {
         $teacherAssignment->delete();
 
