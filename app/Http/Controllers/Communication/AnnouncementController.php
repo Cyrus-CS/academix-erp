@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Communication;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Announcement\AnnouncementRequest;
 use App\Models\Announcement;
 use App\Models\User;
 use App\Notifications\AnnouncementNotification;
@@ -50,20 +51,9 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(AnnouncementRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'title'      => ['required', 'string', 'max:200'],
-            'message'    => ['required', 'string'],
-            'audience'   => ['required', 'in:all,teachers,students,parents'],
-            'expires_at' => ['nullable', 'date', 'after:now'],
-            'is_pinned'  => ['boolean'],
-        ], [
-            'title.required'    => 'Le titre est obligatoire.',
-            'message.required'  => 'Le contenu est obligatoire.',
-            'audience.required' => 'L\'audience est obligatoire.',
-            'expires_at.after'  => 'La date d\'expiration doit être dans le futur.',
-        ]);
+        $validated = $request->validated();
 
         $validated['published_at'] = now();
         $validated['created_by']   = Auth::id();
@@ -120,15 +110,9 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function update(Request $request, Announcement $announcement): RedirectResponse
+    public function update(AnnouncementRequest $request, Announcement $announcement): RedirectResponse
     {
-        $validated = $request->validate([
-            'title'      => ['required', 'string', 'max:200'],
-            'message'    => ['required', 'string'],
-            'audience'   => ['required', 'in:all,teachers,students,parents'],
-            'expires_at' => ['nullable', 'date'],
-            'is_pinned'  => ['boolean'],
-        ]);
+        $validated = $request->validated();
 
         $validated['published_at'] = now();
         $validated['is_pinned'] = $request->boolean('is_pinned');

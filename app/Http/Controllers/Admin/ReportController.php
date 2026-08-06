@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Report\ReportRequest;
 use App\Models\AcademicYear;
 use App\Models\Attendance;
 use App\Models\Classe;
@@ -26,14 +27,10 @@ class ReportController extends Controller
     /**
      * Display the reports dashboard.
      */
-    public function index(Request $request): View
+    public function index(ReportRequest $request): View
     {
         // ── Validation des filtres (sécurité + intégrité) ──────────────
-        $validated = $request->validate([
-            'academic_year_id' => ['nullable', 'integer', 'exists:academic_years,id'],
-            'term_id'  => ['nullable', 'integer', 'exists:terms,id'],
-            'class_id' => ['nullable', 'integer', 'exists:classes,id'],
-        ]);
+        $validated = $request->validated();
 
         // ── Résolution des filtres actifs (fallback sur l'actuel) ──────
         $currentYear = $validated['academic_year_id'] ?? null
@@ -56,15 +53,15 @@ class ReportController extends Controller
 
         $data = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($currentYear, $currentTerm, $classId) {
             return [
-                'stats'             => $this->getGlobalStats(),
-                'chartData'         => [
+                'stats'  => $this->getGlobalStats(),
+                'chartData'   => [
                     'attendance'  => $this->getAttendanceChartData(),
                     'payments'    => $this->getPaymentsChartData(),
                     'grades'      => $this->getGradesChartData($currentTerm),
                     'enrollments' => $this->getEnrollmentsChartData(),
                 ],
-                'topClasses'        => $this->getTopClasses($currentTerm),
-                'topStudents'       => $this->getTopStudents($currentTerm, $classId),
+                'topClasses'  => $this->getTopClasses($currentTerm),
+                'topStudents' => $this->getTopStudents($currentTerm, $classId),
                 'financialSummary'  => $this->getFinancialSummary(),
             ];
         });
@@ -96,20 +93,13 @@ class ReportController extends Controller
      */
     private function getGlobalStats(): array
     {
-        // 1 seule requête pour paid + pending
-        $paymentStats = Payment::selectRaw("
-                SUM(CASE WHEN status = 'paid' THEN amount_paid ELSE 0 END) as total_revenue,
-                SUM(CASE WHEN status = 'pending' THEN amount_paid ELSE 0 END) as pending_payments
-            ")
-            ->first();
-
         return [
             'total_students'   => Student::count(),
             'total_teachers'   => Teacher::where('status', 'active')->count(),
             'total_classes'    => Classe::count(),
             'total_subjects'   => Subject::where('is_active', true)->count(),
-            'total_revenue'    => (float) ($paymentStats->total_revenue ?? 0),
-            'pending_payments' => (float) ($paymentStats->pending_payments ?? 0),
+            'total_revenue'    => Payment::where('status', 'paid')->sum('amount_paid'),
+            'pending_payments' => Payment::where('status', 'pending')->count(),
             'attendance_rate'  => $this->getGlobalAttendanceRate(),
             'avg_grade'        => round(Grade::avg('score') ?? 0, 2),
         ];

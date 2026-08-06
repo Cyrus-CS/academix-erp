@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\ManageUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-// use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
@@ -77,22 +77,9 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(ManageUserRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:100'],
-            'email'    => ['required', 'email', 'max:150', 'unique:users,email'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
-            'role'     => ['required', 'string', 'exists:roles,name'],
-            'avatar'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ], [
-            'name.required'     => 'Le nom est obligatoire.',
-            'email.required'    => 'L\'email est obligatoire.',
-            'email.unique'      => 'Cet email est déjà utilisé.',
-            'password.required' => 'Le mot de passe est obligatoire.',
-            'password.confirmed'=> 'La confirmation du mot de passe ne correspond pas.',
-            'role.required'     => 'Le rôle est obligatoire.',
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
 
@@ -156,15 +143,9 @@ class UserController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(ManageUserRequest $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:100'],
-            'email'    => ['required', 'email', 'max:150', 'unique:users,email,' . $user->id],
-            'password' => ['nullable', Password::defaults(), 'confirmed'],
-            'role'     => ['required', 'string', 'exists:roles,name'],
-            'avatar'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
 

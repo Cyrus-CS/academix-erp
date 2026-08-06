@@ -41,7 +41,7 @@
 $assignments = $subject->teacherAssignments;
 $grades = $subject->grades;
 $avg = $grades->avg('score');
-$classesCount = $assignments->pluck('school_class_id')->unique()->count();
+$classesCount = $assignments->pluck('class_id')->unique()->count();
 $teachersCount = $assignments->pluck('teacher_id')->unique()->count();
 @endphp
 
@@ -152,7 +152,7 @@ $teachersCount = $assignments->pluck('teacher_id')->unique()->count();
                                     class="font-medium text-slate-800 dark:text-slate-200">{{ $assign->teacher->user->name ?? '—' }}</span>
                             </div>
                         </td>
-                        <td class="px-5 py-3 text-slate-600 dark:text-slate-300">{{ $assign->schoolClass->name ?? '—' }}
+                        <td class="px-5 py-3 text-slate-600 dark:text-slate-300">{{ $assign->classe->name ?? '—' }}
                         </td>
                         <td class="px-5 py-3"><span
                                 class="px-2 py-1 rounded-full text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{{ $assign->academicYear->name ?? '—' }}</span>
@@ -168,7 +168,7 @@ $teachersCount = $assignments->pluck('teacher_id')->unique()->count();
                 <div>
                     <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
                         {{ $assign->teacher->user->name ?? '|' }}</p>
-                    <p class="text-xs text-slate-500">{{ $assign->schoolClass->name ?? '|' }} •
+                    <p class="text-xs text-slate-500">{{ $assign->classe->name ?? '|' }} •
                         {{ $assign->academicYear->name ?? '' }}</p>
                 </div>
                 <i class="bi bi-chevron-right text-slate-300 text-xs"></i>

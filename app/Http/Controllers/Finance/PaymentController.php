@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Payment\PaymentRequest;
 use App\Models\FeeType;
 use App\Models\Payment;
 use App\Models\Student;
@@ -95,26 +96,9 @@ class PaymentController extends Controller
     /**
      * Store a newly created payment.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(PaymentRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'student_id'            => ['required', 'exists:students,id'],
-            'fee_type_id'           => ['required', 'exists:fee_types,id'],
-            'amount_paid'                => ['required', 'numeric', 'min:0'],
-            'payment_method'        => ['required', 'in:cash,bank_transfer,mobile_money,check,card'],
-            'transaction_reference' => ['nullable', 'string', 'max:100'],
-            'status'  => ['required', 'in:paid,pending,overdue,cancelled'],
-            'paid_at'               => ['required', 'date'],
-            'note'                 => ['nullable', 'string', 'max:500'],
-        ], [
-            'student_id.required'     => "L'étudiant est obligatoire.",
-            'fee_type_id.required'    => 'Le type de frais est obligatoire.',
-            'amount_paid.required'         => 'Le montant est obligatoire.',
-            'payment_method.required' => 'Le mode de paiement est obligatoire.',
-            'payment_method.in'       => 'Le mode de paiement sélectionné est invalide.',
-            'status.required'         => 'Le statut est obligatoire.',
-            'paid_at.required'        => 'La date de paiement est obligatoire.',
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
 
@@ -164,7 +148,8 @@ class PaymentController extends Controller
     {
         $payment->load([
             'student.user',
-            'student.parents.user',
+            'student.classe',
+            'student.parents', 
             'feeType',
         ]);
 
@@ -185,18 +170,9 @@ class PaymentController extends Controller
     /**
      * Update the specified payment.
      */
-    public function update(Request $request, Payment $payment): RedirectResponse
+    public function update(PaymentRequest $request, Payment $payment): RedirectResponse
     {
-        $validated = $request->validate([
-            'student_id'            => ['required', 'exists:students,id'],
-            'fee_type_id'           => ['required', 'exists:fee_types,id'],
-            'amount_paid'                => ['required', 'numeric', 'min:0'],
-            'payment_method'        => ['required', 'in:cash,bank_transfer,mobile_money,check,card'],
-            'transaction_reference' => ['nullable', 'string', 'max:100'],
-            'status'                => ['required', 'in:paid,pending,overdue,cancelled'],
-            'paid_at'               => ['required', 'date'],
-            'notes'                 => ['nullable', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
 
         $wasNotPaid = $payment->status !== 'paid';
 

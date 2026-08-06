@@ -51,7 +51,7 @@
 
             {{-- Générer tous --}}
             @can('view report_cards')
-            <button onclick="generateAll()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+            <button onclick="generateAll({{ $currentTerm->id }})" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
                            border border-slate-200 dark:border-slate-700
                            text-slate-600 dark:text-slate-400
                            hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
@@ -285,8 +285,8 @@
                     {{-- Avatar élève --}}
                     <div class="w-12 h-12 rounded-2xl overflow-hidden shrink-0
                                 ring-2 ring-white/20 shadow-md">
-                        @if($reportCard->student->photo_path)
-                        <img src="{{ asset('storage/' . $reportCard->student->photo_path) }}"
+                        @if($reportCard->student->photo)
+                        <img src="{{ asset('storage/' . $reportCard->student->photo) }}"
                             class="w-full h-full object-cover" alt="{{ $reportCard->student->user->name }}" />
                         @else
                         <div class="w-full h-full
@@ -407,7 +407,7 @@
                         <span class="font-bold text-slate-700 dark:text-slate-200">
                             {{ $reportCard->rank }}
                             <span class="text-slate-400 font-normal">
-                                / {{ $reportCard->total_students ?? '-' }}
+                                / {{ $classStudentCounts[$reportCard->student->class_id] ?? '-' }}
                             </span>
                         </span>
                     </div>
@@ -583,7 +583,7 @@
                                     <i class="bi bi-trophy-fill text-amber-400 text-xs"></i>
                                     {{ $reportCard->rank }}
                                     <span class="text-xs font-normal text-slate-400">
-                                        /{{ $reportCard->total_students ?? '—' }}
+                                        /{{ $classStudentCounts[$reportCard->student->class_id] ?? '-' }}
                                     </span>
                                 </span>
                                 @else
@@ -735,7 +735,7 @@ function setView(view, save = true) {
 }
 
 // ── Générer tous les bulletins ─────────────────────────────────
-function generateAll() {
+function generateAll(termId) {
     if (!confirm('Générer tous les bulletins du trimestre en cours ?')) return;
 
     fetch('{{ route("report-cards.generate-all") }}', {
@@ -744,8 +744,15 @@ function generateAll() {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+                term_id: termId, // à définir : term actif, via une variable Blade ou un data-attribute
+            }),
         })
-        .then(r => r.json())
+        .then(async r => {
+            const data = await r.json();
+            if (!r.ok || !data.success) throw new Error(data.message ?? 'Erreur inconnue');
+            return data;
+        })
         .then(data => {
             window.showToast({
                 type: 'success',
@@ -755,11 +762,11 @@ function generateAll() {
             });
             setTimeout(() => window.location.reload(), 2000);
         })
-        .catch(() => {
+        .catch(err => {
             window.showToast({
                 type: 'error',
                 title: 'Erreur',
-                message: 'Impossible de générer les bulletins.',
+                message: err.message ?? 'Impossible de générer les bulletins.',
             });
         });
 }

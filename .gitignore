@@ -26,3 +26,8 @@ erp_scolaire.sql
 /database
 /database/migrations
 /database/seeders
+/tests
+/composer.phar
+.env.backup
+.env.production
+bootstrap/cache/

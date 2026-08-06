@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('page_title', $classe->exists ? 'Modifier la classe' : 'Nouvelle classe')
+@section('page_title', $class->exists ? 'Modifier la classe' : 'Nouvelle classe')
 
 @section('breadcrumb')
 <span class="text-slate-300 dark:text-slate-600 font-light select-none">/</span>
@@ -19,10 +19,10 @@
         </div>
         <div class="min-w-0">
             <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100 truncate">
-                {{ $classe->exists ? 'Modifier : ' . $classe->name : 'Nouvelle classe' }}
+                {{ $class->exists ? 'Modifier : ' . $class->name : 'Nouvelle classe' }}
             </h1>
             <p class="text-xs text-slate-500 dark:text-slate-400">
-                {{ $classe->exists
+                {{ $class->exists
                         ? 'Modifiez les informations de cette classe'
                         : 'Créez une nouvelle classe pour l\'année en cours' }}
             </p>
@@ -40,7 +40,7 @@
 @endsection
 
 @section('content')
-<x-forms.form :model="$classe" resource="classes" class="space-y-6 max-w-4xl mx-auto">
+<x-forms.form :model="$class" resource="classes" class="space-y-6 max-w-4xl mx-auto">
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -68,11 +68,11 @@
                     {{-- Nom + Niveau --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <x-forms.input-field name="name" label="Nom de la classe" type="text"
-                            :value="old('name', $classe->name)" placeholder="Ex : Terminale A, Licence 3…"
+                            :value="old('name', $class->name)" placeholder="Ex : Terminale A, Licence 3…"
                             icon="bi-building" required />
 
                         <x-forms.input-field name="level" label="Niveau" type="text"
-                            :value="old('level', $classe->level)" placeholder="Ex : Lycée, Licence, Master…"
+                            :value="old('level', $class->level)" placeholder="Ex : Lycée, Licence, Master…"
                             icon="bi-bar-chart-steps" required />
                     </div>
 
@@ -87,12 +87,12 @@
                         <div class="flex items-center gap-4">
                             {{-- Slider --}}
                             <input type="range" id="capacity_range" min="5" max="100" step="5"
-                                value="{{ old('capacity', $classe->capacity ?? 30) }}" class="flex-1 h-2 rounded-full accent-blue-600
+                                value="{{ old('capacity', $class->capacity ?? 30) }}" class="flex-1 h-2 rounded-full accent-blue-600
                                           bg-slate-200 dark:bg-slate-700 cursor-pointer">
                             {{-- Valeur --}}
                             <div class="relative shrink-0">
                                 <input type="number" name="capacity" id="capacity" min="5" max="100"
-                                    value="{{ old('capacity', $classe->capacity ?? 30) }}" class="w-24 px-3 py-2.5 rounded-xl border text-sm text-center font-bold
+                                    value="{{ old('capacity', $class->capacity ?? 30) }}" class="w-24 px-3 py-2.5 rounded-xl border text-sm text-center font-bold
                                               text-slate-800 dark:text-slate-100
                                               bg-white dark:bg-slate-700/50
                                               border-slate-200 dark:border-slate-600
@@ -107,10 +107,10 @@
                         </div>
 
                         {{-- Barre visuelle occupation --}}
-                        @if($classe->exists)
+                        @if($class->exists)
                         @php
-                        $occupied = $classe->students_count ?? 0;
-                        $cap = $classe->capacity ?? 1;
+                        $occupied = $class->students_count ?? 0;
+                        $cap = $class->capacity ?? 1;
                         $pct = min(100, round(($occupied / $cap) * 100));
                         $barColor = $pct >= 90
                         ? 'bg-red-500'
@@ -137,7 +137,7 @@
 
                     {{-- Description --}}
                     <x-forms.textarea name="description" label="Description"
-                        :value="old('description', $classe->description)"
+                        :value="old('description', $class->description)"
                         placeholder="Informations complémentaires sur cette classe…" rows="3"
                         help="Optionnel. Maximum 500 caractères." />
 
@@ -163,7 +163,7 @@
                 <div class="p-6">
                     <x-forms.select name="academic_year_id" label="Année académique" icon="bi-calendar-check"
                         :options="$academicYears" option-value="id" option-label="name"
-                        :value="old('academic_year_id', $classe->academic_year_id ?? $activeYear?->id)"
+                        :value="old('academic_year_id', $class->academic_year_id ?? $activeYear?->id)"
                         placeholder="Sélectionner une année…" required />
 
                     @if($activeYear)
@@ -198,10 +198,10 @@
                     </div>
                     <div class="min-w-0">
                         <p id="preview-name" class="font-bold text-white text-base truncate leading-tight">
-                            {{ $classe->name ?: 'Nom de la classe' }}
+                            {{ $class->name ?: 'Nom de la classe' }}
                         </p>
                         <p id="preview-level" class="text-xs text-blue-200 mt-0.5 truncate">
-                            {{ $classe->level ?: 'Niveau' }}
+                            {{ $class->level ?: 'Niveau' }}
                         </p>
                     </div>
                 </div>
@@ -214,7 +214,7 @@
                         </p>
                         <p class="text-xl font-extrabold text-white leading-none">
                             <span id="preview-capacity">
-                                {{ $classe->capacity ?? 30 }}
+                                {{ $class->capacity ?? 30 }}
                             </span>
                             <span class="text-xs font-normal text-blue-200 ml-0.5">élèves</span>
                         </p>
@@ -225,14 +225,14 @@
                             Inscrits
                         </p>
                         <p class="text-xl font-extrabold text-white leading-none">
-                            {{ $classe->students_count ?? 0 }}
+                            {{ $class->students_count ?? 0 }}
                             <span class="text-xs font-normal text-blue-200 ml-0.5">élèves</span>
                         </p>
                     </div>
                 </div>
 
                 {{-- Barre capacité --}}
-                @if($classe->exists)
+                @if($class->exists)
                 <div class="mt-4 space-y-1.5">
                     <div class="flex items-center justify-between text-[10px] text-blue-200">
                         <span>Taux d'occupation</span>
@@ -264,7 +264,7 @@
                     'bi-diagram-3-fill'],
                     ] as $indicator)
                     @php
-                    $cap = old('capacity', $classe->capacity ?? 30);
+                    $cap = old('capacity', $class->capacity ?? 30);
                     $isActive = $cap >= $indicator['min'] && $cap <= $indicator['max']; @endphp <div class="capacity-indicator flex items-center gap-3 px-3 py-2 rounded-xl
                                 transition-all duration-200
                                 {{ $isActive
@@ -316,8 +316,8 @@
                                bg-blue-600 hover:bg-blue-700 text-white
                                shadow-sm hover:shadow-md transition-all duration-200
                                focus:outline-none focus:ring-2 focus:ring-blue-500/40">
-                <i class="bi {{ $classe->exists ? 'bi-check-lg' : 'bi-plus-lg' }}"></i>
-                {{ $classe->exists ? 'Enregistrer' : 'Créer la classe' }}
+                <i class="bi {{ $class->exists ? 'bi-check-lg' : 'bi-plus-lg' }}"></i>
+                {{ $class->exists ? 'Enregistrer' : 'Créer la classe' }}
             </button>
         </div>
 
@@ -416,9 +416,9 @@
                     .trim();
                 icon.classList.add(
                     'text-xs',
-                    ...(isActive ?
-                        [`text-${color}-600`, `dark:text-${color}-400`] :
-                        ['text-slate-400', 'dark:text-slate-500'])
+                    ...(isActive ? [`text-${color}-600`, `dark:text-${color}-400`] : ['text-slate-400',
+                        'dark:text-slate-500'
+                    ])
                 );
             }
 

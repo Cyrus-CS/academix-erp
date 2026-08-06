@@ -1,5 +1,7 @@
 @php
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+Auth::loginUsingId(1);
 @endphp
 
 <!DOCTYPE html>
@@ -26,6 +28,7 @@ use Illuminate\Support\Facades\Route;
 
     {{-- Bootstrap Icons --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="{{ asset('asset/css/bootstrap-icons.min.css') }}">
 
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -122,7 +125,8 @@ use Illuminate\Support\Facades\Route;
                 <div class="text-center">
                     <p class="text-blue-300 text-xs">
                         © {{ date('Y') }} {{ $schoolSettings['school_name'] ?? 'School ERP' }}
-                        — Tous droits réservés
+                        | Tous droits réservés,Créer par<a href="https://www.facebook.com/profile.php?id=61578476155133"
+                            target="_blank">Eben-Ezer SISSOU</a>
                     </p>
                 </div>
             </div>

@@ -255,8 +255,18 @@ class Student extends Model
     public function reportCards(): HasMany{
         return $this->hasMany(ReportCard::class);
     }
-    public function parents() : BelongsToMany{
-        return $this->belongsToMany(User::class, 'parents_users', 'student_id', 'user_id')->withTimestamps();
+    /**
+     * Les parents (User avec rôle Parent) associés à cet élève.
+     * Retourne des User directement via la table pivot parents_users.
+     */
+    public function parents(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,         // ← retourne des User (pas ParentUser)
+            'parents_users',     // table pivot
+            'student_id',        // FK de cette table (Student) dans la pivot
+            'user_id'            // FK de l'autre côté (User) dans la pivot
+        )->withTimestamps();
     }
 
     // ------------------------ SCOPES --------------------------------------

@@ -100,7 +100,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-3.5
                     border border-slate-200 dark:border-slate-700 shadow-sm
                     flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex-shrink-0
+            <div class="w-10 h-10 rounded-xl shrink-0
                         bg-{{ $card['color'] }}-100 dark:bg-{{ $card['color'] }}-900/30
                         flex items-center justify-center">
                 <i class="bi {{ $card['icon'] }}
@@ -555,7 +555,8 @@
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0
                                                 ring-2 ring-slate-200 dark:ring-slate-700">
-                                        @if($teacher->user->avatar)
+                                        {{-- $teacher->user->avatar --}}
+                                        @if($teacher->photo)
                                         <img src="{{ asset('storage/' . $teacher?->photo) }}"
                                             alt="{{ $teacher->user->name }}" class="w-full h-full object-cover" />
                                         @else

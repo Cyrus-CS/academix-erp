@@ -61,6 +61,8 @@
 
         {{-- Notifications ── --}}
         <div class="relative" id="notif-wrapper">
+
+            {{-- Bouton cloche --}}
             <button id="notif-btn" class="relative p-2 rounded-xl text-slate-500 dark:text-slate-400
                    hover:bg-slate-100 dark:hover:bg-slate-700
                    hover:text-blue-600 dark:hover:text-blue-400
@@ -78,7 +80,7 @@
                 </span>
             </button>
 
-            {{-- Dropdown --}}
+            {{-- id corrigé : notif-dropdown (plus notif-btn) --}}
             <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 origin-top-right
                 bg-white dark:bg-slate-800
                 border border-slate-200 dark:border-slate-700
@@ -108,7 +110,8 @@
                 </div>
 
                 {{-- Liste notifications --}}
-                <div id="notif-list" class="divide-y divide-slate-100 dark:divide-slate-700 max-h-72 overflow-y-auto">
+                <div id="notif-list" class="divide-y divide-slate-100 dark:divide-slate-700
+                    max-h-72 overflow-y-auto">
 
                     @forelse(auth()->user()?->unreadNotifications ?? [] as $notification)
                     @php
@@ -120,39 +123,44 @@
                     dark:bg-blue-900/30'],
                     'grade' => ['icon' => 'bi-pencil-square', 'color' => 'text-amber-500', 'bg' => 'bg-amber-100
                     dark:bg-amber-900/30'],
-                    'announcement'=> ['icon' => 'bi-megaphone-fill', 'color' => 'text-cyan-500', 'bg' => 'bg-cyan-100
+                    'announcement' => ['icon' => 'bi-megaphone-fill', 'color' => 'text-cyan-500', 'bg' => 'bg-cyan-100
                     dark:bg-cyan-900/30'],
                     'info' => ['icon' => 'bi-info-circle-fill', 'color' => 'text-blue-500', 'bg' => 'bg-blue-100
                     dark:bg-blue-900/30'],
                     ];
                     $cfg = $typeIcons[$data['type'] ?? 'info'] ?? $typeIcons['info'];
                     @endphp
+
                     <div class="flex gap-3 px-4 py-3
-                        hover:bg-slate-50 dark:hover:bg-slate-700/50
-                        transition-colors cursor-pointer"
-                        onclick="{{ isset($data['url']) ? "window.location='{$data['url']}'" : '' }}">
+                            hover:bg-slate-50 dark:hover:bg-slate-700/50
+                            transition-colors cursor-pointer" @if(!empty($data['url']))
+                        onclick="window.location='{{ $data['url'] }}'" @endif>
+
                         <div class="w-8 h-8 rounded-full {{ $cfg['bg'] }}
-                            flex items-center justify-center shrink-0">
+                                flex items-center justify-center shrink-0">
                             <i class="bi {{ $cfg['icon'] }} {{ $cfg['color'] }} text-sm"></i>
                         </div>
+
                         <div class="min-w-0 flex-1">
                             <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
                                 {{ $data['title'] ?? 'Notification' }}
                             </p>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5
-                              line-clamp-2 leading-relaxed">
+                                  line-clamp-2 leading-relaxed">
                                 {{ $data['message'] ?? '' }}
                             </p>
                             <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                                 {{ $notification->created_at->diffForHumans() }}
                             </p>
                         </div>
-                        {{-- Indicateur non lu --}}
+
+                        {{-- Point non lu --}}
                         <div class="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5"></div>
                     </div>
+
                     @empty
                     <div id="notif-empty" class="flex flex-col items-center justify-center py-8
-                        text-slate-400 dark:text-slate-500">
+                            text-slate-400 dark:text-slate-500">
                         <i class="bi bi-bell-slash text-3xl mb-2"></i>
                         <p class="text-xs">Aucune nouvelle notification</p>
                     </div>

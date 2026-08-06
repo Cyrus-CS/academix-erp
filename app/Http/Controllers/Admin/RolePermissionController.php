@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Role\RoleRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -55,16 +56,9 @@ class RolePermissionController extends Controller
     /**
      * Store a newly created role.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RoleRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:50', 'unique:roles,name'],
-            'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['string', 'exists:permissions,name'],
-        ], [
-            'name.required' => 'Le nom du rôle est obligatoire.',
-            'name.unique'   => 'Un rôle avec ce nom existe déjà.',
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
 
@@ -124,13 +118,9 @@ class RolePermissionController extends Controller
     /**
      * Update the specified role.
      */
-    public function update(Request $request, Role $role): RedirectResponse
+    public function update(RoleRequest $request, Role $role): RedirectResponse
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:50', 'unique:roles,name,' . $role->id],
-            'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['string', 'exists:permissions,name'],
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
 

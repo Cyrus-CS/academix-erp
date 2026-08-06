@@ -12,7 +12,7 @@
             <i class="bi bi-heart-fill text-red-500 text-xs mx-0.5"></i>
             par
             <span class="font-semibold text-slate-600 dark:text-slate-300">Eben-Ezer Sissou | <a
-                    href="https://web.facebook.com/profile.php?id=61578476155133">suivez sa page
+                    href="https://web.facebook.com/profile.php?id=61578476155133" target="_blank">suivez sa page
                     Facebook </a> </span>
             &nbsp;·&nbsp; Laravel {{ app()->version() }}
         </p>

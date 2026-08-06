@@ -63,11 +63,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(ParentUser::class);
     }
 
-    /**
-     * Les élèves associés à ce parent.
+   /**
+     * Les élèves associés à cet utilisateur (quand il a le rôle Parent).
      */
-    public function students(): BelongsToMany{
-        return $this->belongsToMany(Student::class, 'parents_users', 'user_id', 'student_id')->withTimestamps();
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Student::class,
+            'parents_users',
+            'user_id',       // FK de User dans la pivot
+            'student_id'     // FK de Student dans la pivot
+        )->withTimestamps();
     }
 
     public function paymentsCreated(){

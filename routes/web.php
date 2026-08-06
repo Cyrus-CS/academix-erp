@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Evaluation\AttendanceController;
 use App\Http\Controllers\Evaluation\GradeController;
 use App\Http\Controllers\Evaluation\ReportCardController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileUserController;
 use App\Http\Controllers\Student\StudentController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn() => redirect()->route('login'));
+
+Route::get('/payments/{payment}/verify', 
+    [\App\Http\Controllers\Finance\PaymentController::class, 'verify'])
+    ->name('payments.verify');
 
 /*
 |--------------------------------------------------------------------------
@@ -51,16 +55,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |----------------------------------------------------------------------
     */
     Route::middleware('role:Admin')->group(function () {
-        Route::resource('academic-years', AcademicYearController::class)->except(['show']);
-        Route::resource('terms', \App\Http\Controllers\Academic\TermController::class);
-        Route::resource('classes', \App\Http\Controllers\Academic\ClassController::class);
-        Route::resource('subjects', \App\Http\Controllers\Academic\SubjectController::class);
-        Route::resource('timetables', SchedulesController::class);
-        Route::resource('teacher-assignments', \App\Http\Controllers\Academic\TeacherAssignmentController::class);
+        Route::post('academic-years/reorder', [AcademicYearController::class, 'reorder'])
+                ->name('academic-years.reorder');
 
-        Route::post('academic-years/active', [AcademicYearController::class, 'activate'])
-                ->name('academic-years.activate');
-        
+        Route::get('timetables/print', [SchedulesController::class, 'print'])
+            ->name('timetables.print');
+            
         // Déplacer un créneau via drag & drop
         Route::patch('timetables/{schedule}/move', [SchedulesController::class, 'move'])
             ->name('timetables.move');
@@ -73,9 +73,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('teachers/reorder', [\App\Http\Controllers\Teacher\TeacherController::class, 'reorder'])
             ->name('teachers.reorder');
-        
-        Route::post('academic-years/reorder', [AcademicYearController::class, 'reorder'])
-                ->name('academic-years.reorder');
+            
+        Route::resource('academic-years', AcademicYearController::class)->except(['show']);
+        Route::resource('terms', \App\Http\Controllers\Academic\TermController::class);
+        Route::resource('classes', \App\Http\Controllers\Academic\ClassController::class);
+        Route::resource('subjects', \App\Http\Controllers\Academic\SubjectController::class);
+        Route::resource('timetables', SchedulesController::class);
+        Route::resource('teacher-assignments', \App\Http\Controllers\Academic\TeacherAssignmentController::class);
+
+        Route::post('academic-years/active', [AcademicYearController::class, 'activate'])
+                ->name('academic-years.activate');
     });
 
     /*
@@ -129,14 +136,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |   - Student & Parent : consultation uniquement
     |----------------------------------------------------------------------
     */
+    Route::get('report-cards/reorder', [ReportCardController::class, 'reorder'])
+        ->name('report-cards.reorder');
+        
     Route::resource('report-cards', ReportCardController::class)
         ->middleware('role:Admin|Teacher|Student|Parent');
     // Télécharger un bulletin PDF
     Route::get('report-cards/{reportCard}/download', [ReportCardController::class, 'download'])
         ->name('report-cards.download');
-
-    Route::get('report-cards/reorder', [ReportCardController::class, 'reorder'])
-        ->name('report-cards.reorder');
 
     // Générer tous les bulletins du trimestre actif
     Route::post('report-cards/generate-all', [ReportCardController::class, 'generateAll'])
@@ -238,8 +245,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | API INTERNE : Recherche globale
     |----------------------------------------------------------------------
     */
-    Route::get('/api/search', [\App\Http\Controllers\API\SearchController::class, 'search'])
-        ->name('api.search');
+    // Route::get('/api/search', [\App\Http\Controllers\API\SearchController::class, 'search'])
+       //  ->name('api.search');
 
 });
 
@@ -250,8 +257,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 */
 require __DIR__.'/auth.php';
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/profile', [ProfileUserController::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileUserController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileUserController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [ProfileUserController::class, 'updatePassword'])->name('profile.password.update');
+    Route::delete('/profile/avatar', [ProfileUserController::class, 'deleteAvatar'])->name('profile.avatar.destroy');
+    Route::delete('/profile', [ProfileUserController::class, 'destroy'])->name('profile.destroy');
 });

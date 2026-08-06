@@ -13,7 +13,8 @@ class AcademicYear extends Model
         'name',
         'start_date',
         'end_date',
-        'is_current'  
+        'is_current',
+        'position'
     ];
 
     protected function casts() : array {

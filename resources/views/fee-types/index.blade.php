@@ -149,7 +149,7 @@
                     </div>
                     <div class="text-center px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/30">
                         <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
-                            {{ number_format($feeType->payments_sum_amount ?? 0, 0, ',', ' ') }}
+                            {{ number_format($feeType->payments_sum_amount_paid ?? 0, 0, ',', ' ') }}
                         </p>
                         <p class="text-[10px] text-slate-400 dark:text-slate-500">Total collecté (FCFA)</p>
                     </div>

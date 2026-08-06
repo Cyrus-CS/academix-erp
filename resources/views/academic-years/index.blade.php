@@ -248,7 +248,8 @@
             </a>
         </div>
         @else
-        <x-sortable-grid resource="academic-years" class="divide-y divide-slate-100 dark:divide-slate-700">
+        <x-sortable-grid resource="academic-years" :sortable-url="route('academic-years.reorder')"
+            class="divide-y divide-slate-100 dark:divide-slate-700">
 
             {{-- <ul id="academic-years-list" class=""> --}}
             @foreach($academicYears as $year)
@@ -498,6 +499,19 @@
 
 @push('scripts')
 <script>
+// Dans ta vue (script en bas de page ou fichier dédié)
+import {
+    SchoolSortable
+} from './sortable/sortable-core';
+
+document.addEventListener('DOMContentLoaded', () => {
+    SchoolSortable.init({
+        gridId: 'academic-years-grid', // ✅ Doit correspondre à l'ID du conteneur
+        saveUrl: '/academic-years/reorder', // ✅ Ou utiliser la meta tag Laravel
+        handle: '.bi-grip-vertical', // ✅ Sélecteur de la poignée
+    });
+});
+
 function deleteYear(id, name) {
     if (!confirm(`Supprimer l'année "${name}" ? Cette action supprimera aussi les trimestres associés.`)) return;
     const form = document.getElementById('delete-form');

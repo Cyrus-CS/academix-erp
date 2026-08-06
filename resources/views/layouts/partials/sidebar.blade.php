@@ -20,12 +20,13 @@ mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
     ══════════════════════════════════════ --}}
     <div class="flex items-center h-16 px-4 shrink-0
                 border-b border-slate-200 dark:border-slate-700">
-
-        {{-- Logo icon --}}
-        <div class="shrink-0 w-9 h-9 rounded-xl
-                    bg-linear-to-br from-blue-600 to-emerald-500
-                    flex items-center justify-center shadow-md">
-            <i class="bi bi-mortarboard-fill text-white text-lg"></i>
+        <div class="sticky top-0 z-10 bg-white dark:bg-slate-900">
+            {{-- Logo icon --}}
+            <div class="shrink-0 w-9 h-9 rounded-xl
+                        bg-linear-to-br from-blue-600 to-emerald-500
+                        flex items-center justify-center shadow-md">
+                <i class="bi bi-mortarboard-fill text-white text-lg"></i>
+            </div>
         </div>
 
         {{-- Brand text --}}

@@ -82,7 +82,7 @@ class SubjectController extends Controller
     {
         $subject->load([
             'teacherAssignments.teacher.user',
-            'teacherAssignments.schoolClass',
+            'teacherAssignments.classe',
             'grades' => fn($q) => $q->latest()->limit(10),
         ]);
 

@@ -8,13 +8,11 @@ use App\Models\AcademicYear;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\TeacherContract;
-use App\Models\User;
+
 use App\Services\TeacherService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -63,9 +61,11 @@ class TeacherController extends Controller
         $subjects        = Subject::orderBy('name')->get();
         $newThisMonth    = Teacher::newTeachersInMonth();
 
+        // $contracts = Teacher::with('teacher.contracts');
+
         return view('teachers.index', compact(
             'teachers', 'totalTeachers', 'activeContracts',
-            'subjects', 'newThisMonth', 'activeYear'
+            'subjects', 'newThisMonth', 'activeYear',
         ));
     }
 

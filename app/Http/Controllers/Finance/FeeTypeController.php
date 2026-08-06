@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FeeType\FeeTypeRequest;
 use App\Models\AcademicYear;
 use App\Models\FeeType;
+use App\Models\Payment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -30,6 +32,8 @@ class FeeTypeController extends Controller
             $query->where('is_active', $request->input('status') === 'active');
         }
 
+        // $payments_sum_amount = Payment::where('fee_types_id', )
+
         $feeTypes = $query->paginate(15)->withQueryString();
 
         return view('fee-types.index', compact('feeTypes'));
@@ -48,22 +52,9 @@ class FeeTypeController extends Controller
     /**
      * Store a newly created fee type.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(FeeTypeRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:100', 'unique:fee_types,name'],
-            'amount'      => ['required', 'numeric', 'min:0'],
-            'description' => ['nullable', 'string', 'max:500'],
-            'frequency'   => ['required', 'in:monthly,quarterly,yearly,one_time'],
-            'is_active'   => ['boolean'],
-        ], [
-            'name.required'      => 'Le nom du type de frais est obligatoire.',
-            'name.unique'        => 'Ce type de frais existe déjà.',
-            'amount.required'    => 'Le montant est obligatoire.',
-            'amount.min'         => 'Le montant doit être positif.',
-            'frequency.required' => 'La fréquence est obligatoire.',
-            'frequency.in'       => 'La fréquence sélectionnée est invalide.',
-        ]);
+        $validated = $request->validated();
 
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['academic_year_id'] = AcademicYear::active()->value('id');
@@ -106,15 +97,9 @@ class FeeTypeController extends Controller
     /**
      * Update the specified fee type.
      */
-    public function update(Request $request, FeeType $feeType): RedirectResponse
+    public function update(FeeTypeRequest $request, FeeType $feeType): RedirectResponse
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:100', 'unique:fee_types,name,' . $feeType->id],
-            'amount'      => ['required', 'numeric', 'min:0'],
-            'description' => ['nullable', 'string', 'max:500'],
-            'frequency'   => ['required', 'in:monthly,quarterly,yearly,one_time'],
-            'is_active'   => ['boolean'],
-        ]);
+        $validated = $request->validated();
 
         $validated['is_active'] = $request->boolean('is_active');
         $validated['academic_year_id'] = AcademicYear::active()->value('id');

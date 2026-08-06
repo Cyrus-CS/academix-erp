@@ -191,9 +191,13 @@ function _persistOrder({ grid, itemSelector, saveUrl, isSaving, setSaving, onSav
     setSaving(true);
 
     // Récupérer l'ordre actuel des IDs
+    // const order = [...grid.querySelectorAll(itemSelector)]
+    //     .map(item => item.dataset.id)
+    //     .filter(Boolean);
+
     const order = [...grid.querySelectorAll(itemSelector)]
-        .map(item => item.dataset.id)
-        .filter(Boolean);
+    .map(item => Number(item.dataset.id))   //  parseInt() fonctionne aussi
+    .filter(Boolean);                        // filter(Boolean) retire les 0/NaN
 
     if (!order.length) {
         setSaving(false);

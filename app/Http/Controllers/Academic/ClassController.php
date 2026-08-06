@@ -29,16 +29,17 @@ class ClassController extends Controller
 
     public function create(): View
     {
-        $classe = new Classe();
-        $classe->fill([
+        $class = new Classe();
+        $class->fill([
             'name' => 'Licence 3',
             'level' => 'Licence Professionnelle',
             'capacity' => 50,
+            'description' => "Cette description est celle de la classe ...."
         ]);
         $activeYear = AcademicYear::active()->first();
         $academicYears  = AcademicYear::orderBy('name')->get();
 
-        return view('classes.form', compact('classe', 'academicYears', 'activeYear'));
+        return view('classes.form', compact('class', 'academicYears', 'activeYear'));
     }
 
     public function store(ClasseRequest $request): RedirectResponse
@@ -49,24 +50,26 @@ class ClassController extends Controller
             ->with('success', "La classe « {$classe->name} » a été créée avec succès.");
     }
 
-    public function show(Classe $classe): View
+    public function show(Classe $class): View
     {
-        $classe->load(['students.user', 'teachers.user', 'subjects']);
+        $class->load(['students.user', 'teachers.user', 'subjects']);
 
-        return view('classes.show', compact('classe'));
+        return view('classes.show', compact('class'));
     }
 
-    public function edit(Classe $classe): View
+    public function edit(Classe $class): View
     {
-        return view('classes.form', compact('classe'));
+        $activeYear = AcademicYear::active()->first();
+        $academicYears  = AcademicYear::orderBy('name')->get();
+        return view('classes.form', compact('class', 'academicYears', 'activeYear'));
     }
 
-    public function update(ClasseRequest $request, Classe $classe): RedirectResponse
+    public function update(ClasseRequest $request, Classe $class): RedirectResponse
     {
-        $classe->update($request->validated());
+        $class->update($request->validated());
 
         return to_route('classes.index')
-            ->with('success', "La classe « {$classe->name} » a été modifiée avec succès.");
+            ->with('success', "La classe « {$class->name} » a été modifiée avec succès.");
     }
 
     public function destroy(Classe $classe): RedirectResponse

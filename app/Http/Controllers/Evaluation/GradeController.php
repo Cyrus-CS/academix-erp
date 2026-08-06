@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Evaluation;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Grade\GradeRequest;
 use App\Models\Classe;
 use App\Models\Grade;
 use App\Models\Student;
@@ -12,9 +13,7 @@ use App\Models\Term;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-// use Illuminate\Http\Request;
 
 class GradeController extends Controller
 {
@@ -117,32 +116,11 @@ class GradeController extends Controller
     /**
      * Store a newly created grade.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(GradeRequest $request): RedirectResponse
     {
         $user = Auth::user();
 
-        $validated = $request->validate([
-            'student_id'      => ['required', 'exists:students,id'],
-            'subject_id'      => ['required', 'exists:subjects,id'],
-            'term_id'         => ['required', 'exists:terms,id'],
-            'class_id' => ['required', 'exists:classes,id'],
-            'teacher_id' => ['required', 'exists:teachers,id'],
-            'type'   => ['required', Rule::in(['homework', 'test', 'exam'])],
-            'score' => ['required', 'numeric', 'min:0', 'max:20'],
-            'max_score'       => ['required', 'numeric', 'min:1', 'max:20'],
-            'comment'         => ['nullable', 'string', 'max:500'],
-            'graded_at'       => ['required', 'date'],
-        ], [
-            'student_id.required'      => "L'étudiant est obligatoire.",
-            'subject_id.required'      => 'La matière est obligatoire.',
-            'term_id.required'         => 'Le trimestre est obligatoire.',
-            'class_id.required' => 'La classe est obligatoire.',
-            'type.required'            => 'Le type de note est obligatoire.',
-            'score.required'           => 'La note est obligatoire.',
-            'score.min'                => 'La note minimum est 0.',
-            'score.max'                => 'La note maximum est 20.',
-            'graded_at.required'       => 'La date d\'évaluation est obligatoire.',
-        ]);
+        $validated = $request->validated();
 
         // Vérifier l'unicité (même étudiant, même matière, même trimestre, même type)
         $exists = Grade::where([
@@ -226,23 +204,12 @@ class GradeController extends Controller
     /**
      * Update the specified grade.
      */
-    public function update(Request $request, Grade $grade): RedirectResponse
+    public function update(GradeRequest $request, Grade $grade): RedirectResponse
     {
         $this->authorizeGradeAccess($grade);
         $user = Auth::user();
 
-        $validated = $request->validate([
-            'student_id'      => ['required', 'exists:students,id'],
-            'subject_id'      => ['required', 'exists:subjects,id'],
-            'term_id'         => ['required', 'exists:terms,id'],
-            'class_id' => ['required', 'exists:classes,id'],
-            'teacher_id' => ['required', 'exists:teachers,id'],
-            'type'            => ['required', Rule::in(['homework', 'test', 'exam'])],
-            'score'           => ['required', 'numeric', 'min:0', 'max:20'],
-            'max_score'       => ['required', 'numeric', 'min:1', 'max:20'],
-            'comment'         => ['nullable', 'string', 'max:500'],
-            'graded_at'       => ['required', 'date'],
-        ]);
+        $validated = $request->validated();
 
         $grade->update($validated);
 

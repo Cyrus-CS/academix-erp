@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Classe;
+use App\Models\Subject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
@@ -17,6 +19,12 @@ class Attendance extends Model
         'status',
         'reason'
     ];
+
+    protected function casts() : array{
+        return [
+            'date' => 'datetime'
+        ];
+    }
 
     // ------------------------------- RELATIONS --------------------------------
     public function student()
@@ -34,6 +42,11 @@ class Attendance extends Model
         return $this->belongsTo(Classe::class,'class_id');
     }
 
+    public function subject() : BelongsTo{
+        return $this->belongsTo(Subject::class);
+    }
+
+    // -------------------------------------------------- PERSONNAL FUNCTION -------------------------
     public static function present(): int
     {
         return static::whereDate('date', today())

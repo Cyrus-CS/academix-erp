@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Evaluation;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Attendance\AttendanceRequest;
 use App\Models\AcademicYear;
 use App\Models\Attendance;
 use App\Models\Classe;
@@ -114,23 +115,9 @@ class AttendanceController extends Controller
         ));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(AttendanceRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'class_id'  => ['required', 'exists:classes,id'],
-            'schedule_id' => ['required', 'exists:schedules,id'],
-            'date'  => ['required', 'date', 'before_or_equal:today'],
-            'attendances'  => ['required', 'array'],
-            'attendances.*.student_id'  => ['required', 'exists:students,id'],
-            'attendances.*.status'      => ['required', 'in:present,absent,late'],
-            'attendances.*.note'        => ['nullable', 'string', 'max:200'],
-        ], [
-            'class_id.required'    => 'La classe est obligatoire.',
-            'schedule_id.required' => 'Le créneau est obligatoire.',
-            'date.required'        => 'La date est obligatoire.',
-            'date.before_or_equal' => 'La date ne peut pas être dans le futur.',
-            'attendances.required' => 'Aucun étudiant sélectionné.',
-        ]);
+        $validated = $request->validated();
 
         $schedule = Schedule::find($validated['schedule_id']);
 
@@ -195,20 +182,25 @@ class AttendanceController extends Controller
 
     public function edit(Attendance $attendance): View
     {
-        $classes  = Classe::orderBy('name')->get();
-        $students = Student::with('user')
-            ->where('class_id', $attendance->class_id)
-            ->orderBy('student_number')
-            ->get();
+        // Charger les relations nécessaires
+        $attendance->load([
+            'student.user', 
+            'classe', 
+            'subject', 
+            'teacher.user'
+        ]);
 
-        return view('attendances.form', compact('attendance', 'classes', 'students'));
+        return view('attendances.edit', compact('attendance'));
     }
 
     public function update(Request $request, Attendance $attendance): RedirectResponse
     {
         $validated = $request->validate([
             'status' => ['required', 'in:present,absent,late'],
-            'reason'   => ['nullable', 'string', 'max:200'],
+            'reason' => ['nullable', 'string', 'max:200'],
+        ], [
+            'status.required' => 'Le statut est obligatoire.',
+            'status.in'       => 'Le statut doit être : présent, absent ou en retard.',
         ]);
 
         $attendance->update($validated);

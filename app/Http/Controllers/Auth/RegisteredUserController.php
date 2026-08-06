@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
         ]);
 
         // ── Assigner le rôle par défaut ──
-        $user->assignRole('Student'); // ou selon votre logique
+        $user->assignRole('Student'); 
 
         // ── Déclencher l'event (envoi email vérification) ──
         try {

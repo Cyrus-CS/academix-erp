@@ -233,7 +233,7 @@
                         {{-- Note --}}
                         <td class="px-4 py-3.5">
                             <span class="text-xs text-slate-500 dark:text-slate-400">
-                                {{ $attendance->note ?? '-' }}
+                                {{ $attendance->reason ?? '-' }}
                             </span>
                         </td>
 

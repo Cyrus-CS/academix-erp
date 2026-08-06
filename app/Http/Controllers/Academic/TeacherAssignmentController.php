@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TeacherAssignment\TeacherAssignmentRequest;
 use App\Models\AcademicYear;
 use App\Models\Classe;
 use App\Models\ClassSubjectTeacher;
@@ -96,19 +97,9 @@ class TeacherAssignmentController extends Controller
     /**
      * Store a newly created assignment.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(TeacherAssignmentRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'teacher_id'       => ['required', 'exists:teachers,id'],
-            'subject_id'       => ['required', 'exists:subjects,id'],
-            'class_id'  => ['required', 'exists:classes,id'],
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-        ], [
-            'teacher_id.required'       => "L'enseignant est obligatoire.",
-            'subject_id.required'       => 'La matière est obligatoire.',
-            'class_id.required'  => 'La classe est obligatoire.',
-            'academic_year_id.required' => "L'année académique est obligatoire.",
-        ]);
+        $validated = $request->validated();
 
         // Vérifier l'unicité de l'assignation
         $exists = ClassSubjectTeacher::where($validated)->exists();
@@ -180,14 +171,9 @@ class TeacherAssignmentController extends Controller
     /**
      * Update the specified assignment.
      */
-    public function update(Request $request, ClassSubjectTeacher $teacherAssignment): RedirectResponse
+    public function update(TeacherAssignmentRequest $request, ClassSubjectTeacher $teacherAssignment): RedirectResponse
     {
-        $validated = $request->validate([
-            'teacher_id'       => ['required', 'exists:teachers,id'],
-            'subject_id'       => ['required', 'exists:subjects,id'],
-            'class_id'  => ['required', 'exists:classes,id'],
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-        ]);
+        $validated = $request->validated();
 
         // Vérifier l'unicité (en excluant l'enregistrement actuel)
         $exists = ClassSubjectTeacher::where($validated)

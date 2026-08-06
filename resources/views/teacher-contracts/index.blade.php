@@ -141,7 +141,7 @@
                         </td>
                         <td class="px-4 py-3.5">
                             <span class="text-xs font-medium text-slate-600 dark:text-slate-300">
-                                {{ ['permanent' => 'CDI', 'temporary' => 'CDD', 'part_time' => 'Temps partiel', 'internship' => 'Stage'][$contract->type] ?? $contract->type }}
+                                {{ ['permanent' => 'CDI', 'temporary' => 'CDD', 'part_time' => 'Temps partiel', 'internship' => 'Stage'][$contract->contract_type] ?? $contract->type }}
                             </span>
                         </td>
                         <td class="px-4 py-3.5 hidden sm:table-cell">

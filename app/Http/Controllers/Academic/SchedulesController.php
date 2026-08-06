@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Schedule\MoveScheduleRequest;
+use App\Http\Requests\Schedule\TimesTableRequest;
 use App\Models\AcademicYear;
 use App\Models\Classe;
 use App\Models\Schedule;
 use App\Models\Subject;
 use App\Models\Teacher;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-// use Illuminate\Http\Request;
 
 class SchedulesController extends Controller
 {
@@ -43,13 +44,15 @@ class SchedulesController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $activeYear = AcademicYear::active()->first();
         $classes    = Classe::orderBy('name')->get();
         $subjects   = Subject::where('is_active', true)->orderBy('name')->get();
         $teachers   = Teacher::with('user')->orderBy('id')->get();
-        $schedule   = new Schedule();
+
+        $schedule = new Schedule();
+        $schedule->class_id = $request->query('class_id');
 
         return view('timetables.form', compact(
             'schedule',
@@ -60,26 +63,9 @@ class SchedulesController extends Controller
         ));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(TimesTableRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'class_id'         => ['required', 'exists:classes,id'],
-            'subject_id'       => ['required', 'exists:subjects,id'],
-            'teacher_id'       => ['required', 'exists:teachers,id'],
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'day_of_week'      => ['required', Rule::in(array_keys(Schedule::DAYS))],
-            'start_time'       => ['required', 'date_format:H:i'],
-            'end_time'         => ['required', 'date_format:H:i', 'after:start_time'],
-            'room'             => ['nullable', 'string', 'max:50'],
-        ], [
-            'class_id.required'    => 'La classe est obligatoire.',
-            'subject_id.required'  => 'La matière est obligatoire.',
-            'teacher_id.required'  => "L'enseignant est obligatoire.",
-            'day_of_week.required' => 'Le jour est obligatoire.',
-            'start_time.required'  => "L'heure de début est obligatoire.",
-            'end_time.required'    => "L'heure de fin est obligatoire.",
-            'end_time.after'       => "L'heure de fin doit être après l'heure de début.",
-        ]);
+        $validated = $request->validated();
 
         // ── Conversion nom du jour → entier (ce qui manquait) ──
         $validated['day_of_week'] = Schedule::DAYS[$validated['day_of_week']];
@@ -127,18 +113,9 @@ class SchedulesController extends Controller
         ]);
     }
 
-    public function update(Request $request, Schedule $timetable): RedirectResponse
+    public function update(TimesTableRequest $request, Schedule $timetable): RedirectResponse
     {
-        $validated = $request->validate([
-            'class_id'         => ['required', 'exists:classes,id'],
-            'subject_id'       => ['required', 'exists:subjects,id'],
-            'teacher_id'       => ['required', 'exists:teachers,id'],
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'day_of_week'      => ['required', Rule::in(array_keys(Schedule::DAYS))],
-            'start_time'       => ['required', 'date_format:H:i'],
-            'end_time'         => ['required', 'date_format:H:i', 'after:start_time'],
-            'room'             => ['nullable', 'string', 'max:50'],
-        ]);
+        $validated = $request->validated();
 
          // ── Conversion nom du jour → entier (ce qui manquait) ──
         $validated['day_of_week'] = Schedule::DAYS[$validated['day_of_week']];
@@ -176,13 +153,9 @@ class SchedulesController extends Controller
     /**
      * Déplacer un créneau via drag & drop (AJAX).
      */
-    public function move(Request $request, Schedule $schedule): JsonResponse
+    public function move(MoveScheduleRequest $request, Schedule $schedule): JsonResponse
     {
-        $validated = $request->validate([
-            'day_of_week' => ['required', 'in:Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi'],
-            'start_time'  => ['required', 'date_format:H:i'],
-            'end_time'    => ['required', 'date_format:H:i', 'after:start_time'],
-        ]);
+        $validated = $request->validated();
 
         // Vérifier chevauchement
         $conflict = Schedule::where('class_id', $schedule->class_id)
@@ -207,5 +180,38 @@ class SchedulesController extends Controller
             'success' => true,
             'message' => 'Créneau déplacé avec succès.',
         ]);
+    }
+
+    /**
+     * Générer le PDF de l'emploi du temps d'une classe.
+     */
+    public function print(Request $request)
+    {
+        $validated = $request->validate([
+            'class_id' => ['required', 'exists:classes,id'],
+        ]);
+
+        $activeYear    = AcademicYear::active()->first();
+        $selectedClass = Classe::findOrFail($validated['class_id']);
+
+        $schedules = Schedule::with(['subject', 'teacher.user', 'classe'])
+            ->where('academic_year_id', $activeYear?->id)
+            ->where('class_id', $selectedClass->id)
+            ->orderBy('day_of_week')
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('day_of_week');
+
+        $pdf = Pdf::loadView('timetables.pdf', [
+            'schedules'     => $schedules,
+            'selectedClass' => $selectedClass,
+            'activeYear'    => $activeYear,
+            'days'          => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+        ])->setPaper('a4', 'landscape');
+
+        $filename = 'emploi-du-temps-' . str($selectedClass->name)->slug() . '.pdf';
+
+        return $pdf->stream($filename);
+        // ou ->download($filename) pour forcer le téléchargement au lieu de l'ouvrir dans l'onglet
     }
 }

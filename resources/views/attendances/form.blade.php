@@ -5,418 +5,509 @@
 @section('breadcrumb')
 <span class="text-slate-300 dark:text-slate-600 font-light select-none">/</span>
 <a href="{{ route('attendance.index') }}"
-    class="text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+    class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
     Présences
 </a>
-@endsection
-
-@section('page_header')
-<div class="flex items-center justify-between gap-4">
-    <div class="flex items-center gap-3 min-w-0">
-        <div class="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-emerald-500
-                        flex items-center justify-center shadow-sm shrink-0">
-            <i class="bi bi-person-check-fill text-white text-lg"></i>
-        </div>
-        <div class="min-w-0">
-            <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100 truncate">
-                Saisie des présences
-            </h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400">
-                @if($selectedClass && $date)
-                {{ $selectedClass->name }} —
-                {{ \Carbon\Carbon::parse($date)->translatedFormat('l d F Y') }}
-                @else
-                Sélectionnez une classe et une date pour commencer
-                @endif
-            </p>
-        </div>
-    </div>
-    <a href="{{ route('attendance.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
-                  border border-slate-200 dark:border-slate-700
-                  text-slate-700 dark:text-slate-300
-                  hover:bg-slate-50 dark:hover:bg-slate-700/50
-                  transition-all duration-200 shrink-0">
-        <i class="bi bi-arrow-left"></i>
-        <span class="hidden sm:inline">Retour</span>
-    </a>
-</div>
+<span class="text-slate-300 dark:text-slate-600 font-light select-none">/</span>
+<span class="text-slate-400 dark:text-slate-500">Saisie</span>
 @endsection
 
 @section('content')
-<div class="space-y-6 max-w-4xl mx-auto">
 
-    {{-- ── Sélection classe & date ── --}}
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
-                dark:border-slate-700 shadow-sm overflow-hidden">
+<div class="max-w-6xl mx-auto space-y-6">
+
+    {{-- ══════════════════════════════════════════════════════
+         FILTRES — Classe / Date / Créneau
+    ══════════════════════════════════════════════════════ --}}
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm
+                border border-slate-200 dark:border-slate-700 overflow-hidden">
 
         <div class="flex items-center gap-3 px-6 py-4
-                    border-b border-slate-100 dark:border-slate-700
-                    bg-slate-50/60 dark:bg-slate-700/30">
-            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/40
+                    border-b border-slate-200 dark:border-slate-700">
+            <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40
                         flex items-center justify-center">
-                <i class="bi bi-filter-circle-fill text-blue-600 dark:text-blue-400 text-sm"></i>
+                <i class="bi bi-funnel-fill text-blue-600 dark:text-blue-400"></i>
             </div>
-            <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Sélection classe & date
-            </h2>
+            <div>
+                <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">
+                    Sélection de la session
+                </h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Choisissez la classe, la date et le créneau
+                </p>
+            </div>
         </div>
 
-        <div class="p-6">
-            <form method="GET" action="{{ route('attendance.create') }}" class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1 relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+        <form method="GET" action="{{ route('attendance.create') }}" id="filter-form" class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                {{-- Classe --}}
+                <div>
+                    <label class="flex items-center gap-1.5 text-sm font-medium
+                                  text-slate-700 dark:text-slate-200 mb-1.5">
                         <i class="bi bi-building text-slate-400"></i>
-                    </span>
-                    <select name="class_id" class="w-full pl-10 pr-9 py-2.5 rounded-xl border text-sm
-                                   text-slate-800 dark:text-slate-100
-                                   bg-white dark:bg-slate-700/50 appearance-none
-                                   focus:outline-none focus:ring-2 transition-all duration-200
-                                   border-slate-200 dark:border-slate-600
-                                   focus:ring-blue-500/30 focus:border-blue-500">
-                        <option value="">Sélectionner une classe…</option>
-                        @foreach($classes as $class)
-                        <option value="{{ $class->id }}" {{ $selectedClass?->id == $class->id ? 'selected' : '' }}>
-                            {{ $class->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
-                        <i class="bi bi-chevron-down text-slate-400 text-xs"></i>
-                    </span>
+                        Classe
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select name="class_id" id="class-select" class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                                       bg-white dark:bg-slate-800 text-sm
+                                       text-slate-800 dark:text-slate-100
+                                       py-2.5 pl-3.5 pr-9 appearance-none
+                                       focus:outline-none focus:ring-2
+                                       focus:ring-blue-600/40 focus:border-blue-600
+                                       transition">
+                            <option value="">— Sélectionner une classe —</option>
+                            @foreach($classes as $class)
+                            <option value="{{ $class->id }}" {{ $selectedClass?->id == $class->id ? 'selected' : '' }}>
+                                {{ $class->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+                            <i class="bi bi-chevron-down text-slate-400 text-xs"></i>
+                        </span>
+                    </div>
                 </div>
 
-                <div class="flex-1 relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10">
-                        <i class="bi bi-calendar-event text-slate-400"></i>
-                    </span>
-                    <input type="text" name="date" id="date-picker" value="{{ $date }}" placeholder="Date" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-sm
+                {{-- Date --}}
+                <div>
+                    <label class="flex items-center gap-1.5 text-sm font-medium
+                                  text-slate-700 dark:text-slate-200 mb-1.5">
+                        <i class="bi bi-calendar3 text-slate-400"></i>
+                        Date
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="date" id="date-picker" value="{{ $date }}"
+                        placeholder="Sélectionner une date" readonly class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                                  bg-white dark:bg-slate-800 text-sm
                                   text-slate-800 dark:text-slate-100
-                                  bg-white dark:bg-slate-700/50 placeholder-slate-400
-                                  focus:outline-none focus:ring-2 transition-all duration-200
-                                  border-slate-200 dark:border-slate-600
-                                  focus:ring-blue-500/30 focus:border-blue-500">
+                                  py-2.5 px-3.5 cursor-pointer
+                                  focus:outline-none focus:ring-2
+                                  focus:ring-blue-600/40 focus:border-blue-600
+                                  transition" />
                 </div>
 
-                {{-- Select créneau (remplace le select matière) --}}
-                <div class="flex-1 relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                        <i class="bi bi-journal-bookmark text-slate-400"></i>
-                    </span>
-
-                    <select name="schedule_id" class="w-full pl-10 pr-9 py-2.5 rounded-xl border text-sm
-                        text-slate-800 dark:text-slate-100
-                        bg-white dark:bg-slate-700/50 appearance-none
-                        focus:outline-none focus:ring-2 transition-all duration-200
-                        border-slate-200 dark:border-slate-600
-                        focus:ring-blue-500/30 focus:border-blue-500" {{ $schedules->isEmpty() ? 'disabled' : '' }}>
-                        <option value="">Sélectionner un créneau…</option>
-                        @foreach($schedules as $schedule)
-                        <option value="{{ $schedule->id }}"
-                            {{ (string) $scheduleId === (string) $schedule->id ? 'selected' : '' }}>
-                            {{ $schedule->subject?->name }}
-                            |
-                            {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}-{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
-                            @if($schedule->teacher?->user)
-                            ({{ $schedule->teacher->user->name }})
-                            @endif
-                        </option>
-                        @endforeach
-                    </select>
-                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
-                        <i class="bi bi-chevron-down text-slate-400 text-xs"></i>
-                    </span>
+                {{-- Créneau --}}
+                <div>
+                    <label class="flex items-center gap-1.5 text-sm font-medium
+                                  text-slate-700 dark:text-slate-200 mb-1.5">
+                        <i class="bi bi-clock text-slate-400"></i>
+                        Créneau
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select name="schedule_id" id="schedule-select" class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                                       bg-white dark:bg-slate-800 text-sm
+                                       text-slate-800 dark:text-slate-100
+                                       py-2.5 pl-3.5 pr-9 appearance-none
+                                       focus:outline-none focus:ring-2
+                                       focus:ring-blue-600/40 focus:border-blue-600
+                                       transition
+                                       disabled:bg-slate-100 disabled:cursor-not-allowed
+                                       dark:disabled:bg-slate-900" {{ !$selectedClass ? 'disabled' : '' }}>
+                            <option value="">— Sélectionner un créneau —</option>
+                            @foreach($schedules as $schedule)
+                            <option value="{{ $schedule->id }}" {{ $scheduleId == $schedule->id ? 'selected' : '' }}>
+                                {{ $schedule->start_time->format('H:i') }}
+                                – {{ $schedule->end_time->format('H:i') }}
+                                | {{ $schedule->subject->name }}
+                                ({{ $schedule->teacher->user->name }})
+                            </option>
+                            @endforeach
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+                            <i class="bi bi-chevron-down text-slate-400 text-xs"></i>
+                        </span>
+                    </div>
                 </div>
 
-                <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
-                               bg-blue-600 hover:bg-blue-700 text-white
-                               transition-all duration-200 shrink-0">
+            </div>
+
+            <div class="flex items-center justify-end mt-5 pt-5
+                        border-t border-slate-200 dark:border-slate-700">
+                <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+                               text-sm font-semibold text-white
+                               bg-blue-600 hover:bg-blue-700
+                               shadow-sm transition-all duration-200">
                     <i class="bi bi-search"></i>
-                    Charger
+                    Charger les élèves
                 </button>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
-    {{-- ── Liste étudiants ── --}}
-    @if($selectedClass && $selectedSchedule && $selectedClass->students->isNotEmpty())
-    <form method="POST" action="{{ route('attendance.store') }}">
+    {{-- ══════════════════════════════════════════════════════
+         SESSION INFO — Résumé du créneau sélectionné
+    ══════════════════════════════════════════════════════ --}}
+    @if($selectedSchedule && $selectedClass)
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        @foreach([
+        ['icon' => 'bi-building', 'color' => 'blue', 'label' => 'Classe', 'value' => $selectedClass->name],
+        ['icon' => 'bi-book-fill', 'color' => 'emerald', 'label' => 'Matière', 'value' =>
+        $selectedSchedule->subject->name],
+        ['icon' => 'bi-person-fill', 'color' => 'cyan', 'label' => 'Enseignant','value' =>
+        $selectedSchedule->teacher->user->name],
+        ['icon' => 'bi-calendar3', 'color' => 'amber', 'label' => 'Date', 'value' =>
+        \Carbon\Carbon::parse($date)->translatedFormat('d M Y')],
+        ] as $info)
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm
+                    border border-slate-200 dark:border-slate-700 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl shrink-0
+                            bg-{{ $info['color'] }}-100 dark:bg-{{ $info['color'] }}-900/40
+                            flex items-center justify-center">
+                    <i class="bi {{ $info['icon'] }}
+                              text-{{ $info['color'] }}-600 dark:text-{{ $info['color'] }}-400
+                              text-sm"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[10px] uppercase tracking-wider font-semibold
+                              text-slate-400 dark:text-slate-500">
+                        {{ $info['label'] }}
+                    </p>
+                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                        {{ $info['value'] }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+    {{-- ══════════════════════════════════════════════════════
+         FORMULAIRE DE PRÉSENCES
+    ══════════════════════════════════════════════════════ --}}
+    @if($selectedClass && $selectedSchedule && $selectedClass->students->count() > 0)
+
+    <form action="{{ route('attendance.store') }}" method="POST" id="attendance-form">
         @csrf
+
         <input type="hidden" name="class_id" value="{{ $selectedClass->id }}">
         <input type="hidden" name="date" value="{{ $date }}">
-        <input type="hidden" name="schedule_id" value="{{ $scheduleId }}">
+        <input type="hidden" name="schedule_id" value="{{ $selectedSchedule->id }}">
 
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
-                    dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm
+                    border border-slate-200 dark:border-slate-700 overflow-hidden">
 
-            {{-- Header --}}
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3
-                        px-6 py-4 border-b border-slate-100 dark:border-slate-700
-                        bg-slate-50/60 dark:bg-slate-700/30">
+            {{-- Header avec actions rapides --}}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4
+                        px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <div class="flex items-center gap-3">
-                    <div class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/40
+                    <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900/40
                                 flex items-center justify-center">
-                        <i class="bi bi-people-fill text-emerald-600 dark:text-emerald-400 text-sm"></i>
+                        <i class="bi bi-person-check-fill text-emerald-600 dark:text-emerald-400"></i>
                     </div>
-                    <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        {{ $selectedClass->name }}
-                        <span class="text-slate-400 font-normal">
-                            ({{ $selectedClass->students->count() }} étudiants)
-                        </span>
-                    </h2>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">
+                            Liste des élèves
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            {{ $selectedClass->students->count() }} élève(s) enregistré(s)
+                        </p>
+                    </div>
                 </div>
 
                 {{-- Actions rapides --}}
-                <div class="flex items-center gap-2">
-                    <button type="button" id="btn-all-present" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
-                                   bg-emerald-100 dark:bg-emerald-900/30
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400 mr-1">
+                        Tout marquer :
+                    </span>
+                    <button type="button" data-mark-all="present" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                                   text-xs font-semibold
+                                   bg-emerald-100 dark:bg-emerald-900/40
                                    text-emerald-700 dark:text-emerald-400
-                                   hover:bg-emerald-200 dark:hover:bg-emerald-900/50
-                                   transition-all duration-200">
-                        <i class="bi bi-check-all"></i>
-                        Tous présents
+                                   hover:bg-emerald-200 dark:hover:bg-emerald-900/60
+                                   transition-colors">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Présent
                     </button>
-                    <button type="button" id="btn-all-absent" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
-                                   bg-red-100 dark:bg-red-900/30
+                    <button type="button" data-mark-all="absent" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                                   text-xs font-semibold
+                                   bg-red-100 dark:bg-red-900/40
                                    text-red-700 dark:text-red-400
-                                   hover:bg-red-200 dark:hover:bg-red-900/50
-                                   transition-all duration-200">
-                        <i class="bi bi-x-lg"></i>
-                        Tous absents
+                                   hover:bg-red-200 dark:hover:bg-red-900/60
+                                   transition-colors">
+                        <i class="bi bi-x-circle-fill"></i>
+                        Absent
+                    </button>
+                    <button type="button" data-mark-all="late" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                                   text-xs font-semibold
+                                   bg-amber-100 dark:bg-amber-900/40
+                                   text-amber-700 dark:text-amber-400
+                                   hover:bg-amber-200 dark:hover:bg-amber-900/60
+                                   transition-colors">
+                        <i class="bi bi-clock-fill"></i>
+                        Retard
                     </button>
                 </div>
             </div>
 
-            {{-- Compteur stats live --}}
-            <div class="grid grid-cols-3 gap-0 border-b border-slate-100 dark:border-slate-700">
+            {{-- Compteur en temps réel --}}
+            <div class="grid grid-cols-3 gap-0 border-b border-slate-200 dark:border-slate-700">
                 @foreach([
-                ['id' => 'count-present', 'label' => 'Présents', 'color' => 'emerald', 'icon' =>
-                'bi-check-circle-fill'],
-                ['id' => 'count-absent', 'label' => 'Absents', 'color' => 'red', 'icon' => 'bi-x-circle-fill'],
-                ['id' => 'count-late', 'label' => 'En retard', 'color' => 'amber', 'icon' => 'bi-clock-fill'],
+                ['status' => 'present', 'label' => 'Présents', 'color' => 'emerald', 'icon' => 'bi-check-circle-fill'],
+                ['status' => 'absent', 'label' => 'Absents', 'color' => 'red', 'icon' => 'bi-x-circle-fill'],
+                ['status' => 'late', 'label' => 'Retards', 'color' => 'amber', 'icon' => 'bi-clock-fill'],
                 ] as $stat)
-                <div class="flex flex-col items-center justify-center py-3
-                            border-r border-slate-100 dark:border-slate-700 last:border-0">
-                    <div class="flex items-center gap-1.5">
-                        <i class="bi {{ $stat['icon'] }} text-{{ $stat['color'] }}-500 text-sm"></i>
-                        <span id="{{ $stat['id'] }}"
-                            class="text-xl font-bold text-slate-800 dark:text-slate-100">0</span>
-                    </div>
-                    <p class="text-xs text-slate-400 dark:text-slate-500">{{ $stat['label'] }}</p>
+                <div class="flex flex-col items-center py-3 
+                            {{ !$loop->last ? 'border-r border-slate-200 dark:border-slate-700' : '' }}">
+                    <i class="bi {{ $stat['icon'] }} text-{{ $stat['color'] }}-500 mb-1"></i>
+                    <span id="count-{{ $stat['status'] }}"
+                        class="text-xl font-bold text-{{ $stat['color'] }}-600 dark:text-{{ $stat['color'] }}-400">
+                        0
+                    </span>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                        {{ $stat['label'] }}
+                    </span>
                 </div>
                 @endforeach
             </div>
 
-            {{-- Liste --}}
+            {{-- Liste des élèves --}}
             <div class="divide-y divide-slate-100 dark:divide-slate-700">
-                @foreach($selectedClass->students->sortBy('user.name') as $index => $student)
+                @foreach($selectedClass->students->sortBy('matricule') as $index => $student)
                 @php
-                $ex = $existing[$student->id] ?? null;
-                $currentStatus = $ex['status'] ?? 'present';
+                $existingRecord = $existing[$student->id] ?? null;
+                $defaultStatus = $existingRecord['status'] ?? 'present';
                 @endphp
-                <div class="student-row flex flex-col sm:flex-row sm:items-center gap-3
-                            px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/30
-                            transition-colors duration-200" data-status="{{ $currentStatus }}">
+                <div class="attendance-row flex flex-col sm:flex-row sm:items-center gap-4
+                            px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/30
+                            transition-colors" data-student-id="{{ $student->id }}">
 
                     <input type="hidden" name="attendances[{{ $index }}][student_id]" value="{{ $student->id }}">
 
                     {{-- Avatar + Nom --}}
                     <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-9 h-9 rounded-full shrink-0
-                                    bg-linear-to-br from-blue-500 to-emerald-500
-                                    flex items-center justify-center text-white text-xs font-bold">
+                        <div class="w-10 h-10 rounded-full shrink-0
+                                    bg-gradient-to-br from-blue-500 to-emerald-500
+                                    flex items-center justify-center
+                                    text-white text-sm font-bold">
                             {{ strtoupper(substr($student->user->name, 0, 1)) }}
                         </div>
                         <div class="min-w-0">
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
                                 {{ $student->user->name }}
                             </p>
-                            <p class="text-xs text-slate-400 dark:text-slate-500">
-                                {{ $student->student_number }}
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                {{ $student->matricule }}
                             </p>
                         </div>
                     </div>
 
-                    {{-- Status radios --}}
-                    <div class="flex items-center gap-2 shrink-0">
+                    {{-- Statut --}}
+                    <div class="flex items-center gap-2">
                         @foreach([
-                        ['value' => 'present', 'label' => 'Présent', 'color' => 'emerald', 'icon' => 'bi-check-lg'],
-                        ['value' => 'absent', 'label' => 'Absent', 'color' => 'red', 'icon' => 'bi-x-lg'],
-                        ['value' => 'late', 'label' => 'En retard', 'color' => 'amber', 'icon' => 'bi-clock'],
-                        ] as $status)
-                        @php $isChecked = $currentStatus === $status['value']; @endphp
-                        <label
-                            class="status-btn inline-flex items-center gap-1.5 px-3 py-1.5
-                                      rounded-lg border-2 cursor-pointer text-xs font-semibold
-                                      transition-all duration-200
-                                      {{ $isChecked
-                                          ? 'border-' . $status['color'] . '-500 bg-' . $status['color'] . '-100 dark:bg-' . $status['color'] . '-900/30 text-' . $status['color'] . '-700 dark:text-' . $status['color'] . '-400'
-                                          : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300' }}">
-                            <input type="radio" name="attendances[{{ $index }}][status]" value="{{ $status['value'] }}"
-                                {{ $isChecked ? 'checked' : '' }} class="sr-only status-radio">
-                            <i class="bi {{ $status['icon'] }}"></i>
-                            <span class="hidden sm:inline">{{ $status['label'] }}</span>
+                        ['value' => 'present', 'label' => 'Présent', 'color' => 'emerald'],
+                        ['value' => 'absent', 'label' => 'Absent', 'color' => 'red'],
+                        ['value' => 'late', 'label' => 'Retard', 'color' => 'amber'],
+                        ] as $option)
+                        <label class="status-label cursor-pointer">
+                            <input type="radio" name="attendances[{{ $index }}][status]" value="{{ $option['value'] }}"
+                                class="sr-only status-radio" data-color="{{ $option['color'] }}"
+                                {{ $defaultStatus === $option['value'] ? 'checked' : '' }}>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                                         text-xs font-semibold border-2 transition-all duration-200
+                                         border-slate-200 dark:border-slate-600
+                                         text-slate-500 dark:text-slate-400
+                                         hover:border-{{ $option['color'] }}-300
+                                         status-option" data-color="{{ $option['color'] }}">
+                                {{ $option['label'] }}
+                            </span>
                         </label>
                         @endforeach
                     </div>
 
-                    {{-- Note --}}
-                    <input type="text" name="attendances[{{ $index }}][note]" value="{{ $ex['note'] ?? '' }}"
-                        placeholder="Note…" class="w-full sm:w-36 px-3 py-1.5 rounded-lg border text-xs
-                                  text-slate-800 dark:text-slate-100
-                                  bg-white dark:bg-slate-700/50 placeholder-slate-400
-                                  focus:outline-none focus:ring-2 transition-all duration-200
-                                  border-slate-200 dark:border-slate-600
-                                  focus:ring-blue-500/30 focus:border-blue-500">
+                    {{-- Note / Raison --}}
+                    <div class="sm:w-48">
+                        <input type="text" name="attendances[{{ $index }}][note]"
+                            value="{{ $existingRecord['reason'] ?? '' }}" placeholder="Motif (optionnel)" class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                                      bg-slate-50 dark:bg-slate-700/50
+                                      text-xs text-slate-700 dark:text-slate-300
+                                      placeholder:text-slate-400
+                                      px-3 py-1.5
+                                      focus:outline-none focus:ring-2
+                                      focus:ring-blue-600/40 focus:border-blue-600
+                                      transition" />
+                    </div>
+
                 </div>
                 @endforeach
             </div>
 
-            {{-- Footer actions --}}
-            <div class="flex items-center justify-between gap-3 px-5 py-4
-                        border-t border-slate-100 dark:border-slate-700
-                        bg-slate-50/60 dark:bg-slate-700/30">
-                <a href="{{ route('attendance.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
-                          border border-slate-200 dark:border-slate-700
-                          text-slate-700 dark:text-slate-300
-                          hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-200">
-                    <i class="bi bi-x-lg"></i>
-                    Annuler
-                </a>
-                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold
-                               bg-blue-600 hover:bg-blue-700 text-white
-                               shadow-sm hover:shadow-md transition-all duration-200
-                               focus:outline-none focus:ring-2 focus:ring-blue-500/40">
-                    <i class="bi bi-save-fill"></i>
-                    Enregistrer les présences
-                </button>
+            {{-- Footer --}}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4
+                        px-6 py-4 bg-slate-50 dark:bg-slate-800/50
+                        border-t border-slate-200 dark:border-slate-700">
+                <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <i class="bi bi-info-circle text-blue-500"></i>
+                    Les parents des élèves absents seront notifiés automatiquement.
+                </p>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('attendance.index') }}" class="px-4 py-2 rounded-xl text-sm font-medium
+                              text-slate-600 dark:text-slate-400
+                              hover:bg-slate-100 dark:hover:bg-slate-700
+                              transition-all duration-200">
+                        Annuler
+                    </a>
+                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+                                   text-sm font-semibold text-white
+                                   bg-blue-600 hover:bg-blue-700
+                                   shadow-sm transition-all duration-200">
+                        <i class="bi bi-check-lg"></i>
+                        Enregistrer les présences
+                    </button>
+                </div>
             </div>
         </div>
     </form>
 
-    @elseif($selectedClass && $selectedClass->students->isEmpty())
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
-                dark:border-slate-700 shadow-sm p-12 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-700/50
-                    flex items-center justify-center mx-auto mb-4">
-            <i class="bi bi-people text-3xl text-slate-300 dark:text-slate-600"></i>
+    @elseif($selectedClass && !$selectedSchedule)
+    {{-- Aucun créneau --}}
+    <div class="flex flex-col items-center justify-center py-16
+                bg-white dark:bg-slate-800 rounded-2xl shadow-sm
+                border border-slate-200 dark:border-slate-700">
+        <div class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/40
+                    flex items-center justify-center mb-4">
+            <i class="bi bi-clock text-amber-500 text-2xl"></i>
         </div>
-        <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">
-            Aucun étudiant dans cette classe
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
+            Aucun créneau pour ce jour
+        </h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 text-center max-w-sm">
+            Il n'y a pas de cours programmé pour cette classe à cette date.
         </p>
     </div>
 
-    @elseif(!$selectedClass)
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
-                dark:border-slate-700 shadow-sm p-12 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/30
-                    flex items-center justify-center mx-auto mb-4">
-            <i class="bi bi-arrow-up-circle text-3xl text-blue-400"></i>
+    @elseif($selectedClass && $selectedClass->students->count() === 0)
+    {{-- Classe vide --}}
+    <div class="flex flex-col items-center justify-center py-16
+                bg-white dark:bg-slate-800 rounded-2xl shadow-sm
+                border border-slate-200 dark:border-slate-700">
+        <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-700
+                    flex items-center justify-center mb-4">
+            <i class="bi bi-people text-slate-400 text-2xl"></i>
         </div>
-        <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">
-            Sélectionnez une classe et une date pour commencer la saisie
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
+            Classe vide
+        </h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 text-center max-w-sm">
+            Aucun élève n'est inscrit dans cette classe.
         </p>
     </div>
     @endif
 
 </div>
-@endsection
 
 @push('scripts')
 <script>
-(() => {
-    // ── Flatpickr ─────────────────────────────────────────────────
-    flatpickr('#date-picker', {
-        dateFormat: 'Y-m-d',
-        altInput: true,
-        altFormat: 'd/m/Y',
-        locale: 'fr',
-        maxDate: 'today',
-        defaultDate: '{{ $date }}',
-    });
+document.addEventListener('DOMContentLoaded', () => {
 
-    // ── Compteurs live ────────────────────────────────────────────
-    function updateCounts() {
-        let present = 0,
-            absent = 0,
-            late = 0;
-
-        document.querySelectorAll('.student-row').forEach(row => {
-            const checked = row.querySelector('.status-radio:checked');
-            if (!checked) return;
-            if (checked.value === 'present') present++;
-            else if (checked.value === 'absent') absent++;
-            else if (checked.value === 'late') late++;
+    // ── Flatpickr sur date ───────────────────────────────────
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr('#date-picker', {
+            dateFormat: 'Y-m-d',
+            maxDate: 'today',
+            locale: 'fr',
+            onChange: () => {
+                document.getElementById('filter-form').submit();
+            },
         });
-
-        document.getElementById('count-present').textContent = present;
-        document.getElementById('count-absent').textContent = absent;
-        document.getElementById('count-late').textContent = late;
     }
 
-    // ── Styling status buttons ────────────────────────────────────
-    const statusClasses = {
-        present: 'border-emerald-500 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-        absent: 'border-red-500 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-        late: 'border-amber-500 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+    // ── Auto-submit quand classe change ─────────────────────
+    document.getElementById('class-select')?.addEventListener('change', () => {
+        document.getElementById('filter-form').submit();
+    });
+
+    // ── Auto-submit quand créneau change ────────────────────
+    document.getElementById('schedule-select')?.addEventListener('change', () => {
+        document.getElementById('filter-form').submit();
+    });
+
+    // ── Styling des radio buttons statut ────────────────────
+    const colorMap = {
+        emerald: {
+            active: 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+            inactive: 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400',
+        },
+        red: {
+            active: 'border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+            inactive: 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400',
+        },
+        amber: {
+            active: 'border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+            inactive: 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400',
+        },
     };
 
-    const defaultClass = 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400';
+    const updateRadioStyles = (radio) => {
+        const row = radio.closest('.attendance-row');
+        const radios = row.querySelectorAll('.status-radio');
 
-    document.querySelectorAll('.student-row').forEach(row => {
-        const labels = row.querySelectorAll('.status-btn');
+        radios.forEach(r => {
+            const span = r.nextElementSibling;
+            const color = r.dataset.color;
+            const map = colorMap[color];
 
-        labels.forEach(label => {
-            label.addEventListener('click', () => {
-                const radio = label.querySelector('.status-radio');
-                const val = radio?.value;
+            // Reset
+            map.active.split(' ').forEach(c => span.classList.remove(c));
+            map.inactive.split(' ').forEach(c => span.classList.remove(c));
 
-                // Reset tous dans cette ligne
-                labels.forEach(l => {
-                    l.className = l.className
-                        .replace(/border-\w+-500/g, '')
-                        .replace(/bg-\w+-100|dark:bg-\w+-900\/30/g, '')
-                        .replace(/text-\w+-\d+/g, '');
-                    l.classList.add(...defaultClass.split(' '));
-                });
+            if (r.checked) {
+                map.active.split(' ').forEach(c => span.classList.add(c));
+            } else {
+                map.inactive.split(' ').forEach(c => span.classList.add(c));
+            }
+        });
 
-                // Activer le sélectionné
-                label.classList.remove(...defaultClass.split(' '));
-                label.classList.add(...(statusClasses[val] ?? '').split(' '));
+        updateCounts();
+    };
 
-                updateCounts();
+    // Initialiser les styles au chargement
+    document.querySelectorAll('.status-radio').forEach(radio => {
+        radio.addEventListener('change', () => updateRadioStyles(radio));
+        if (radio.checked) updateRadioStyles(radio);
+    });
+
+    // ── Compteurs en temps réel ──────────────────────────────
+    const updateCounts = () => {
+        const counts = {
+            present: 0,
+            absent: 0,
+            late: 0
+        };
+
+        document.querySelectorAll('.status-radio:checked').forEach(radio => {
+            if (counts[radio.value] !== undefined) counts[radio.value]++;
+        });
+
+        Object.entries(counts).forEach(([status, count]) => {
+            const el = document.getElementById(`count-${status}`);
+            if (el) el.textContent = count;
+        });
+    };
+
+    updateCounts();
+
+    // ── Boutons "Tout marquer" ───────────────────────────────
+    document.querySelectorAll('[data-mark-all]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const status = btn.dataset.markAll;
+
+            document.querySelectorAll('.attendance-row').forEach(row => {
+                const radio = row.querySelector(`.status-radio[value="${status}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    updateRadioStyles(radio);
+                }
             });
         });
     });
 
-    // ── Tout présents / tout absents ─────────────────────────────
-    function setAll(status) {
-        document.querySelectorAll('.student-row').forEach(row => {
-            const radio = row.querySelector(`.status-radio[value="${status}"]`);
-            if (radio) {
-                radio.checked = true;
-                const labels = row.querySelectorAll('.status-btn');
-                labels.forEach(l => {
-                    l.className = l.className
-                        .replace(/border-\w+-500/g, '')
-                        .replace(/bg-\w+-100|dark:bg-\w+-900\/30/g, '')
-                        .replace(/text-\w+-\d+/g, '');
-                    l.classList.add(...defaultClass.split(' '));
-                });
-                const activeLabel = row.querySelector(`.status-btn:has(.status-radio[value="${status}"])`);
-                if (activeLabel) {
-                    activeLabel.classList.remove(...defaultClass.split(' '));
-                    activeLabel.classList.add(...(statusClasses[status] ?? '').split(' '));
-                }
-            }
-        });
-        updateCounts();
-    }
-
-    document.getElementById('btn-all-present')?.addEventListener('click', () => setAll('present'));
-    document.getElementById('btn-all-absent')?.addEventListener('click', () => setAll('absent'));
-
-    // Init compteurs
-    updateCounts();
-})();
+});
 </script>
 @endpush
+
+@endsection

@@ -1,9 +1,9 @@
 @extends('layouts.base')
 
 @php
-$isEdit = $contract->exists;
+$isEdit = $teacherContract->exists;
 $pageTitle = $isEdit ? 'Modifier le contrat' : 'Nouveau contrat';
-$teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
+$teacherName = $isEdit ? ($teacherContract->teacher->user->name ?? '') : '';
 @endphp
 
 @section('page_title', $pageTitle)
@@ -47,7 +47,7 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
     </div>
 
     @if($isEdit)
-    <a href="{{ route('teacher-contracts.show', $contract) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
+    <a href="{{ route('teacher-contracts.show', $teacherContract) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
               bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
               text-slate-700 dark:text-slate-300
               hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200">
@@ -60,7 +60,7 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
 
 @section('content')
 
-<x-forms.form :model="$contract" resource="teacher-contracts" enctype="multipart/form-data" autocomplete="off">
+<x-forms.form :model="$teacherContract" resource="teacher-contracts" enctype="multipart/form-data" autocomplete="off">
 
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
@@ -92,7 +92,7 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                     <div class="sm:col-span-2">
                         <x-forms.select name="teacher_id" label="Enseignant" :required="true" icon="bi-person-workspace"
                             placeholder="Sélectionner un enseignant…" :options="$teachers" option-value="id"
-                            option-label="user.name" :value="old('teacher_id', $contract->teacher_id ?? '')"
+                            option-label="user.name" :value="old('teacher_id', $teacherContract->teacher_id ?? '')"
                             help="Seuls les enseignants actifs sont listés." />
                     </div>
 
@@ -100,7 +100,7 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                     <div class="sm:col-span-2">
                         <x-forms.input-field name="contract_number" label="Numéro de contrat" type="text"
                             :required="true" icon="bi-hash" placeholder="Ex : CTR-2025-001"
-                            :value="old('contract_number', $contract->contract_number ?? '')"
+                            :value="old('contract_number', $teacherContract->contract_number ?? '')"
                             help="Identifiant unique du contrat dans votre système." />
                     </div>
                 </div>
@@ -145,7 +145,8 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                             'cyan'],
                             ] as $type)
                             @php
-                            $isSelected = old('contract_type', $contract->contract_type ?? '') === $type['value'];
+                            $isSelected = old('contract_type', $teacherContract->contract_type ?? '') ===
+                            $type['value'];
                             @endphp
                             <label class="contract-type-card flex items-center gap-2.5 p-3 rounded-xl
                                           border-2 cursor-pointer transition-all duration-200
@@ -191,7 +192,8 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                             'icon' => 'bi-x-circle-fill', 'color' => 'red'],
                             ] as $statusOpt)
                             @php
-                            $isStatusSelected = old('status', $contract->status ?? 'active') === $statusOpt['value'];
+                            $isStatusSelected = old('status', $teacherContract->status ?? 'active') ===
+                            $statusOpt['value'];
                             @endphp
                             <label class="contract-status-card flex items-center gap-3 p-3 rounded-xl
                                           border-2 cursor-pointer transition-all duration-200
@@ -246,16 +248,16 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                     {{-- Date de début --}}
                     <div>
                         <x-forms.input-field name="start_date" label="Date de début" type="date" :required="true"
-                            icon="bi-calendar-plus" placeholder="jj/mm/aaaa" :value="old('start_date', $contract->start_date
-                                ? \Carbon\Carbon::parse($contract->start_date)->format('Y-m-d')
+                            icon="bi-calendar-plus" placeholder="jj/mm/aaaa" :value="old('start_date', $teacherContract->start_date
+                                ? \Carbon\Carbon::parse($teacherContract->start_date)->format('Y-m-d')
                                 : '')" class="flatpickr-date" help="Date d'entrée en vigueur du contrat." />
                     </div>
 
                     {{-- Date de fin --}}
                     <div>
                         <x-forms.input-field name="end_date" label="Date de fin" type="date" icon="bi-calendar-minus"
-                            placeholder="jj/mm/aaaa (optionnel pour CDI)" :value="old('end_date', $contract->end_date
-                                ? \Carbon\Carbon::parse($contract->end_date)->format('Y-m-d')
+                            placeholder="jj/mm/aaaa (optionnel pour CDI)" :value="old('end_date', $teacherContract->end_date
+                                ? \Carbon\Carbon::parse($teacherContract->end_date)->format('Y-m-d')
                                 : '')" class="flatpickr-date"
                             help="Laissez vide pour un contrat CDI sans terme défini." />
                     </div>
@@ -270,7 +272,7 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                         </label>
                         <div class="relative">
                             <input type="number" name="salary" id="salary"
-                                value="{{ old('salary', $contract->salary ?? '') }}" min="0" step="500"
+                                value="{{ old('salary', $teacherContract->salary ?? '') }}" min="0" step="500"
                                 placeholder="Ex : 150000"
                                 class="w-full pl-3.5 pr-20 py-2.5 text-sm rounded-xl
                                           border text-slate-800 dark:text-slate-100
@@ -337,7 +339,7 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                 <div class="p-5 sm:p-6">
                     <x-forms.textarea name="description" label="Description / Clauses"
                         placeholder="Décrivez les conditions particulières, clauses spécifiques, observations…"
-                        :value="old('description', $contract->description ?? '')" :rows="5"
+                        :value="old('description', $teacherContract->description ?? '')" :rows="5"
                         help="Maximum 1000 caractères. Ce champ est optionnel." />
                 </div>
             </div>
@@ -363,7 +365,7 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
 
                 <div class="p-5">
                     {{-- Document existant --}}
-                    @if($isEdit && $contract->contract_pdf_path)
+                    @if($isEdit && $teacherContract->contract_pdf_path)
                     <div class="mb-4 flex items-center gap-3 p-3 rounded-xl
                                 bg-emerald-50 dark:bg-emerald-900/20
                                 border border-emerald-200 dark:border-emerald-800">
@@ -377,10 +379,10 @@ $teacherName = $isEdit ? ($contract->teacher->user->name ?? '') : '';
                                 Document actuel
                             </p>
                             <p class="text-[11px] text-emerald-600 dark:text-emerald-400 truncate">
-                                {{ basename($contract->contract_pdf_path) }}
+                                {{ basename($teacherContract->contract_pdf_path) }}
                             </p>
                         </div>
-                        <a href="{{ Storage::url($contract->contract_pdf_path) }}" target="_blank" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800
+                        <a href="{{ Storage::url($teacherContract->contract_pdf_path) }}" target="_blank" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800
                                   border border-emerald-300 dark:border-emerald-700
                                   flex items-center justify-center
                                   text-emerald-600 hover:text-emerald-700 transition-colors" title="Voir le document">

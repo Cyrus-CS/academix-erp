@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Term\TermRequest;
 use App\Models\AcademicYear;
 use App\Models\Term;
 use Illuminate\Http\RedirectResponse;
@@ -51,22 +52,9 @@ class TermController extends Controller
     /**
      * Store a newly created term.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(TermRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'name'             => ['required', 'string', 'max:100'],
-            'start_date'       => ['required', 'date'],
-            'end_date'         => ['required', 'date', 'after:start_date'],
-            'is_current'       => ['boolean'],
-        ], [
-            'academic_year_id.required' => "L'année académique est obligatoire.",
-            'academic_year_id.exists'   => "L'année académique sélectionnée est invalide.",
-            'name.required'             => 'Le nom du trimestre est obligatoire.',
-            'start_date.required'       => 'La date de début est obligatoire.',
-            'end_date.required'         => 'La date de fin est obligatoire.',
-            'end_date.after'            => 'La date de fin doit être postérieure à la date de début.',
-        ]);
+        $validated = $request->validated();
 
         $validated['is_current'] = $request->boolean('is_current');
 
@@ -117,18 +105,9 @@ class TermController extends Controller
     /**
      * Update the specified term.
      */
-    public function update(Request $request, Term $term): RedirectResponse
+    public function update(TermRequest $request, Term $term): RedirectResponse
     {
-        $validated = $request->validate([
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'name'             => ['required', 'string', 'max:100'],
-            'start_date'       => ['required', 'date'],
-            'end_date'         => ['required', 'date', 'after:start_date'],
-            'is_current'       => ['boolean'],
-        ], [
-            'academic_year_id.required' => "L'année académique est obligatoire.",
-            'end_date.after'            => 'La date de fin doit être postérieure à la date de début.',
-        ]);
+        $validated = $request->validated();
 
         $validated['is_current'] = $request->boolean('is_current');
 

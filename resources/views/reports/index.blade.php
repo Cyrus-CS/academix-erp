@@ -13,7 +13,7 @@
     {{-- ================= Header + Filtres ================= --}}
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border
                 border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div class="px-6 py-5 bg-gradient-to-r from-blue-50 to-emerald-50
+        <div class="px-6 py-5 bg-linear-to-r from-blue-50 to-emerald-50
                     dark:from-blue-950/30 dark:to-emerald-950/30
                     border-b border-slate-200 dark:border-slate-700
                     flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

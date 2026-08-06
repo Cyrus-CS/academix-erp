@@ -74,7 +74,7 @@ $mins = $duration % 60;
 
             <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
                 <div
-                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center shadow-md">
+                    class="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-emerald-500 flex items-center justify-center shadow-md">
                     <i class="bi bi-journal-bookmark-fill text-white"></i>
                 </div>
                 {{ $timetable->subject->name ?? 'Matière non définie' }}
@@ -104,7 +104,7 @@ $mins = $duration % 60;
                         {{ $hours > 0 ? $hours.'h ' : '' }}{{ $mins > 0 ? $mins.'min' : '' }} @if($duration==0) 0 min
                         @endif</p>
                     <div class="mt-2 w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-blue-600 to-emerald-500"
+                        <div class="h-full bg-linear-to-r from-blue-600 to-emerald-500"
                             style="width: {{ min(100, ($duration/120)*100) }}%"></div>
                     </div>
                 </div>
@@ -112,7 +112,7 @@ $mins = $duration % 60;
         </div>
 
         <div
-            class="lg:col-span-4 bg-gradient-to-br from-slate-50 to-blue-50/50 dark:from-slate-900 dark:to-blue-950/20 p-6 sm:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+            class="lg:col-span-4 bg-linear-to-br from-slate-50 to-blue-50/50 dark:from-slate-900 dark:to-blue-950/20 p-6 sm:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 flex flex-col justify-between">
             <div>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Informations académiques</h3>
                 <div class="space-y-4">
@@ -159,7 +159,7 @@ $mins = $duration % 60;
             </div>
         </div>
     </div>
-    <div class="h-1 w-full bg-gradient-to-r from-blue-600 to-emerald-500"></div>
+    <div class="h-1 w-full bg-linear-to-r from-blue-600 to-emerald-500"></div>
 </div>
 
 {{-- Details Grid --}}
@@ -173,7 +173,7 @@ $mins = $duration % 60;
             @if($timetable->teacher)
             <div class="flex items-start gap-4">
                 <div
-                    class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center text-white font-bold text-sm">
+                    class="w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-emerald-500 flex items-center justify-center text-white font-bold text-sm">
                     {{ strtoupper(substr($timetable->teacher->user->name ?? 'T',0,2)) }}</div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">
@@ -244,7 +244,7 @@ $mins = $duration % 60;
         </div>
 
         <div
-            class="bg-gradient-to-br from-blue-600 to-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/20">
+            class="bg-linear-to-br from-blue-600 to-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/20">
             <div class="flex items-center gap-2 mb-3"><i class="bi bi-lightbulb-fill text-white/80"></i>
                 <p class="text-sm font-semibold">Astuce</p>
             </div>

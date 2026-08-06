@@ -93,18 +93,26 @@ class AcademicYearController extends Controller
         return back()->with('success', "{$academicYear->name} est maintenant l'année active.");
     }
 
-    // Réordonner
+    // Réorder les années académiques
     public function reorder(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
-            'order'   => ['required', 'array'],
-            'order.*' => ['integer', 'exists:academic_years,id'],
+            'order'   => ['required', 'array', 'min:1'],
+            'order.*' => ['required'],
         ]);
-    
+
         $order = $request->input('order', []);
-        foreach ($order as $position => $id) {
-            AcademicYear::where('id', $id)->update(['order' => $position + 1]);
-        }
-        return response()->json(['ok' => true]);
+
+        DB::transaction(function () use ($order) {
+            foreach ($order as $position => $id) {
+                AcademicYear::where('id', (int) $id)
+                    ->update(['position' => $position + 1]);
+            }
+        });
+
+        return response()->json([
+            'ok'      => true,
+            'message' => 'Ordre mis à jour avec succès.',
+        ]);
     }
 }

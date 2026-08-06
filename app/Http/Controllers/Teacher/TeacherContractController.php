@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TeacherContract\TeacherContractRequest;
 use App\Models\Teacher;
 use App\Models\TeacherContract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-// use Illuminate\Http\Request;
 
 class TeacherContractController extends Controller
 {
@@ -50,37 +49,19 @@ class TeacherContractController extends Controller
 
     public function create(): View
     {
-        $contract = new TeacherContract();
+        $teacherContract = new TeacherContract();
         $teachers = Teacher::with('user')
             ->where('status', 'active')
             ->orderBy('employee_number')
             ->get();
 
-        return view('teacher-contracts.form', compact('contract', 'teachers'));
+        return view('teacher-contracts.form', compact('teacherContract', 'teachers'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(TeacherContractRequest $request): RedirectResponse
     {
-        $teacher_contract = $request->route('teacher-contracts');
-        $validated = $request->validate([
-            'teacher_id'  => ['required', 'exists:teachers,id'],
-            'contract_type' => ['required', 'in:permanent,temporary,part_time,internship'],
-            'start_date'  => ['required', 'date'],
-            'contract_number' => ['required', 'string', 'max:150', Rule::unique('teachers_contracts', 'contract_number')->ignore($teacher_contract?->teacher_id)],
-            'end_date'    => ['nullable', 'date', 'after:start_date'],
-            'salary'      => ['required', 'numeric', 'min:0'],
-            'status'      => ['required', 'in:active,expired,terminated'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'contract_pdf_path'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
-        ], [
-            'teacher_id.required' => "L'enseignant est obligatoire.",
-            'type.required'       => 'Le type de contrat est obligatoire.',
-            'start_date.required' => 'La date de début est obligatoire.',
-            'salary.required'     => 'Le salaire est obligatoire.',
-            'end_date.after'      => 'La date de fin doit être après la date de début.',
-            'contract_pdf_path.mimes'      => 'Le document doit être un fichier PDF, DOC ou DOCX.',
-            'contract_pdf_path.max'        => 'Le document ne doit pas dépasser 5 Mo.',
-        ]);
+        
+        $validated = $request->validated();
 
         // Upload document contrat
         if ($request->hasFile('contract_pdf_path')) {
@@ -111,20 +92,9 @@ class TeacherContractController extends Controller
         return view('teacher-contracts.form', compact('teacherContract', 'teachers'));
     }
 
-    public function update(Request $request, TeacherContract $teacherContract): RedirectResponse
+    public function update(TeacherContractRequest $request, TeacherContract $teacherContract): RedirectResponse
     {
-        $teacher_contract = $request->route('teacher-contracts');
-        $validated = $request->validate([
-            'teacher_id'  => ['required', 'exists:teachers,id'],
-            'contract_type'        => ['required', 'in:permanent,temporary,part_time,internship'],
-            'contract_number' => ['required', 'string', 'max:150', Rule::unique('teachers_contracts', 'contract_number')->ignore($teacher_contract?->teacher_id)],
-            'start_date'  => ['required', 'date'],
-            'end_date'    => ['nullable', 'date', 'after:start_date'],
-            'salary'      => ['required', 'numeric', 'min:0'],
-            'status'      => ['required', 'in:active,expired,terminated'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'contract_pdf_path'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         // Nouveau document
         if ($request->hasFile('contract_pdf_path')) {

@@ -297,36 +297,53 @@ $refNumber = str_pad($payment->id, 5, '0', STR_PAD_LEFT);
 </div>
 
 {{-- ── Parents liés ─────────────────────────────────────────────── --}}
-@if($payment->student->parents?->count())
+@if($payment->student->parents->count())
 <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200
             dark:border-slate-700 shadow-sm overflow-hidden mb-6">
     <div class="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700
                 bg-slate-50/50 dark:bg-slate-800/50">
-        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100
+                   flex items-center gap-2">
             <i class="bi bi-people-fill text-blue-500"></i>
             Parents / Tuteurs de l'élève
         </h3>
     </div>
+
     <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
+        {{-- 
+            $parent est maintenant un User directement
+            Plus besoin de $parent->user->name, c'est $parent->name
+        --}}
         @foreach($payment->student->parents as $parent)
         <div class="p-5 flex items-center gap-4">
+            {{-- Avatar --}}
+            @if($parent->avatar)
+            <img src="{{ asset('storage/' . $parent->avatar) }}" alt="{{ $parent->name }}"
+                class="w-10 h-10 rounded-xl object-cover shrink-0" />
+            @else
             <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20
                         flex items-center justify-center text-blue-600 dark:text-blue-400
                         font-bold text-sm shrink-0">
-                {{ strtoupper(substr($parent->user->name ?? 'P', 0, 1)) }}
+                {{ strtoupper(substr($parent->name ?? 'P', 0, 1)) }}
             </div>
+            @endif
+
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
-                    {{ $parent->user->name ?? 'Parent' }}
+                    {{ $parent->name ?? 'Parent' }} {{-- ← directement sur User --}}
                 </p>
                 <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-                    {{ $parent->user->email ?? 'Aucun email' }}
-                    @if($parent->phone ?? null) • {{ $parent->phone }} @endif
+                    {{ $parent->email ?? 'Aucun email' }}
+                    @if($parent->phone)
+                    · {{ $parent->phone }}
+                    @endif
                 </p>
             </div>
-            <span class="px-2.5 py-1 rounded-full text-[11px] font-medium
-                         bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
-                {{ $parent->relationship ?? 'Tuteur' }}
+
+            <span class="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium
+                         bg-slate-100 dark:bg-slate-700
+                         text-slate-600 dark:text-slate-300">
+                Tuteur
             </span>
         </div>
         @endforeach

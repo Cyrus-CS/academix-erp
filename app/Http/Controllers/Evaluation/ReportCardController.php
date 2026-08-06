@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Evaluation;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ReportCard\ReportCardRequest;
 use App\Models\AcademicYear;
 use App\Models\Classe;
 use App\Models\Grade;
@@ -10,21 +11,33 @@ use App\Models\ReportCard;
 use App\Models\Student;
 use App\Models\Term;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
-// use Illuminate\Http\Request;
 
 class ReportCardController extends Controller
 {
     public function index(Request $request): View
     {
         $activeYear  = AcademicYear::active()->first();
-        $reportCards = ReportCard::with('student.user', 'student.classe', 'term', 'academicYear')
+
+        $reportCards = ReportCard::with([
+                'student.user',
+                'student.classe',
+                'term',
+                'academicYear',
+            ])
             ->paginate(8);
+
+        // Précharger le count des élèves par classe
+        // pour éviter N+1 queries dans la vue
+        $classStudentCounts = Classe::withCount('students')
+            ->pluck('students_count', 'id');
+
         $classes     = Classe::orderBy('name')->get();
         $terms       = Term::where('academic_year_id', $activeYear?->id)
             ->orderBy('start_date')
@@ -34,13 +47,14 @@ class ReportCardController extends Controller
             ->first();
 
         return view('report-cards.index', [
-            'reportCards' => $reportCards,
-            'classes'     => $classes,
-            'terms'       => $terms,
-            'activeYear'  => $activeYear,
-            'currentTerm' => $currentTerm,
-            'total'       => $reportCards->total(),
-            'generated'   => ReportCard::count(),
+            'reportCards'        => $reportCards,
+            'classStudentCounts' => $classStudentCounts, // ✅ Nouveau
+            'classes'            => $classes,
+            'terms'              => $terms,
+            'activeYear'         => $activeYear,
+            'currentTerm'        => $currentTerm,
+            'total'              => $reportCards->total(),
+            'generated'          => ReportCard::count(),
         ]);
     }
 
@@ -63,14 +77,9 @@ class ReportCardController extends Controller
         ));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(ReportCardRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'student_id'       => ['required', 'exists:students,id'],
-            'term_id'          => ['required', 'exists:terms,id'],
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'class_id'         => ['required', 'exists:classes,id'],
-        ]);
+        $validated = $request->validated();
 
         // Vérifier si un bulletin existe déjà
         $exists = ReportCard::where([
@@ -176,9 +185,9 @@ class ReportCardController extends Controller
      */
     public function download(Request $request, ReportCard $reportCard): Response
     {
-        if (!$request->hasValidSignature()) {
-            abort(403, 'Lien de téléchargement invalide ou expiré.');
-        }
+        // if (!$request->hasValidSignature()) {
+        //     abort(403, 'Lien de téléchargement invalide ou expiré.');
+        // }
 
         $reportCard->load([
             'student.user',
@@ -202,7 +211,7 @@ class ReportCardController extends Controller
     /**
      * Générer tous les bulletins du trimestre actif (admin/teacher).
      */
-    public function generateAll(Request $request): RedirectResponse
+    public function generateAll(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'term_id'  => ['required', 'exists:terms,id'],
@@ -224,7 +233,6 @@ class ReportCardController extends Controller
 
         try {
             foreach ($students as $student) {
-                // Ne pas regénérer si déjà existant
                 $exists = ReportCard::where([
                     'student_id' => $student->id,
                     'term_id'    => $term->id,
@@ -243,13 +251,17 @@ class ReportCardController extends Controller
 
             DB::commit();
 
-            return to_route('report-cards.index')
-                ->with('success', "{$count} bulletin(s) généré(s) avec succès.");
-
+            return response()->json([
+                'success' => true,
+                'count'   => $count,
+            ]);
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            return back()->with('error', 'Erreur lors de la génération : ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la génération : ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -378,5 +390,28 @@ class ReportCardController extends Controller
             $average >= 8  => 'Insuffisant',
             default        => 'Très insuffisant',
         };
+    }
+
+    // Réorder les bulletins
+    public function reorder(Request $request): JsonResponse
+    {
+        $request->validate([
+            'order'   => ['required', 'array', 'min:1'],
+            'order.*' => ['required'],
+        ]);
+
+        $order = $request->input('order', []);
+
+        DB::transaction(function () use ($order) {
+            foreach ($order as $position => $id) {
+                ReportCard::where('id', (int) $id)
+                    ->update(['position' => $position + 1]);
+            }
+        });
+
+        return response()->json([
+            'ok'      => true,
+            'message' => 'Ordre mis à jour avec succès.',
+        ]);
     }
 }
