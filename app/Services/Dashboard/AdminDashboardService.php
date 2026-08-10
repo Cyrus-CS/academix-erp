@@ -74,6 +74,7 @@ class AdminDashboardService
                 'new_teachers_in_month' => Teacher::newTeachersInMonth(),
 
                 // Nombre de presents, absents, retard du jour
+                
                 'attendances_today' => [
                     'present' => Attendance::present(),
                     'absent' => Attendance::absent(),

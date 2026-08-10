@@ -636,7 +636,7 @@
                                 @php
                                 $daysLeft = now()->diffInDays($contract->end_date, false);
                                 $color = $daysLeft <= 30 ? 'red' : 'emerald' ; @endphp <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
-                                             text-[10px] font-semibold
+                                            text-[10px] font-semibold
                                              bg-{{ $color }}-50 dark:bg-{{ $color }}-900/20
                                              text-{{ $color }}-600 dark:text-{{ $color }}-400">
                                     <span class="w-1.5 h-1.5 rounded-full bg-{{ $color }}-500

@@ -63,12 +63,24 @@ class TeacherAssignmentController extends Controller
         $classes       = Classe::orderBy('name')->get();
         $academicYears = AcademicYear::orderByDesc('start_date')->get();
 
+        $currentYear = AcademicYear::active()->first();
+
+        $stats = [
+            'total'        => ClassSubjectTeacher::count(),
+            'current_year' => $currentYear
+                ? ClassSubjectTeacher::where('academic_year_id', $currentYear->id)->count()
+                : 0,
+            'teachers'     => ClassSubjectTeacher::distinct('teacher_id')->count('teacher_id'),
+            'subjects'     => ClassSubjectTeacher::distinct('subject_id')->count('subject_id'),
+        ];
+
         return view('teacher-assignments.index', compact(
             'assignments',
             'teachers',
             'subjects',
             'classes',
-            'academicYears'
+            'academicYears',
+            'stats'
         ));
     }
 
