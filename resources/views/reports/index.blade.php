@@ -2,6 +2,7 @@
 
 @section('breadcrumb')
 <span class="text-slate-300 dark:text-slate-600 font-light select-none">/</span>
+<span class="font-semibold text-slate-700 dark:text-slate-200">Rapports & Statistiques</span>
 @endsection
 
 @section('page_title', 'Rapports & Statistiques')
@@ -44,18 +45,18 @@
         <form action="{{ route('reports.index') }}" method="GET"
             class="px-6 py-4 flex flex-col sm:flex-row flex-wrap items-end gap-4">
 
-            <div class="w-full sm:w-auto sm:flex-1 min-w-[180px]">
+            <div class="w-full sm:w-auto sm:flex-1 min-w-45">
                 <x-forms.select name="academic_year_id" label="Année académique" icon="bi-calendar3"
                     :options="$academicYears" optionValue="id" optionLabel="name" :value="$currentYear?->id"
                     placeholder="Toutes les années" />
             </div>
 
-            <div class="w-full sm:w-auto sm:flex-1 min-w-[180px]">
+            <div class="w-full sm:w-auto sm:flex-1 min-w-45">
                 <x-forms.select name="term_id" label="Trimestre" icon="bi-calendar-week" :options="$terms"
                     optionValue="id" optionLabel="name" :value="$currentTerm?->id" placeholder="Tous les trimestres" />
             </div>
 
-            <div class="w-full sm:w-auto sm:flex-1 min-w-[180px]">
+            <div class="w-full sm:w-auto sm:flex-1 min-w-45">
                 <x-forms.select name="class_id" label="Classe" icon="bi-building" :options="$classes" optionValue="id"
                     optionLabel="name" :value="$currentClassId" placeholder="Toutes les classes" />
             </div>

@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'Années académiques')
+@section('title', 'Academix ERP ')
 @section('page_title', 'Années académiques')
 
 @section('breadcrumb')

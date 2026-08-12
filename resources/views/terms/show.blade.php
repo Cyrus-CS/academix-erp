@@ -73,7 +73,7 @@ $statusColor = $isActive ? 'emerald' : ($isPast ? 'slate' : 'blue');
         <div class="flex flex-col lg:flex-row gap-6">
             <div class="flex-1">
                 <div class="flex flex-wrap items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-emerald-500
+                    <div class="w-12 h-12 rounded-2xl bg-linear-to-br from-blue-600 to-emerald-500
                                 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
                         <i class="bi bi-calendar3-week-fill text-white text-xl"></i>
                     </div>
@@ -141,7 +141,7 @@ $statusColor = $isActive ? 'emerald' : ($isPast ? 'slate' : 'blue');
                     </div>
                     <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div class="h-full rounded-full transition-all duration-700
-                            {{ $progress >= 75 ? 'bg-red-500' : ($progress >= 50 ? 'bg-amber-500' : 'bg-gradient-to-r from-blue-600 to-emerald-500') }}"
+                            {{ $progress >= 75 ? 'bg-red-500' : ($progress >= 50 ? 'bg-amber-500' : 'bg-linear-to-r from-blue-600 to-emerald-500') }}"
                             style="width: {{ $progress }}%"></div>
                     </div>
                     <p class="text-[11px] text-slate-400">
@@ -154,7 +154,7 @@ $statusColor = $isActive ? 'emerald' : ($isPast ? 'slate' : 'blue');
             </div>
         </div>
     </div>
-    <div class="h-1 w-full bg-gradient-to-r from-blue-600 to-emerald-500"></div>
+    <div class="h-1 w-full bg-linear-to-r from-blue-600 to-emerald-500"></div>
 </div>
 
 {{-- ── Stats ────────────────────────────────────────────────────── --}}
@@ -210,7 +210,7 @@ $statusColor = $isActive ? 'emerald' : ($isPast ? 'slate' : 'blue');
                     hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
             <div class="flex items-center gap-3 flex-1 min-w-0">
                 <div class="w-8 h-8 rounded-full
-                            bg-gradient-to-br from-blue-500 to-emerald-500
+                            bg-linear-to-br from-blue-500 to-emerald-500
                             flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                     {{ strtoupper(substr($grade->student->user->name ?? 'E', 0, 1)) }}
                 </div>
@@ -299,15 +299,14 @@ $statusColor = $isActive ? 'emerald' : ($isPast ? 'slate' : 'blue');
                 <p class="text-xs text-slate-400 mt-1">
                     Générez les bulletins pour ce trimestre.
                 </p>
-                @can('create', \App\Models\ReportCard::class)
-                <form action="{{ route('report-cards.generate-all') }}" method="POST" class="mt-4">
-                    @csrf
-                    <input type="hidden" name="term_id" value="{{ $term->id }}">
-                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold
-                                   bg-emerald-600 hover:bg-emerald-700 text-white transition-all">
-                        <i class="bi bi-file-earmark-plus"></i> Générer les bulletins
-                    </button>
-                </form>
+                @can('view report_cards')
+                <button onclick="generateAll({{ $currentTerm->id }})" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+                           border border-slate-200 dark:border-slate-700
+                           text-slate-600 dark:text-slate-400
+                           hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                    <i class="bi bi-lightning-fill text-amber-500"></i>
+                    <span class="hidden sm:inline">Générer tous</span>
+                </button>
                 @endcan
             </div>
             @endforelse
@@ -325,5 +324,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function generateAll(termId) {
+    if (!confirm('Générer tous les bulletins du trimestre en cours ?')) return;
+
+    fetch('{{ route("report-cards.generate-all") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                term_id: termId, // à définir : term actif, via une variable Blade ou un data-attribute
+            }),
+        })
+        .then(async r => {
+            const data = await r.json();
+            if (!r.ok || !data.success) throw new Error(data.message ?? 'Erreur inconnue');
+            return data;
+        })
+        .then(data => {
+            window.showToast({
+                type: 'success',
+                title: 'Bulletins générés',
+                message: `${data.count ?? 0} bulletin(s) généré(s) avec succès.`,
+                delay: 5000,
+            });
+            setTimeout(() => window.location.reload(), 2000);
+        })
+        .catch(err => {
+            window.showToast({
+                type: 'error',
+                title: 'Erreur',
+                message: err.message ?? 'Impossible de générer les bulletins.',
+            });
+        });
+}
 </script>
 @endsection

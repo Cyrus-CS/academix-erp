@@ -4,6 +4,7 @@
 
 @section('breadcrumb')
 <span class="text-slate-300 dark:text-slate-600 font-light select-none">/</span>
+<span class="font-semibold text-slate-700 dark:text-slate-200">Gestion des notifications</span>
 @endsection
 
 @section('page_header')

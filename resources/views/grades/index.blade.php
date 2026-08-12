@@ -1,9 +1,11 @@
 @extends('layouts.base')
 
+@section('title', 'Academix ERP ')
 @section('page_title', 'Notes')
 
 @section('breadcrumb')
 <span class="text-slate-300 dark:text-slate-600 font-light select-none">/</span>
+<span class="font-semibold text-slate-700 dark:text-slate-200">Gestion des Notes</span>
 @endsection
 
 @section('page_header')

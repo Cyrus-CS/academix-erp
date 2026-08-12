@@ -452,13 +452,13 @@
                         <div class="text-center border-l border-slate-200 dark:border-slate-600">
                             @php
                             $daysLeft = $contract?->end_date
-                            ? now()->diffInDays($contract->end_date, false)
+                            ? (int) now()->diffInDays($contract->end_date, false)
                             : null;
                             @endphp
                             <p class="text-xs font-bold
-                                      {{ $daysLeft === null ? 'text-slate-400' :
-                                         ($daysLeft <= 30 ? 'text-red-600 dark:text-red-400' :
-                                         'text-emerald-600 dark:text-emerald-400') }}">
+              {{ $daysLeft === null ? 'text-slate-400' :
+                 ($daysLeft <= 30 ? 'text-red-600 dark:text-red-400' :
+                 'text-emerald-600 dark:text-emerald-400') }}">
                                 {{ $daysLeft !== null ? 'J-' . max(0, $daysLeft) : '—' }}
                             </p>
                             <p class="text-[10px] text-slate-400 dark:text-slate-500">Contrat</p>
@@ -634,7 +634,7 @@
                             <td class="px-4 py-3.5 text-center hidden xl:table-cell">
                                 @if($contract)
                                 @php
-                                $daysLeft = now()->diffInDays($contract->end_date, false);
+                                $daysLeft = (int) ceil(now()->diffInDays($contract->end_date, false));
                                 $color = $daysLeft <= 30 ? 'red' : 'emerald' ; @endphp <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
                                             text-[10px] font-semibold
                                              bg-{{ $color }}-50 dark:bg-{{ $color }}-900/20

@@ -4,6 +4,7 @@
 
 @section('breadcrumb')
 <span class="text-slate-300 dark:text-slate-600 font-light select-none">/</span>
+<span class="font-semibold text-slate-700 dark:text-slate-200">Parents</span>
 @endsection
 
 @section('content')
@@ -13,12 +14,12 @@
     {{-- ════════════════════ HEADER ════════════════════ --}}
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border
                 border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div class="px-6 py-5 bg-gradient-to-r from-blue-50 to-emerald-50
+        <div class="px-6 py-5 bg-linear-to-r from-blue-50 to-emerald-50
                     dark:from-blue-950/30 dark:to-emerald-950/30
                     border-b border-slate-200 dark:border-slate-700
                     flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-emerald-500
+                <div class="w-12 h-12 rounded-2xl bg-linear-to-br from-blue-600 to-emerald-500
                             flex items-center justify-center shrink-0 shadow-md">
                     <i class="bi bi-people-fill text-white text-xl"></i>
                 </div>
@@ -180,7 +181,7 @@
                                 <img src="{{ asset('storage/' . $parent->avatar) }}" alt="{{ $parent->name }}" class="w-9 h-9 rounded-xl object-cover shrink-0
                                             ring-2 ring-blue-500/10" />
                                 @else
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500
+                                <div class="w-9 h-9 rounded-xl bg-linear-to-br from-blue-500 to-emerald-500
                                             flex items-center justify-center text-white text-sm font-bold
                                             shrink-0 ring-2 ring-blue-500/10">
                                     {{ strtoupper(substr($parent->name, 0, 1)) }}
@@ -202,7 +203,7 @@
                             <div class="space-y-1">
                                 <p class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
                                     <i class="bi bi-envelope text-slate-400 text-[11px]"></i>
-                                    <span class="truncate max-w-[180px]">{{ $parent->email }}</span>
+                                    <span class="truncate max-w-45">{{ $parent->email }}</span>
                                 </p>
                                 @if($parent->phone)
                                 <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -329,7 +330,7 @@
                         <img src="{{ asset('storage/' . $parent->avatar) }}" alt="{{ $parent->name }}"
                             class="w-10 h-10 rounded-xl object-cover shrink-0" />
                         @else
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500
+                        <div class="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-emerald-500
                                     flex items-center justify-center text-white font-bold shrink-0">
                             {{ strtoupper(substr($parent->name, 0, 1)) }}
                         </div>
@@ -395,7 +396,7 @@
 </div>
 
 {{-- ════════════════════ MODAL SUPPRESSION ════════════════════ --}}
-<div id="delete-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+<div id="delete-modal" class="hidden fixed inset-0 z-100 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-close-modal="delete-modal"></div>
 
     <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border
