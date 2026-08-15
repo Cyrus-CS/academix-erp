@@ -2,8 +2,28 @@
                bg-white/90 dark:bg-slate-800/90 backdrop-blur-md
                border-b border-slate-200 dark:border-slate-700 shadow-sm">
 
-    {{-- ── Gauche : Toggle + Breadcrumb ── --}}
+    {{-- ── Gauche : Logo + Toggle + Breadcrumb ── --}}
     <div class="flex items-center gap-3">
+
+        {{-- Logo / Brand --}}
+        <div class="flex items-center shrink-0">
+            <div class="shrink-0 w-9 h-9 rounded-xl
+                        bg-linear-to-br from-blue-600 to-emerald-500
+                        flex items-center justify-center shadow-md">
+                <i class="bi bi-mortarboard-fill text-white text-lg"></i>
+            </div>
+            <div class="ml-3 hidden sm:block">
+                <p class="text-sm font-bold leading-tight text-slate-800 dark:text-slate-100 whitespace-nowrap">
+                    School <span class="brand-gradient">ERP</span>
+                </p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                    Gestion scolaire
+                </p>
+            </div>
+        </div>
+
+        {{-- Séparateur --}}
+        <div class="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-700"></div>
 
         {{-- Toggle Sidebar --}}
         <button id="sidebar-toggle" class="p-2 rounded-xl text-slate-500 dark:text-slate-400

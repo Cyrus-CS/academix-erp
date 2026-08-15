@@ -18,27 +18,6 @@ mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
     {{-- ══════════════════════════════════════
          BRAND / LOGO
     ══════════════════════════════════════ --}}
-    <div class="flex items-center h-16 px-4 shrink-0
-                border-b border-slate-200 dark:border-slate-700">
-        <div class="sticky top-0 z-10 bg-white dark:bg-slate-900">
-            {{-- Logo icon --}}
-            <div class="shrink-0 w-9 h-9 rounded-xl
-                        bg-linear-to-br from-blue-600 to-emerald-500
-                        flex items-center justify-center shadow-md">
-                <i class="bi bi-mortarboard-fill text-white text-lg"></i>
-            </div>
-        </div>
-
-        {{-- Brand text --}}
-        <div class="ml-3 overflow-hidden sidebar-brand-text transition-all duration-300">
-            <p class="text-sm font-bold leading-tight text-slate-800 dark:text-slate-100 whitespace-nowrap">
-                School <span class="brand-gradient">ERP</span>
-            </p>
-            <p class="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap">
-                Gestion scolaire
-            </p>
-        </div>
-    </div>
 
     {{-- ══════════════════════════════════════
          NAVIGATION SCROLLABLE

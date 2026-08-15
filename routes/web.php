@@ -245,8 +245,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | API INTERNE : Recherche globale
     |----------------------------------------------------------------------
     */
-    // Route::get('/api/search', [\App\Http\Controllers\API\SearchController::class, 'search'])
-       //  ->name('api.search');
+    Route::get('/api/search', [\App\Http\Controllers\API\SearchController::class, 'search'])
+        ->name('api.search');
 
 });
 

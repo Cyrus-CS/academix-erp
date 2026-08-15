@@ -84,13 +84,15 @@ class PaymentController extends Controller
     /**
      * Show the form for creating a new payment.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $payment  = new Payment();
         $students = Student::with('user')->orderBy('matricule')->get();
         $feeTypes = FeeType::where('is_active', true)->orderBy('name')->get();
+        // Pré-sélection depuis le query param ?fee_type_id=2
+        $selectedFeeTypeId = $request->query('fee_type_id');
 
-        return view('payments.form', compact('payment', 'students', 'feeTypes'));
+        return view('payments.form', compact('payment', 'students', 'feeTypes', 'selectedFeeTypeId'));
     }
 
     /**

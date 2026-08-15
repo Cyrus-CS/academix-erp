@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,5 +40,14 @@ class TeacherContract extends Model
     public function scopeActive(Builder $query)
     {
         return $query->where('status','active');
+    }
+
+    protected function computedStatus(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->end_date && $this->end_date->isPast() && $this->status === 'active'
+                ? 'expired'
+                : $this->status,
+        );
     }
 }

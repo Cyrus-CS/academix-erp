@@ -127,7 +127,7 @@
                                 <option value="">Sélectionner un type de frais…</option>
                                 @foreach($feeTypes as $feeType)
                                 <option value="{{ $feeType->id }}" data-amount="{{ $feeType->amount }}"
-                                    {{ old('fee_type_id', $payment->fee_type_id) == $feeType->id ? 'selected' : '' }}>
+                                    {{ old('fee_type_id', $selectedFeeTypeId ?? $payment->fee_type_id) == $feeType->id ? 'selected' : '' }}>
                                     {{ $feeType->name }} - {{ number_format($feeType->amount, 0, ',', ' ') }} FCFA
                                 </option>
                                 @endforeach
