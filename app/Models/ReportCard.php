@@ -13,6 +13,7 @@ protected $table = 'report_cards';
     protected $fillable = [
         'student_id',
         'class_id',
+        'position',
         'academic_year_id',
         'average',
         'rank',

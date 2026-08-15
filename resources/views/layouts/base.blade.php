@@ -65,11 +65,12 @@
     @include('layouts.partials.modals.global-search')
 
     {{-- ------------------- Mobile Sidebar Overlay ------------------- --}}
+    {{--
     <div x-data @click="$dispatch('close-sidebar')" x-show="$store.sidebar?.mobileOpen"
         x-transition:enter="transition-opacity ease-linear duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-200"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-        class="fixed inset-0 bg-slate-900/60 z-30 lg:hidden"></div>
+        class="fixed inset-0 bg-slate-900/60 z-30 lg:hidden"></div>--}}
     <!-- ajouter la class : backdrop-blur-sm dans la class de la div en haut si on veut un blur sur le responsive -->
 
     {{-- ------------------- Scripts ------------------- --}}

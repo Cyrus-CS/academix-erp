@@ -136,7 +136,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |   - Student & Parent : consultation uniquement
     |----------------------------------------------------------------------
     */
-    Route::get('report-cards/reorder', [ReportCardController::class, 'reorder'])
+    Route::post('report-cards/reorder', [ReportCardController::class, 'reorder'])
         ->name('report-cards.reorder');
         
     Route::resource('report-cards', ReportCardController::class)
