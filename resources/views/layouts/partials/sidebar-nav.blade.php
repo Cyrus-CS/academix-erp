@@ -46,7 +46,7 @@ return $isActive
 {{-- ═══════════════════════════════════════════════════════════
      1. TABLEAU DE BORD
 ═══════════════════════════════════════════════════════════ --}}
-<div class="pt-15.5 pb-1 px-1">
+<div class="pt-4.5 pb-1 px-1">
     <a href="{{ route('dashboard') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl
             transition-all duration-200 ripple
             {{ $navItem('dashboard') }}" title="Tableau de bord">
