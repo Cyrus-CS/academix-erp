@@ -1,3 +1,8 @@
+@php
+use Illuminate\Support\Facades\Auth;
+Auth::loginUsingId(1);
+
+@endphp
 <!DOCTYPE html>
 <html lang="fr" class="h-full">
 

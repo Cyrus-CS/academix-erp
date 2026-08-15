@@ -64,7 +64,7 @@ Auth::loginUsingId(1);
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════
-         SECTION 1 — STATS PRINCIPALES (4 cards)
+         SECTION 1 | STATS PRINCIPALES (4 cards)
     ══════════════════════════════════════════════════════════════ --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -141,7 +141,7 @@ Auth::loginUsingId(1);
                         {{ number_format($stats['total_classes']) }}
                     </p>
                     <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                        Année {{ $activeYear?->name ?? '—' }}
+                        Année {{ $activeYear?->name ?? '|' }}
                     </p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/40
@@ -187,7 +187,7 @@ Auth::loginUsingId(1);
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════
-         SECTION 2 — PRÉSENCES DU JOUR
+         SECTION 2 | PRÉSENCES DU JOUR
     ══════════════════════════════════════════════════════════════ --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
@@ -250,7 +250,7 @@ Auth::loginUsingId(1);
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════
-         SECTION 3 — GRAPHIQUES
+         SECTION 3 | GRAPHIQUES
     ══════════════════════════════════════════════════════════════ --}}
     <div class="grid grid-cols-1 xl:grid-cols-5 gap-4">
 
@@ -261,7 +261,7 @@ Auth::loginUsingId(1);
                         border-b border-slate-100 dark:border-slate-700">
                 <div>
                     <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                        Présences — 7 derniers jours
+                        Présences | 7 derniers jours
                     </h3>
                     <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                         Évolution quotidienne
@@ -314,7 +314,7 @@ Auth::loginUsingId(1);
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════
-         SECTION 4 — ÉLÈVES PAR CLASSE + TOP ABSENTS
+         SECTION 4 | ÉLÈVES PAR CLASSE + TOP ABSENTS
     ══════════════════════════════════════════════════════════════ --}}
     <div class="grid grid-cols-1 xl:grid-cols-5 gap-4">
 
@@ -397,10 +397,10 @@ Auth::loginUsingId(1);
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
-                            {{ $student->user->name ?? '—' }}
+                            {{ $student->user->name ?? '|' }}
                         </p>
                         <p class="text-[10px] text-slate-400 dark:text-slate-500">
-                            {{ $student->classe->name ?? '—' }}
+                            {{ $student->classe->name ?? '|' }}
                         </p>
                     </div>
                     <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold
@@ -420,7 +420,7 @@ Auth::loginUsingId(1);
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════
-         SECTION 5 — PAIEMENTS RÉCENTS + CONTRATS EXPIRANTS
+         SECTION 5 | PAIEMENTS RÉCENTS + CONTRATS EXPIRANTS
     ══════════════════════════════════════════════════════════════ --}}
     <div class="grid grid-cols-1 xl:grid-cols-5 gap-4">
 
@@ -483,10 +483,10 @@ Auth::loginUsingId(1);
                                     </div>
                                     <div class="min-w-0">
                                         <p class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-30">
-                                            {{ $payment->student->user->name ?? '—' }}
+                                            {{ $payment->student->user->name ?? '|' }}
                                         </p>
                                         <p class="text-[10px] text-slate-400 dark:text-slate-500">
-                                            {{ $payment->paid_at?->format('d/m/Y') ?? '—' }}
+                                            {{ $payment->paid_at?->format('d/m/Y') ?? '|' }}
                                         </p>
                                     </div>
                                 </div>
@@ -569,7 +569,7 @@ Auth::loginUsingId(1);
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
-                                {{ $contract->teacher->user->name ?? '—' }}
+                                {{ $contract->teacher->user->name ?? '|' }}
                             </p>
                             <p class="text-[10px] text-slate-400 dark:text-slate-500">
                                 Expire le {{ $contract->end_date->format('d/m/Y') }}
@@ -613,7 +613,7 @@ Auth::loginUsingId(1);
                             </p>
                             <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                                 {{ $announcement->created_at->diffForHumans() }}
-                                · {{ $announcement->user->name ?? '—' }}
+                                · {{ $announcement->user->name ?? '|' }}
                             </p>
                         </div>
                     </div>
@@ -632,7 +632,7 @@ Auth::loginUsingId(1);
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════
-         SECTION 6 — ACCÈS RAPIDES
+         SECTION 6 | ACCÈS RAPIDES
     ══════════════════════════════════════════════════════════════ --}}
 <div class="bg-white dark:bg-slate-800 rounded-2xl
                 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const labelColor = () => isDark() ? '#94a3b8' : '#64748b';
 
     // ════════════════════════════════════════════════════
-    //  CHART 1 — Présences (Bar)
+    //  CHART 1 | Présences (Bar)
     // ════════════════════════════════════════════════════
     const attendanceCtx = document.getElementById('attendanceChart');
     if (!attendanceCtx) return;
@@ -789,7 +789,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ════════════════════════════════════════════════════
-    //  CHART 2 — Revenus (Line)
+    //  CHART 2 | Revenus (Line)
     // ════════════════════════════════════════════════════
     const revenueCtx = document.getElementById('revenueChart');
     if (!revenueCtx) return;

@@ -87,6 +87,14 @@ class StudentService{
 
             $this->saveImage($student, $data);
 
+            // Notifier tous les admins
+            $admins = User::role('Admin')->get();
+
+            Notification::send(
+                $admins,
+                new StudentNotification($student, StudentNotification::TYPE_CREATED)
+            );
+
             // ── Notification mise à jour ───────────────────────────
             // Notifier les parents
             $student->parents->each(function ($parent) use ($student) {

@@ -1,6 +1,6 @@
 <header class="sticky top-0 z-40 flex items-center justify-between h-16 px-4 sm:px-6
                bg-white/90 dark:bg-slate-800/90 backdrop-blur-md
-               border-b border-slate-200 dark:border-slate-700 shadow-sm">
+               border-b border-slate-200 dark:border-slate-700 shadow-sm p-3">
 
     {{-- ── Gauche : Logo + Toggle + Breadcrumb ── --}}
     <div class="flex items-center gap-3">

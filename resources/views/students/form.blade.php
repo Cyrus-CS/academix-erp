@@ -1,3 +1,6 @@
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
 @extends('layouts.base')
 
 @section('title', 'Élèves')

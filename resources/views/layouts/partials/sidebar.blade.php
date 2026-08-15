@@ -15,9 +15,6 @@ flex flex-col transition-all duration-300 ease-in-out shadow-sm" :class="[
 isCollapsed ? 'w-18 sidebar-collapsed' : 'w-65',
 mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
 ]">
-    {{-- ══════════════════════════════════════
-         BRAND / LOGO
-    ══════════════════════════════════════ --}}
 
     {{-- ══════════════════════════════════════
          NAVIGATION SCROLLABLE

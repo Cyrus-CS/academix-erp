@@ -46,15 +46,17 @@ return $isActive
 {{-- ═══════════════════════════════════════════════════════════
      1. TABLEAU DE BORD
 ═══════════════════════════════════════════════════════════ --}}
-<a href="{{ route('dashboard') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl
-           transition-all duration-200 ripple
-           {{ $navItem('dashboard') }}" title="Tableau de bord">
-    <i class="bi bi-grid-fill text-base shrink-0 sidebar-icon transition-colors
-              {{ $iconClass('dashboard') }}"></i>
-    <span class="text-sm font-medium sidebar-label whitespace-nowrap">
-        Tableau de bord
-    </span>
-</a>
+<div class="pt-15.5 pb-1 px-1">
+    <a href="{{ route('dashboard') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl
+            transition-all duration-200 ripple
+            {{ $navItem('dashboard') }}" title="Tableau de bord">
+        <i class="bi bi-grid-fill text-base shrink-0 sidebar-icon transition-colors
+                {{ $iconClass('dashboard') }}"></i>
+        <span class="text-sm font-medium sidebar-label whitespace-nowrap">
+            Tableau de bord
+        </span>
+    </a>
+</div>
 
 
 {{-- ═══════════════════════════════════════════════════════════
