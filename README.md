@@ -246,14 +246,6 @@ php artisan serve
 
 ---
 
-## Project Status
-
-🚧 In Development
-
-The project is actively under development and new modules are being added progressively.
-
----
-
 ## Planned Features
 
 * Parent Portal
